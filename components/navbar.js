@@ -101,11 +101,11 @@ async function searchInPages(searchQuery) {
                     console.log(page);
 
                     let showPage;
-                    if (page === '/pages/machinesHome') {
+                    if (page === '/H4ckV4ult/pages/machinesHome') {
                         showPage = 'Machines';
-                    } else if (page === '/pages/privScalation') {
+                    } else if (page === '/H4ckV4ult/pages/privScalation') {
                         showPage = 'Priv Scalation';
-                    } else if (page === '/pages/misc') {
+                    } else if (page === '/H4ckV4ult/pages/misc') {
                         showPage = 'Misc';
                     } else if (page.includes('box')) {
                         showPage = 'Boxes';
