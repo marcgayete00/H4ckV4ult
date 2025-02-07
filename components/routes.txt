@@ -1,7 +1,7 @@
-/pages/machinesHome
-/pages/misc
-/pages/privScalation
-/pages/misc
-/pages/privScalation
-/pages/machines/box01
-/pages/protocols/http
+/H4ckV4ult/pages/machinesHome
+/H4ckV4ult/pages/misc
+/H4ckV4ult/pages/privScalation
+/H4ckV4ult/pages/misc
+/H4ckV4ult/pages/privScalation
+/H4ckV4ult/pages/machines/box01
+/H4ckV4ult/pages/protocols/http
