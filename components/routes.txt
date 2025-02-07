@@ -1,0 +1,7 @@
+/pages/machinesHome
+/pages/misc
+/pages/privScalation
+/pages/misc
+/pages/privScalation
+/pages/machines/box01
+/pages/protocols/http

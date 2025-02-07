@@ -1,0 +1,95 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-family: "Maven Pro", serif;
+}
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 20px 5%;
+    border-bottom: 1px solid #ddd;
+}
+.navbar a {
+    text-decoration: none;
+    color: #333;
+    margin: 0 10px;
+}
+
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 30px;
+    border: 2px solid #ddd;
+    border-radius: 30px;
+    text-align: left;
+    font-size: 16px;
+}
+
+#title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.menu {
+    font-size: large;
+}
+
+#searchContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .search-result {
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    width: 70%;
+    height: 70%;
+  }
+
+.search-result input {
+    width: 100%; /* Asegura que el input ocupe el contenedor */
+    font-size: 16px;
+    padding: 10px;
+    border: none; /* Eliminamos el borde original */
+    border-radius: 8px; /* Bordes redondeados internos */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra interna */
+    border-color: 1px solid #ddd; /* Borde externo */
+    margin-left: -10px;
+}
+
+.search-result input:focus{
+outline: none;
+}
+
+.box-results div {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 2px;
+}
+
+.box-results div:hover {
+    background-color: rgb(247, 247, 247);
+    transition: 0.5s;
+    
+}
+
+

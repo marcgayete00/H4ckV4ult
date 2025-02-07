@@ -1,0 +1,46 @@
+/* Main content container (Hoja estilo Notion) */
+.notion-container {
+    max-width:85%; /* Limita el ancho máximo */
+    margin: 0 auto; /* Centra el contenido en la página */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-top: 50px;
+}
+
+/* Header styles (Título de la hoja) */
+.notion-header {
+    margin-bottom: 30px;
+}
+
+.notion-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.notion-header p {
+    font-size: 18px;
+    color: #666;
+}
+
+/* Body styles (Contenido de la hoja) */
+.notion-body h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.notion-body p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Añadir un borde sutil entre secciones */
+.notion-body {
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}

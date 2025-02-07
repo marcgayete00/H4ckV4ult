@@ -1,0 +1,44 @@
+.container {
+    display: flex;
+    gap: 15px;
+    margin-left: 1%;
+    margin-top: 2%;
+}
+
+.container img {
+    width: 350px;
+    height: 350px;
+    border-radius: 8px;
+    margin-right: 50px;
+}
+.container p {
+    width: 80%;
+    font-size: 20px;
+    color: #333;
+}
+
+.container-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.container-text h1 {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.gradient-text {
+    background: linear-gradient(to left, #a100ff, #ff47ff);
+    -webkit-background-clip: text; /* Para navegadores basados en WebKit */
+    background-clip: text;
+    color: transparent; /* Hace el texto transparente para que se vea el gradiente */
+    background-size: 150%; /* Aumenta el tamaño del gradiente para que se pueda animar */
+    background-position: left; /* Posición inicial del gradiente */
+    transition: background-position 0.5s ease-in-out; /* Transición de la posición */
+}
+
+.gradient-text:hover {
+    background-position: right; /* Mueve el gradiente hacia la derecha */
+}
+
+
