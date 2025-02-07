@@ -51,7 +51,7 @@ function closeSearchContainer(searchContainer, searchInput) {
 
 async function loadRoutes() {
     try {
-        const response = await fetch('components/routes.txt'); // Ruta al archivo
+        const response = await fetch('/H4ckV4ult/components/routes.txt'); // Ruta al archivo
         const data = await response.text();  // Esperar a que se obtenga el texto
         const routes = data.split('\n').map(line => line.trim()).filter(line => line);
 
