@@ -2,11 +2,11 @@ function Navbar() {
     return `
         <div class="navbar">
             <div class="menu">
-                <a href="/index.html">Home</a>
-                <a href="/pages/machinesHome.html">Machines</a>
-                <a href="/pages/protocols.html">Protocols</a>
-                <a href="/pages/misc.html">Misc</a>
-                <a href="/pages/privScalation.html">Priv Scalation</a>
+                <a href="index.html">Home</a>
+                <a href="pages/machinesHome.html">Machines</a>
+                <a href="pages/protocols.html">Protocols</a>
+                <a href="pages/misc.html">Misc</a>
+                <a href="pages/privScalation.html">Priv Scalation</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
