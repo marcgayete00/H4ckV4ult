@@ -2,11 +2,11 @@ function Navbar() {
     return `
         <div class="navbar">
             <div class="menu">
-                <a href="index.html">Home</a>
-                <a href="pages/machinesHome.html">Machines</a>
-                <a href="pages/protocols.html">Protocols</a>
-                <a href="pages/misc.html">Misc</a>
-                <a href="pages/privScalation.html">Priv Scalation</a>
+                <a href="/H4ckV4ult/index.html">Home</a>
+                <a href="/H4ckV4ult/pages/machinesHome.html">Machines</a>
+                <a href="/H4ckV4ult/pages/protocols.html">Protocols</a>
+                <a href="/H4ckV4ult/pages/misc.html">Misc</a>
+                <a href="/H4ckV4ult/pages/privScalation.html">Priv Scalation</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
@@ -51,7 +51,7 @@ function closeSearchContainer(searchContainer, searchInput) {
 
 async function loadRoutes() {
     try {
-        const response = await fetch('/components/routes.txt'); // Ruta al archivo
+        const response = await fetch('components/routes.txt'); // Ruta al archivo
         const data = await response.text();  // Esperar a que se obtenga el texto
         const routes = data.split('\n').map(line => line.trim()).filter(line => line);
 
