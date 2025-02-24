@@ -87,7 +87,7 @@ outline: none;
 }
 
 .box-results div:hover {
-    background-color: rgb(247, 247, 247);
+    background-color: rgb(206, 206, 206);
     transition: 0.5s;
     
 }
