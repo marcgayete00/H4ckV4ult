@@ -3,3 +3,4 @@
 /H4ckV4ult/pages/privScalation
 /H4ckV4ult/pages/protocols/ntlm
 /H4ckV4ult/pages/protocols/winrm
+/H4ckV4ult/pages/protocols/S3Buckets
