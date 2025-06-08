@@ -62,8 +62,6 @@ async function loadRoutes() {
     }
 }
 
-
-
 async function searchInPages(searchQuery) {
     const pages = await loadRoutes();
     const resultsContainer = document.getElementById('searchResults'); // Contenedor de resultados
@@ -134,66 +132,81 @@ function clearSearchResults() {
     resultsContainer.innerHTML = '';
 }
 
-
-
-
 function renderNavbar() {
     const container = document.getElementById("navbar-container");
-    let isSearchContainerOpen = false; // Variable para saber si el contenedor está abierto
+    let isSearchContainerOpen = false;
 
     if (container) {
         container.innerHTML = Navbar();
     }
 
-    // Crear el contenedor de búsqueda después de cargar la barra de navegación
     const body = document.body;
     body.insertAdjacentHTML('beforeend', createSearchContainer());
 
-    const searchInput = document.getElementById('searchInputOutside');
+    const searchInputOutside = document.getElementById('searchInputOutside');
     const searchContainer = document.getElementById('searchContainer');
-    const searchBox = document.getElementById('searchBox');
+    const searchInputInside = document.getElementById('searchInputInside');
+    const searchResults = document.getElementById('searchResults');
 
-    // Mostrar el contenedor de búsqueda
-    searchInput.addEventListener('click', (event) => {
+    // Listener para abrir contenedor búsqueda
+    searchInputOutside.addEventListener('click', () => {
         searchContainer.style.display = 'flex';
-        searchBox.focus();
-        isSearchContainerOpen = true; // Cambiar estado a abierto
+        searchInputInside.focus();
+        isSearchContainerOpen = true;
 
-        const bodyChildren = document.body.children;
-        Array.from(bodyChildren).forEach(element => {
-            if (element !== searchContainer && element !== searchInput) {
-                element.style.filter = 'blur(5px)';  // Aplica un blur del 5px
+        Array.from(document.body.children).forEach(el => {
+            if (el !== searchContainer && el !== searchInputOutside) {
+                el.style.filter = 'blur(5px)';
             }
         });
     });
 
-    // Detectar clics en cualquier parte del documento
-    document.addEventListener('click', (event) => {
-
-        if (event.target.id == "searchInputInside") {
-            const searchInput = document.getElementById('searchInputInside');
-
-            searchInput.addEventListener('input', (e) => {
-                const searchQuery = e.target.value.trim(); // Obtener el texto ingresado
-                if (searchQuery) {
-                    searchInPages(searchQuery); // Ejecutar la búsqueda
-                } else {
-                    clearSearchResults(); // Limpiar resultados si no hay texto
-                }
-            });
-            return; // Evitar que se cierre el contenedor de búsqueda
+    // Listener para input interno - llamada a búsqueda
+    searchInputInside.addEventListener('input', (e) => {
+        const searchQuery = e.target.value.trim();
+        if (searchQuery) {
+            searchInPages(searchQuery);
+        } else {
+            clearSearchResults();
         }
-  
-        
+    });
 
-        // Verificar si el clic ocurrió fuera del searchContainer y el searchInput
-        if (event.target.id == "searchContainer" && isSearchContainerOpen) {
-            closeSearchContainer(searchContainer, searchInput);
-            isSearchContainerOpen = false; // Actualizamos el estado
+    // Cerrar contenedor al hacer click fuera
+    document.addEventListener('click', (e) => {
+        if (isSearchContainerOpen && !searchContainer.contains(e.target) && e.target !== searchInputOutside) {
+            closeSearchContainer(searchContainer, searchInputOutside);
+            isSearchContainerOpen = false;
+
+            // Quitar blur
+            Array.from(document.body.children).forEach(el => {
+                el.style.filter = '';
+            });
+        }
+    });
+
+    // Listener global para capturar teclas y redirigir a input interno
+    document.addEventListener('keydown', (event) => {
+        if (isSearchContainerOpen) {
+            if (document.activeElement !== searchInputInside) {
+                searchInputInside.focus();
+
+                if (event.key.length === 1) {
+                    const start = searchInputInside.selectionStart;
+                    const end = searchInputInside.selectionEnd;
+                    const val = searchInputInside.value;
+
+                    searchInputInside.value = val.substring(0, start) + event.key + val.substring(end);
+                    searchInputInside.selectionStart = searchInputInside.selectionEnd = start + 1;
+
+                    event.preventDefault();
+
+                    // Disparar input para activar búsqueda
+                    searchInputInside.dispatchEvent(new Event('input'));
+                }
+            }
         }
     });
 }
-
 
 
 // Asegúrate de usar `addEventListener` en lugar de sobrescribir window.onload
