@@ -12,8 +12,9 @@
     padding: 10px;
 }
 .grid-item img {
-    width: 50%;
+    width: 35%;
     height: auto;
+    border-radius: 10px;
 }
 .grid-item .difficulty {
     margin-top: 10px;
@@ -30,4 +31,9 @@
     display: flex;
     justify-content: space-around;
     padding: 10px;
+}
+
+.notion-link{
+    color: #d400ff;
+    text-decoration: none;
 }

