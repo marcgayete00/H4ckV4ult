@@ -1,5 +1,3 @@
 /H4ckV4ult/pages/machinesHome
 /H4ckV4ult/pages/misc
 /H4ckV4ult/pages/privScalation
-/H4ckV4ult/pages/machines/box01
-/H4ckV4ult/pages/protocols/http

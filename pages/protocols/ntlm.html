@@ -8,6 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
     <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
 </head>
@@ -17,12 +19,17 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Forest</h1>
-            <p>Forest</p>
+            <h1>NTLM</h1>
+            <p>NTLM stands for NT LAN Manager, and it's a suite of Microsoft security protocols that provides authentication, integrity, and confidentiality for users and computers in Windows-based networks.</p>
+            <p> It is used: </p>
+            <p> - In Legacy systems </p>
+            <p> - When there is not DC so authentication is made locally </p>
+            <p> - When Kerberos configurations failed </p>
+       
         </div>
         <div class="notion-body">
-            <h2>Section 1</h2>
-            <p>Forest</p>
+            <h2>Check if NTLM is active</h2>
+            <pre><code class="language-bash">smbclient -L $victim -U Administrator  </code></pre>
             
             <h2>Section 2</h2>
             <p>Forest</p>
