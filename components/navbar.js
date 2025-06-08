@@ -96,8 +96,6 @@ async function searchInPages(searchQuery) {
                     const highlightedQuery = `<span style="background-color: #f633ff;">${lowerQuery}</span>`;
                     snippet = snippet.replace(lowerQuery, highlightedQuery);
 
-                    console.log(page);
-
                     let showPage;
                     if (page === '/H4ckV4ult/pages/machinesHome') {
                         showPage = 'Machines';
@@ -126,7 +124,6 @@ async function searchInPages(searchQuery) {
     });
 }
 
-
 function clearSearchResults() {
     const resultsContainer = document.getElementById('searchResults');
     resultsContainer.innerHTML = '';
@@ -143,13 +140,14 @@ function renderNavbar() {
     const body = document.body;
     body.insertAdjacentHTML('beforeend', createSearchContainer());
 
-    const searchInputOutside = document.getElementById('searchInputOutside');
-    const searchContainer = document.getElementById('searchContainer');
-    const searchInputInside = document.getElementById('searchInputInside');
-    const searchResults = document.getElementById('searchResults');
+    const searchInputOutside = document.getElementById('searchInputOutside'); //Input de fuera 
+    const searchContainer = document.getElementById('searchContainer');  //Container
+    const searchInputInside = document.getElementById('searchInputInside'); //Input de dentro
+    //const searchResults = document.getElementById('searchResults');
 
-    // Listener para abrir contenedor búsqueda
-    searchInputOutside.addEventListener('click', () => {
+    // Abrir contenedor de búsqueda
+    searchInputOutside.addEventListener('click', (e) => {
+        e.stopPropagation(); // Previene que el evento dispare el listener global
         searchContainer.style.display = 'flex';
         searchInputInside.focus();
         isSearchContainerOpen = true;
@@ -161,7 +159,7 @@ function renderNavbar() {
         });
     });
 
-    // Listener para input interno - llamada a búsqueda
+    // Input interno - llamada a búsqueda
     searchInputInside.addEventListener('input', (e) => {
         const searchQuery = e.target.value.trim();
         if (searchQuery) {
@@ -171,42 +169,18 @@ function renderNavbar() {
         }
     });
 
-    // Cerrar contenedor al hacer click fuera
+    // Cerrar contenedor al hacer clic fuera
     document.addEventListener('click', (e) => {
-        if (isSearchContainerOpen && !searchContainer.contains(e.target) && e.target !== searchInputOutside) {
-            closeSearchContainer(searchContainer, searchInputOutside);
-            isSearchContainerOpen = false;
+         closeSearchContainer(searchContainer, searchInputOutside);
+        isSearchContainerOpen = false;
 
-            // Quitar blur
-            Array.from(document.body.children).forEach(el => {
-                el.style.filter = '';
-            });
-        }
+        Array.from(document.body.children).forEach(el => {
+              el.style.filter = '';
+        }); 
     });
 
-    // Listener global para capturar teclas y redirigir a input interno
-    document.addEventListener('keydown', (event) => {
-        if (isSearchContainerOpen) {
-            if (document.activeElement !== searchInputInside) {
-                searchInputInside.focus();
-
-                if (event.key.length === 1) {
-                    const start = searchInputInside.selectionStart;
-                    const end = searchInputInside.selectionEnd;
-                    const val = searchInputInside.value;
-
-                    searchInputInside.value = val.substring(0, start) + event.key + val.substring(end);
-                    searchInputInside.selectionStart = searchInputInside.selectionEnd = start + 1;
-
-                    event.preventDefault();
-
-                    // Disparar input para activar búsqueda
-                    searchInputInside.dispatchEvent(new Event('input'));
-                }
-            }
-        }
-    });
 }
+
 
 
 // Asegúrate de usar `addEventListener` en lugar de sobrescribir window.onload
