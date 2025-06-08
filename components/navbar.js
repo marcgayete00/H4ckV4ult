@@ -51,10 +51,10 @@ function closeSearchContainer(searchContainer, searchInput) {
 
 async function loadRoutes() {
     try {
-        const response = await fetch('/H4ckV4ult/components/routes.txt'); // Ruta al archivo
+        const response = await fetch(`/H4ckV4ult/components/routes.txt?nocache=${Date.now()}`);
         const data = await response.text();  // Esperar a que se obtenga el texto
         const routes = data.split('\n').map(line => line.trim()).filter(line => line);
-
+        console.log(routes)
         return routes;  // Retorna las rutas para que puedan usarse fuera de la función
     } catch (error) {
         console.error('Error al leer el archivo de rutas:', error);
@@ -95,6 +95,8 @@ async function searchInPages(searchQuery) {
                     // Resaltar el término buscado dentro del snippet
                     const highlightedQuery = `<span style="background-color: #f633ff;">${lowerQuery}</span>`;
                     snippet = snippet.replace(lowerQuery, highlightedQuery);
+
+            
 
                     let showPage;
                     if (page === '/H4ckV4ult/pages/machinesHome') {

