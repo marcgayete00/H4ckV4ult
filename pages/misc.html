@@ -128,8 +128,8 @@
                 
             <div class="notion-header">
                 <h1 id="Python">Python</h1>
-                <h2> Transferencia de archivos con python </h2>
-                <h3> Servidor </h3>
+                <h2> File transfer with Python </h2>
+                <h3> Server </h3>
                 <pre><code class="language-python">python3 -c "
 import socket
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -141,7 +141,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
         while (data := file.read(1024)):
             conn.sendall(data)
     print('Archivo enviado con éxito.')"</code></pre>
-                <h3> Cliente </h3>
+                <h3> Client </h3>
                 <pre><code class="language-python">python3 -c "
 import socket
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
