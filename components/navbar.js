@@ -6,7 +6,13 @@ function Navbar() {
                 <a href="/H4ckV4ult/pages/machinesHome.html">Machines</a>
                 <a href="/H4ckV4ult/pages/protocols.html">Protocols</a>
                 <a href="/H4ckV4ult/pages/misc.html">Misc</a>
-                <a href="/H4ckV4ult/pages/privScalation.html">Priv Scalation</a>
+                <div class="dropdown">
+                    <a href="/H4ckV4ult/pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>
+                    <div class="dropdown-content">
+                        <a href="/H4ckV4ult/pages/privScalation.html">Linux</a>
+                        <a href="/H4ckV4ult/pages/winprivScalation.html">Windows</a>
+                    </div>
+                </div>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
@@ -14,10 +20,9 @@ function Navbar() {
             <div class="search-bar">
                 <input type="text" id="searchInputOutside" placeholder="What do you wanna hack today? 🔎">
             </div>
-        </div>    
+        </div>
         `;
 }
-
 function renderNavbar() {
     const container = document.getElementById("navbar-container");
     if (container) {

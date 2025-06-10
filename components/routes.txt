@@ -1,6 +1,8 @@
 /H4ckV4ult/pages/machinesHome
 /H4ckV4ult/pages/misc
 /H4ckV4ult/pages/privScalation
+/H4ckV4ult/pages/winprivScalation
 /H4ckV4ult/pages/protocols/ntlm
 /H4ckV4ult/pages/protocols/winrm
 /H4ckV4ult/pages/protocols/S3Buckets
+/H4ckV4ult/pages/protocols/samba

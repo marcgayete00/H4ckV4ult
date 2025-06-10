@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
+    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+
+    <title>Minimalist Webpage</title>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+    
+     <div class="grid-container">
+        <div class="grid-item item-1" onclick="window.location.href='/H4ckV4ult/pages/winprivScalation.html'">
+            <img src="/H4ckV4ult/images/WIndowsLogo.png"> 
+        </div>
+        <div class="grid-item item-2" onclick="window.location.href='/H4ckV4ult/pages/privScalation.html'">
+            <img src="/H4ckV4ult/images/LinuxLogo.png"> 
+        </div>
+    </div>
+    
+</body>
+
+<script>
+        
+    function generateMenu(){
+        const headers = document.querySelectorAll('.notion-container h2');
+        const sidebarList = document.querySelector('#sidebar-menu');
+
+        headers.forEach(header => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.textContent = header.textContent;
+            console.log(header.textContent);
+            link.setAttribute('href', `#${header.textContent}`);
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        });
+    }
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+</script>
+</html>
