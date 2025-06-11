@@ -19,12 +19,22 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>WinRM (5985-HTTP 5986-HTTPS)</h1>
-            <p>WinRM stands for Windows Remote Management. It is a Windows service and command-line tool that allows you to remotely manage and execute commands on Windows machines over the network using the WS-Management protocol (which is based on SOAP).</p>
+            <h1>Mongo DB (TCP/21017)</h1>
+            <p>MongoDB is a popular, open-source, NoSQL document database</p>
         </div>
         <div class="notion-body">
             <h2>Usage</h2>
-            <pre><code class="language-bash">/usr/bin/evil-winrm -i target -u Administrator -p password  </code></pre>
+            <h3>Check if available</h3>
+            <pre><code class="language-bash">which mongo</code></pre>
+            <h3>Connection to database</h3>
+            <pre><code class="language-bash">mongo --port PORT</code></pre>
+            <h3>List databases </h3>
+            <p> Default database is called ace, users are located in admin database</p>
+            <pre><code class="language-mongodb">show dbs</code></pre>
+            <h3>Select Database </h3>
+            <pre><code class="language-mongodb">use DATABASENAME</code></pre>
+            <h3>List users </h3>
+            <pre><code class="language-mongodb">db.device.find().pretty()</code></pre>
 
         </div>
     </div>
