@@ -75,6 +75,15 @@
     background-color: rgb(25, 0, 255);
 }
 
+.grid-item-tags-samba {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(94, 255, 0);
+}
+
 .cherry-banner{
     width: 30%;
     height: 50px;

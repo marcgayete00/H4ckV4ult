@@ -19,19 +19,21 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Samba (TCP/445)</h1>
-            <p>Software dedicated to share files</p>
+            <h1>FTP</h1>
+            <p>Protocol to transfer files</p>
         </div>
         <div class="notion-body">
-            <h2>Enumeration of shares</h2>
-            <pre><code class="language-bash">smbclient -L VICTIM_IP -N </code></pre>
+            <h2>Usage</h2>
+            <pre><code class="language-bash">ftp TARGET_IP</code></pre>
 
-            <h2>Connect to a share</h2>
-            <pre><code class="language-bash">smbclient //VICTIM_IP/NAME_OF_SHARE </code></pre>
+            <h2>Get files</h2>
+            <pre><code class="language-bash">get FILE_NAME</code></pre>
 
             <h2>Explotation</h2>
-            <p> Samba version 3.0.20 it explotable using the following</p>
-            <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
+            <p> VSFTPD version 2.3.4 may be explotable</p>
+            <pre><code class="language-bash"> use exploit/unix/ftp/vsftpd_234_backdoor</code></pre>
+            
+
         </div>
     </div>
 
