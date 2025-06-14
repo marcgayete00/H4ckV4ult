@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Active Directory (TCP/53 - DNS, TCP/389 - LDAP, TCP/636 - LDAPS, TCP/88 - Kerberos, TCP/445 - SMB)</h1>
+            <p>A directory service developed by Microsoft that acts as a centralized database for managing and organizing resources in a network, particularly within Windows environments. This service relies on multiple ports</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <p> Basic SMB enumeration to check if it vulnerable to SMB relay. Additionally you can get the <b>domain name</b></p>
+            <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
+
+            <h3> BloodHound </h3>
+            <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
+            <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
+
+            
+        </div>
+    </div>
+
+
+</body>
+</html>

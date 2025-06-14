@@ -6,3 +6,9 @@
 /H4ckV4ult/pages/protocols/winrm
 /H4ckV4ult/pages/protocols/S3Buckets
 /H4ckV4ult/pages/protocols/samba
+/H4ckV4ult/pages/protocols/mssql
+/H4ckV4ult/pages/protocols/mongodb
+/H4ckV4ult/pages/protocols/unifi
+/H4ckV4ult/pages/protocols/php
+/H4ckV4ult/pages/protocols/ftp
+/H4ckV4ult/pages/protocols/ad
