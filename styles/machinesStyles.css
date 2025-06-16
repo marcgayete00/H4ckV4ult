@@ -20,6 +20,13 @@
     font-size: 14px;
     color: #555;
 }
+
+.grid-item .difficulty {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
 .grid-item .date {
     margin-top: 5px;
     font-size: 12px;
@@ -82,6 +89,15 @@
     text-decoration: none;
     color: #000000;
     background-color: rgb(94, 255, 0);
+}
+
+.grid-item-tags-ad {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(247, 0, 255);
 }
 
 .cherry-banner{

