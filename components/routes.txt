@@ -12,3 +12,5 @@
 /H4ckV4ult/pages/protocols/php
 /H4ckV4ult/pages/protocols/ftp
 /H4ckV4ult/pages/protocols/ad
+/H4ckV4ult/pages/protocols/docker
+/H4ckV4ult/pages/protocols/grafana

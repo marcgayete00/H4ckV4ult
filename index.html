@@ -9,7 +9,19 @@
     <link rel="stylesheet" href="styles/navBarStyles.css">
     <link rel="stylesheet" href="styles/indexStyles.css">
     <title>Minimalist Webpage</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+    <style>
+         canvas {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    #controls {
+      margin-bottom: 2rem;
+    }
+    </style>
 </head>
 <body>
     <div id="navbar-container"></div>
@@ -22,8 +34,127 @@
             <p>In a world where information is power, our mission is to democratize knowledge about cybersecurity, ethical hacking, and advanced digital protection techniques. Here, you’ll find a growing library filled with notes, guides, and resources crafted by and for enthusiasts of information security.
             Our community is committed to responsible learning and exploring the boundaries of technology while always respecting ethics and the law. Whether you’re a curious beginner or a professional seeking to dive into advanced topics, this is your space to grow, collaborate, and master the art of ethical hacking.
                 Explore, share, and learn. Because knowledge should be free, but always responsible.</p>
-        </div>
+                
+                <h1>Machines pwned</h1>
+                <div id="controls">
+                <p><input class="select-date "type="date" id="startDate" value=""> <button class="select-date-button" onclick="generateTimeline()">Apply</button> </p>
+            </div>
+            <canvas id="htbChart"></canvas>
+        
+            </div>
+
+        
     </div>
+    
 
 </body>
 </html>
+
+ <script>
+ let chart;
+let counts = {}; // Variable global para guardar las fechas con conteo
+
+async function fetchMachineDates() {
+  const response = await fetch('/H4ckV4ult/pages/machinesHome.html');
+  const html = await response.text();
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const dateElements = doc.querySelectorAll('a.grid-item-data-date');
+  const rawDates = Array.from(dateElements).map(el => el.textContent.trim().substring(6));
+
+  // Convertir dd/mm/yyyy a yyyy-mm-dd
+  const dates = rawDates.map(dateStr => {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  });
+
+  // Contar ocurrencias por fecha
+  counts = dates.reduce((acc, date) => {
+    acc[date] = (acc[date] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+// Primero carga las fechas y luego genera la gráfica
+fetchMachineDates().then(() => {
+  console.log('Fechas convertidas:', counts);
+  generateTimeline();
+});
+
+function generateTimeline() {
+  if (!counts || Object.keys(counts).length === 0) {
+    console.warn('No hay datos en counts para generar la gráfica.');
+    return;
+  }
+
+  const startDateValue = document.getElementById('startDate').value;
+  const startDate = startDateValue ? new Date(startDateValue) : new Date();
+
+  const monthlyTotals = {};
+
+  // Agrupar datos por mes
+  for (const dateStr in counts) {
+    const monthKey = dateStr.slice(0, 7); // "YYYY-MM"
+    if (!monthlyTotals[monthKey]) monthlyTotals[monthKey] = 0;
+    monthlyTotals[monthKey] += counts[dateStr];
+  }
+
+  // Obtener 12 meses consecutivos desde la fecha inicial
+  const months = getNext12Months(startDate);
+
+  // Asegurar que cada mes esté presente (incluso si no hay datos)
+  const values = months.map(month => monthlyTotals[month] || 0);
+
+  const data = {
+    labels: months,
+    datasets: [{
+      label: '',
+      data: values,
+      borderColor: "#d400ff",
+      backgroundColor: "#e876ff",
+      fill: true,
+      tension: 0.3,
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data: data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Mes' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1 }
+        }
+      }
+    }
+  };
+
+  if (chart) chart.destroy();
+  chart = new Chart(document.getElementById('htbChart'), config);
+}
+
+function getNext12Months(startDate) {
+  const months = [];
+  const year = startDate.getFullYear();
+  const month = startDate.getMonth(); // 0-indexed
+
+  for (let i = 0; i < 12; i++) {
+    const date = new Date(year, month + i, 1);
+    const label = date.toISOString().slice(0, 7); // "YYYY-MM"
+    months.push(label);
+  }
+
+  return months;
+}
+
+</script>
+
+
