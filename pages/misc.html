@@ -160,6 +160,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
     print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
             </div>
 
+            <div class="notion-header"> 
+                <h1 id="Netcat">Netcat</h1>
+                <h2> Transfer files </h2>
+                <p>Where you recieve the file</p>
+                <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
+                <p>From where you transfer the file</p>
+                <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+
+
+                
+                
+            </div>
+
             
         </div>
     </div>

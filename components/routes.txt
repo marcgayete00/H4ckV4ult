@@ -14,3 +14,4 @@
 /H4ckV4ult/pages/protocols/ad
 /H4ckV4ult/pages/protocols/docker
 /H4ckV4ult/pages/protocols/grafana
+/H4ckV4ult/pages/protocols/ispconfig

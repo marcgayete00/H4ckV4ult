@@ -11,11 +11,18 @@
     border-radius: 8px;
     margin-right: 50px;
 }
+
+#start-date{
+    color: #d400ff;
+}
+
 .container p {
     width: 80%;
     font-size: 20px;
     color: #333;
 }
+
+
 
 .container-text {
     display: flex;

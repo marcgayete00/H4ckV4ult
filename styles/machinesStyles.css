@@ -19,7 +19,26 @@
 .active-machine{
     font-weight: bold;
     text-align: right;
-    font-size: 20px;
+    font-size: 15px;
+    margin-top: 5px;
+}
+
+.active-machine a{
+
+    background-color: #9beb04;
+    padding: 5px;
+    border-radius: 10px;
+    animation: pulse-animation 2s infinite;
+
+}
+
+@keyframes pulse-animation {
+  0% {
+    box-shadow: 0 0 0 0px rgba(9, 255, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+  }
 }
 
 .grid-item .difficulty {
@@ -114,6 +133,15 @@
     text-decoration: none;
     color: #000000;
     background-color: rgb(247, 0, 255);
+}
+
+.grid-item-tags-owasp {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(255, 0, 0);
 }
 
 .cherry-banner{
