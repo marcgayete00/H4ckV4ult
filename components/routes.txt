@@ -15,3 +15,6 @@
 /H4ckV4ult/pages/protocols/docker
 /H4ckV4ult/pages/protocols/grafana
 /H4ckV4ult/pages/protocols/ispconfig
+/H4ckV4ult/pages/protocols/tensorflow
+/H4ckV4ult/pages/protocols/backrest
+

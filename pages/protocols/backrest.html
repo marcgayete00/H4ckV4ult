@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Backrest (TCP/9898)</h1>
+            <p>Backrest is a web UI wrapper for restic</p>
+            <p>Restic is a modern backup program that can back up your files</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <p>Backrest allows you create</p>
+                <ul>
+                    <li>Repositories: Where backups will be saved</li>
+                    <li>Plans: Allows to specify which file will be backed up</li>
+                </ul>
+            </ul>
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Identfiying passwords</h3>
+                <ul>
+                    <p>Users & Passwords for backrest ui are stored in a .json file located at:</p>
+                    <pre><code class="language-bash">.config/backrest/config.json</code></pre>
+                    <p>Password are encrypted and encoded with base64. Can be decoded using... and cracked using john</p>
+                    <pre><code class="language-bash">echo "JDJhJDEwJGNWR0l5OVZNWFFkMGdNNWdpbkNtamVpMmtaUi9BQ01Na1Nzc3BiUnV0WVA1OEVCWnovMFFP" | base64 -d</code></pre>
+                </ul>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+            <h3>Env Variables</h3>
+                <p>When creating a repo you can insert environmental variables. Restic has a lot of them <a class="notion-link" href="https://wiki.gentoo.org/wiki/Restic">Can be found here</a></p>
+                <p>One of them can be very useful in order to Escalate privileges since it allows to execute scripts. Using the following command during repo creation we will execute rs.sh file </p>
+                <pre><code class="language-bash">RESTIC_PASSWORD_COMMAND=/tmp/rs.sh</code></pre>
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>

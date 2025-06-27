@@ -23,15 +23,23 @@
             <p>Software dedicated to share files</p>
         </div>
         <div class="notion-body">
-            <h2>Enumeration of shares</h2>
-            <pre><code class="language-bash">smbclient -L VICTIM_IP -N </code></pre>
+            <h2>Usage</h2>
+            <ul>
+                <h3>Connect to share</h3>
+                <pre><code class="language-bash">smbclient //VICTIM_IP/NAME_OF_SHARE </code></pre>
+            </ul>
 
-            <h2>Connect to a share</h2>
-            <pre><code class="language-bash">smbclient //VICTIM_IP/NAME_OF_SHARE </code></pre>
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Enumeration of shares</h3>
+                <pre><code class="language-bash">smbclient -L VICTIM_IP -N </code></pre>
+            </ul>    
 
             <h2>Explotation</h2>
-            <p> Samba version 3.0.20 it explotable using the following</p>
-            <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
+            <ul>
+                <p> Samba version 3.0.20 it explotable using the following</p>
+                <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
+            </ul>
         </div>
     </div>
 

