@@ -24,13 +24,16 @@
 }
 
 .active-machine a{
-
     background-color: #9beb04;
     padding: 5px;
     border-radius: 10px;
     animation: pulse-animation 2s infinite;
-
 }
+
+.active-machine.invisible {
+    visibility: hidden;
+}
+
 
 @keyframes pulse-animation {
   0% {
@@ -142,6 +145,15 @@
     text-decoration: none;
     color: #000000;
     background-color: rgb(255, 0, 0);
+}
+
+.grid-item-tags-tomcat {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(255, 153, 0);
 }
 
 .cherry-banner{

