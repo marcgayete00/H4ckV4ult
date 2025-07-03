@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Excel</h1>
+            <p>A software program created by Microsoft that uses spreadsheets to organize numbers and data with formulas and functions</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+            <h3>Ofuscated data</h3>
+                <p>In some cases you will find that excel seems to be cyphered/offuscated so you can't see data clearly</p>
+                <p>Rename file to .zip and navigate to <b>xl</b> folder</p>
+                <pre><code class="language-bash">xl</code></pre>
+                <p>Inside this folder you will find <b>clear text data, Shared Strings, Worksheets</b></p>
+            </ul>
+            <ul>
+            <h3>Password Protected</h3>
+            
+                <p>Can't access your excel? Password protected?</p>
+                <p>Rename file to .zip and navigate to <b>xl</b> folder then access <b>Worksheets</b></p>
+                <p>Select the worksheet you can to remove password and open it with a CodeEditor</p>
+                <p>Serch for <b>"Protect"</b> string and youll find the following XML tag</p>                
+                <pre><code class="language-xml">&lt;sheetProtection scenarios="1" objects="1" spinCount="10000" saltValue="VALUE" hashValue="VALUE" algorithmName="SHA-512"&gt;</code></pre>
+                <p>Remove that line, save file, rename file agant to .xlsx and open it </p>
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>

