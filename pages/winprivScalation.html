@@ -55,6 +55,9 @@
                     <ul>
                         <p> Equivalent for .bash_history </p>
                         <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
+                        <p> Check if there are users with autologon</p>
+                        <pre><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object AutoAdminLogon, DefaultUsername, DefaultDomainName, DefaultPassword</code></pre>
+                        
                     </ul>    
                 </div>
                 

