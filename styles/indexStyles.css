@@ -79,9 +79,8 @@
   text-decoration: none;
 }
 
-#htbChart{
-    width: 500px;
-    height: 500px;
-    margin-top: -50px;
+section{
+    width: 95%;
     margin-left: -25px;
 }
+

@@ -156,6 +156,15 @@
     background-color: rgb(255, 153, 0);
 }
 
+.grid-item-tags-cms {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(0, 255, 170);
+}
+
 .cherry-banner{
     width: 30%;
     height: 50px;

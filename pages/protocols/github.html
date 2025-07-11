@@ -19,28 +19,21 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>FTP (TCP/21)</h1>
-            <p>Protocol to transfer files</p>
+            <h1>Github</h1>
+            <p>A web-based platform that uses the Git version control system to help developers store, manage, and collaborate on their code</p>
         </div>
         <div class="notion-body">
-            <h2>Usage</h2>
-            <ul>
-                <h3>Connection</h3>
-                <pre><code class="language-bash">ftp TARGET_IP</code></pre>
-
-                <h3>Get files</h3>
-                <pre><code class="language-bash">get FILE_NAME</code></pre>
-            </ul>    
-            <h2>Exploitation</h2>
-            <ul>
-                <p> VSFTPD version 2.3.4 may be explotable</p>
-                <pre><code class="language-bash"> use exploit/unix/ftp/vsftpd_234_backdoor</code></pre>
+            <h2>Enumeration</h2>
+            <ul>    
+                <h3>Last commit</h3>
+                <ul>
+                <p>In case you found a /.git o similar in a web you could be able to acquire all files and undo last commit</p>
+                <pre><code class="language-bash">wget -r http://website/git</code></pre>
+                <p>Then using git cola select the folder where you extracted all the content and look for intersting files such as <b>settings.php</b></p>
+                <p>In case you would like to undo last commit just click in "Commit > Undo Last Commit"</p>
+                </ul>
             </ul>
-            
-
         </div>
     </div>
-
-
 </body>
 </html>

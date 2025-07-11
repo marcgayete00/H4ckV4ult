@@ -33,10 +33,11 @@
 
         <img id="logo" alt="Imagen de ejemplo">
         <script> 
-          const img_logo = ["favicon.png", "favicon2.png", "favicon3.png", "favicon4.png", "favicon5.png"] 
+          const img_logo = ["favicon.png", "favicon2.png", "favicon3.png", "favicon4.png", "favicon5.png", "favicon6.png"] 
           random_number = Math.floor(Math.random() * img_logo.length)
           const img_path = "/H4ckV4ult/images/" + img_logo[random_number];
           document.getElementById("logo").src = img_path;
+          
         </script>
 
         <div class="container-text"> 
@@ -48,9 +49,9 @@
                 <h1>Machines pwned</h1>
                 <div id="controls">
                 <p><input class="select-date "type="date" id="startDate"> <button class="select-date-button" onclick="generateTimeline()">Apply</button> </p>
-            </div>
-            <canvas id="htbChart"></canvas>
-            </div>    
+            <section>
+                <canvas id="htbChart" width="200" height="600"></canvas>
+            </section>    
     </div>
     
 
@@ -58,7 +59,24 @@
 </html>
 
  <script>
- let chart;
+const emojiPlugin = {
+    id: 'emojiPoints',
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart;
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        const meta = chart.getDatasetMeta(datasetIndex);
+        meta.data.forEach((point, index) => {
+          const { x, y } = point.tooltipPosition();
+          ctx.font = '20px serif'; // tamaño del emoji
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('💀', x, y);
+        });
+      });
+    }
+  };
+
+let chart;
 let counts = {}; // Variable global para guardar las fechas con conteo
 
 async function fetchMachineDates() {
@@ -87,8 +105,10 @@ async function fetchMachineDates() {
 // Primero carga las fechas y luego genera la gráfica
 fetchMachineDates().then(() => {
   console.log('Fechas convertidas:', counts);
+  console.log("Valor actual"+document.getElementById('startDate').value)
   generateTimeline();
 });
+
 
 function generateTimeline() {
   if (!counts || Object.keys(counts).length === 0) {
@@ -113,6 +133,8 @@ function generateTimeline() {
 
   // Asegurar que cada mes esté presente (incluso si no hay datos)
   const values = months.map(month => monthlyTotals[month] || 0);
+  const img = new Image();
+  img.src = '/H4ckV4ult/images/favicon.pg';
 
   const data = {
     labels: months,
@@ -123,25 +145,36 @@ function generateTimeline() {
       backgroundColor: "#e876ff",
       fill: true,
       tension: 0.3,
+      pointHitRadius: 10
     }]
   };
 
   const config = {
-    type: 'line',
-    data: data,
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          title: { display: true, text: 'Mes' }
-        },
-        y: {
-          beginAtZero: true,
-          ticks: { stepSize: 1 }
-        }
+  type: 'line',
+  data: data,
+  options: {
+    maintainAspectRatio: false,
+    elements: {
+      point: {
+        radius: 5,
+          hitRadius: 10, // << Esto es lo importante
+          hoverRadius: 5,
+          hoverBorderWidth: 3
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Mes' }
+      },
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1 }
       }
     }
-  };
+  },
+  plugins: [emojiPlugin]
+};
+
 
   if (chart) chart.destroy();
   chart = new Chart(document.getElementById('htbChart'), config);
@@ -160,6 +193,7 @@ function getNext12Months(startDate) {
 
   return months;
 }
+
 
 </script>
 
