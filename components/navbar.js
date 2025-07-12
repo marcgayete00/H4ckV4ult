@@ -4,7 +4,7 @@ function Navbar() {
             <div class="menu">
                 <a href="/H4ckV4ult/index.html">Home</a>
                 <a href="/H4ckV4ult/pages/machinesHome.html">Machines</a>
-                <a href="/H4ckV4ult/pages/protocols.html">Protocols & Services</a>
+                <a href="/H4ckV4ult/pages/protocols.html">Protocols, Services & more</a>
                 <a href="/H4ckV4ult/pages/misc.html">Misc</a>
                 <div class="dropdown">
                     <a href="/H4ckV4ult/pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>

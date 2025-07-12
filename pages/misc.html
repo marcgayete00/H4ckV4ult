@@ -29,7 +29,7 @@
             <div class="notion-header">
                 <h1 id="Enumeration">Enumeration</h1>
             </div>
-            <h2> Virtual Host (Subdomain) Enumeration</h2>
+            <h2> Virtual Host (Subdomain) Enumeration (Now using CAIDO)</h2>
             <ul>
                 <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
                 <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
