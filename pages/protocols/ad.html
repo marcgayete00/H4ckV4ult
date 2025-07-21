@@ -29,6 +29,9 @@
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
                 <p> To dump all ldap information</p>
                 <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
+                <p>User enumration via SID</p>
+                <pre><code class="language-bash">impacket-lookupsid anonymous@10.10.11.35 -no-pass</code></pre>
+
 
                 <h3>Rpcclient</h3>
                 <p>Null sesion with rpcclient in order to enumerate users</p>
