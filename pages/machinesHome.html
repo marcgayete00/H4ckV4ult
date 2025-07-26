@@ -15,14 +15,21 @@
     <div id="navbar-container"></div>
     <script src="/H4ckV4ult/components/navbar.js"></script>
 
-    <a class="cherry-banner" href="/H4ckV4ult/files/cherry.ctb" download="cherry.ctb">
-        <img src="/H4ckV4ult/images/cherrytree-logo.svg"> 
-        <h2>Download updated cherry tree file</h2>
-    </a>
+    <div class="main-banner">
+        <div class="buttons-filter">
+            <button class="button-htb" onclick="filterItems('htb')"></button>
+            <button class="button-thm" onclick="filterItems('thm')"></button>
+            <button class="button-natas" onclick="filterItems('natas')"></button>
+        </div>
+
+        <a class="cherry-banner" href="/H4ckV4ult/files/cherry.ctb" download="cherry.ctb">
+            <img src="/H4ckV4ult/images/cherrytree-logo.svg"> 
+            <h2>Cherry Tree</h2>
+        </a>   
+    </div>
 
     <div class="grid-container">
-
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/iclean.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/iclean.ctb'">
             <div class="active-machine invisible"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/iClean.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -35,7 +42,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/cicada.ctb'">
+        <div class="grid-item thm" onclick="window.location.href='/H4ckV4ult/pages/machines/cicada.ctb'">
             <div class="active-machine invisible"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/cicada.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -47,8 +54,8 @@
                 <a class="grid-item-tags-ad">Active Directory</a>
             </div>
         </div>
-
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/sea.ctb'">
+        
+        <div class="grid-item natas" onclick="window.location.href='/H4ckV4ult/pages/machines/sea.ctb'">
             <div class="active-machine invisible"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/sea.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -61,7 +68,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/outbound.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -74,7 +81,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/titanic.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/titanic.ctb'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/titanic.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -87,7 +94,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/dog.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -100,7 +107,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/code.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -113,7 +120,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/fluffy.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -126,7 +133,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/sauna.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/sauna.ctb'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/sauna.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -139,7 +146,7 @@
             </div>
         </div>
         
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/escapetwo.html'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/escapetwo.html'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/escapetwo.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -152,8 +159,8 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/jerry.ctb'">
-            <div class="active-machine invisible"><a>Active</a></div> <!-- Espacio reservado, invisible -->
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/jerry.ctb'">
+            <div class="active-machine invisible"><a>Active</a></div> 
             <img src="/H4ckV4ult/images/machinesImages/jerry.png" alt="Machine 1">        
             <div class="grid-item-data">
                 <a class="grid-item-data-difficulty">Name: Jerry</a>
@@ -165,7 +172,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine"><a>Active S8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/artificial.png" alt="Machine 1">        
             <div class="grid-item-data">
@@ -179,7 +186,7 @@
         </div>
 
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine">
                 <a>Active</a>
             </div>
@@ -194,7 +201,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick="window.location.href='#'">
             <div class="active-machine">
                 <a>Active</a>
             </div>
@@ -208,8 +215,8 @@
                 <a class="grid-item-tags-docker">Docker</a>
             </div>
         </div>
-
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/support.html'">
+ 
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/support.html'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/support.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -222,7 +229,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/twoMillion.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/twoMillion.ctb'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/twoMillion.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -236,7 +243,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/lame.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/lame.ctb'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/lame.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -249,7 +256,7 @@
             </div>
         </div>
 
-        <div class="grid-item" onclick="window.location.href='/H4ckV4ult/pages/machines/cap.ctb'">
+        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/cap.ctb'">
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/cap.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -261,9 +268,29 @@
                 <a class="grid-item-tags-python">Python</a>
             </div>
         </div>
-
-        
-
+                
     </div>
+
+    <script>
+    function filterItems(type) {
+        const htbItems = document.querySelectorAll('.htb');
+        const thmItems = document.querySelectorAll('.thm');
+        const natasItems = document.querySelectorAll('.natas');
+
+        if (type === 'htb') {
+            htbItems.forEach(el => el.style.display = 'block');
+            thmItems.forEach(el => el.style.display = 'none');
+            natasItems.forEach(el => el.style.display = 'none')
+        } else if (type === 'thm') {
+            thmItems.forEach(el => el.style.display = 'block');
+            htbItems.forEach(el => el.style.display = 'none');
+            natasItems.forEach(el => el.style.display = 'none')
+        } else if (type === 'natas') {
+            natasItems.forEach(el => el.style.display = 'block');
+            htbItems.forEach(el => el.style.display = 'none');
+            thmItems.forEach(el => el.style.display = 'none');
+        }
+}
+</script>
 </body>
 </html>
