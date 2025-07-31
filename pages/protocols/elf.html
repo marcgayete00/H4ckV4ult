@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>ELF (Executable and Linkeable Format)</h1>
+            <p>In computing, the Executable and Linkable Format is a common standard file format for executable files, object code, shared libraries, and core dumps. Typically seen in Linus environments</p>
+        </div>
+        <div class="notion-body">
+            <h2>ELF sign</h2>
+            <ul>
+                <p>In some cases you'll need to sign a file, you can do it with the following repositoy <a class="notion-link" href=" https://github.com/NUAA-WatchDog/linux-elf-binary-signer.git"></a>Here</p>
+                <p>check if you have installed the following packages</p>
+                <pre><code class="language-bash">sudo apt install libssl-dev openssl
+sudo apt install binutils</code></pre> 
+                <p>Execute the Makefile</p>
+                <pre><code class="language-bash">make clean</code></pre>
+                <p>Compile the code</p>
+                <pre><code class="language-bash">gcc -o elf-sign elf_sign.c -lssl -lcrypto -Wno-deprecated-declarations</code></pre>   
+                <p>Sign the code</p>
+                <pre><code class="language-bash">./linux-elf-binary-signer/elf-sign sha256 key.pem key.pem monitor</code></pre>    
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

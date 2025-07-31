@@ -19,5 +19,13 @@
 /H4ckV4ult/pages/protocols/backrest
 /H4ckV4ult/pages/protocols/tomcat
 /H4ckV4ult/pages/protocols/excel
+/H4ckV4ult/pages/protocols/python
+/H4ckV4ult/pages/protocols/backdrop
+/H4ckV4ult/pages/protocols/github
+/H4ckV4ult/pages/protocols/gitea
+/H4ckV4ult/pages/protocols/imagemagick
+/H4ckV4ult/pages/protocols/roundcube
+/H4ckV4ult/pages/protocols/wondercms
+/H4ckV4ult/pages/protocols/qpdf
 /H4ckV4ult/pages/machines/escapetwo
 /H4ckV4ult/pages/machines/support

