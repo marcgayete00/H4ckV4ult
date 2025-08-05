@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Netdata (TCP/19999)</h1>
+            <p>Server monitoring helps you get in-depth visibility into the health and performance of your application servers, mail servers, web servers, virtual servers, and database servers. Eliminate outages and performance issues with our AI-powered server monitoring tool.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>In order to detect netdata version we can curl at API</p>
+                <pre><code class="language-bash">curl -s http://localhost:19999/api/v1/info | grep ".netdata.version2"</code></pre>
+            </ul>   
+            <h2>Exploitation</h2>
+            <ul>
+            <h3>CVE-2024-32019</h3>
+                <ul>
+                    <p>The following versions are affected `>= v1.45.0`, `= v1.44.0-60`, `< v1.45.0-169` In affected versions the `ndsudo` tool shipped with affected versions of the Netdata Agent allows an attacker to run arbitrary programs with root permissions since the executable nsudo has  with the SUID bit set</p>
+                    <p>The process to exploit it is the following:</p>
+                    <ul>
+                        <li>Compile a malicious script in C and perform a system command execution, reverse shell o what ever you want to do with root permissions</li>
+                        <li>Name it <b>nvme</b> and Transfer the executable into the victim machine</li>
+                        <li>Provide +x exectuion permissions</li>
+                        <li>Update the path adding the path where the malicious executable is</li>
+                        <pre><code class="language-bash">PATH=/home/oliver:$PATH</code></pre>
+                        <li>Run the ndsudo binary which automatically will make a call to our malicious executable called nvme and execute our crafted code</li>
+                        <pre><code class="language-bash">/opt/netdata/usr/libexec/netdata/plugins.d/ndsudo nvme-list</code></pre>
+                    </ul>
+                </ul>    
+            </ul>
+             
+            
+                
+                
+        </div>
+    </div>
+</body>
+</html>

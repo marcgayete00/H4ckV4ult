@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Bandit Challange (Overthewire) - Walkthrough </h1>
+        </div>
+        <div class="notion-body">
+            <h2>Level 0</h2>
+            <ul>
+                <p>Connecting to server</p>
+                <pre><code class="language-bash">ssh bandit0@bandit.labs.overthewire.org -p 2220</code></pre>
+            </ul>
+
+            <h2>Level 1</h2>
+            <ul>
+                <p>Just perform a cat in the readme file</p>
+            </ul>
+
+            <h2>Level 2</h2>
+            <ul>
+                <p>To read the file with the strange name </p>
+                <pre><code class="language-bash">cat /home/bandit1/-</code></pre>
+            </ul>
+
+            <h2>Level 3</h2>
+            <ul>
+                <p>To read the file</p>
+                <pre><code class="language-bash">cat /home/bandit2/--spaces\ in\ this\ filename--</code></pre>
+            </ul>
+
+            <h2>Level 4</h2>
+            <ul>
+                <p>List hidden files, access <b>inhere</b> directory and list its content</p>
+            </ul>
+
+            <h2>Level 5</h2>
+            <ul>
+                <p>List content of files jsut like this and so on</p>
+                <pre><code class="language-bash">cat /home/bandit4/inhere/-file01 </code></pre>    
+            </ul>
+
+            <h2>Level 6</h2>
+            <ul>
+                <p>Use the command find with the following parameters to filter by size</p>
+                <pre><code class="language-bash">find / -type f -size 1033c 2>/dev/null</code></pre>    
+                <p>Then simply cat the file</p>
+                <pre><code class="language-bash">cat /home/bandit5/inhere/maybehere07/.file2</code></pre>     
+            </ul>
+
+            <h2>Level 7</h2>
+            <ul>
+                <p>Again use the following command to filter by size </p>
+                <pre><code class="language-bash">find / -type f -size 33c 2>/dev/null | grep bandit7</code></pre>    
+            </ul>
+
+            <h2>Level 8</h2>
+            <ul>
+                <p>Use grep to filter the text</p>
+                <pre><code class="language-bash">cat data.txt | grep millionth</code></pre>
+            </ul>
+            
+            <h2>Level 9</h2>
+            <ul>
+                <p>Sort file and apply uniq -u</p>
+                <pre><code class="language-bash">sort data.txt | uniq -u</code></pre>
+            </ul>
+
+            <h2>Level 10</h2>
+            <ul>
+                <p>Use grep to filter the file, since the file is binary use the flag -a</p>
+                <pre><code class="language-bash">grep -a “=” data.txt</code></pre>
+            </ul>
+
+            <h2>Level 11</h2>
+            <ul>
+                <p>Simple decode it from base64</p>
+            </ul>
+            <h2>Level 12</h2>
+            <ul>
+                <p>Simply decode it from ROT13</p>
+            </ul>
+
+            <h2>Level 13</h2>
+            <ul>
+                <p>The file is compressed multiple times...</p>
+                <p>First base on the hexdump provided we create a file named data</p>
+                <pre><code class="language-bash">xxd -r /home/bandit12/data.txt data</code></pre>
+                <p>using file we discovered tar is a gzip file so</p>
+                <pre><code class="language-bash">mv data data.gz | gunzip data.gz</code></pre>
+                <p>use file again and we discovered is bzip2 file</p>
+                <pre><code class="language-bash">mv data data.bz2 | bunzip2 data.bz2</code></pre>
+                <p>Using file we discovered it is a tar file</p>
+                <pre><code class="language-bash">mv data data.tar | tar -xf data.tar</code></pre>
+                <p>Using file we discovered is tar again</p>
+                <pre><code class="language-bash">tar -xf data5.bin</code></pre>
+                <p>Using file we discovered is a bzip2</p>
+                <pre><code class="language-bash">mv data6.bin data.bz2 | bunzip2 data.bz2</code></pre>
+                <p>Using file we discovered it is a tar file </p>
+                <pre><code class="language-bash">tar -xf data</code></pre>
+                <p>Using file we discovered it is a gzip file</p>
+                <pre><code class="language-bash">mv data8.bin data8.gz | gunzip data8.gz</code></pre>
+                <p>Finally using cat the password seems to be...</p>
+            </ul>
+
+            <h2>Level 14</h2>
+            <ul>
+                <p>Using the flag -i we can use the provided key to login into bandit14</p>
+                <p>Remember to change the the permisions chmod 700 sshkey.private in order to use the key</p>
+                <pre><code class="language-bash">ssh -i sshkey.private bandit14@bandit.labs.overthewire.org -p 2220</code></pre>
+                <p>Then performing a cat into <b>/etc/bandit_pass/bandit14</b></p>
+            </ul>
+
+            <h2>Level 15</h2>
+            <ul>
+                <p>Just perform a telnet connection using telnet and provide the previous password </p>
+                <pre><code class="language-bash">telnet localhost 30000</code></pre>
+            </ul>
+            <h2>Level 16</h2>
+            <ul>
+                <p>Performing a connection with SSL and providing the previous password we complete the level</p>
+                <pre><code class="language-bash">openssl s_client -connect localhost:30001</code></pre>
+            </ul>
+            <h2>Level 17</h2>
+            <ul>
+                <p>Scan network with the provided range</p>
+                <pre><code class="language-bash">nmap -p31000-32000 localhost</code></pre>
+                <p>identify ports,enter and provide the password</p>
+                <pre><code class="language-bash">openssl s_client --connect localhost:31790</code></pre>
+                <p>Then they will provide you with an SSH key</p>
+            </ul>
+            <h2>Level 18</h2>
+            <ul>
+                <p>Just use diff to compare both files</p>
+                <pre><code class="language-bash">diff passwords.old passwords.new </code></pre>
+            </ul>
+
+            <h2>Level 19</h2>
+            <ul>
+                <p>Since they modified the <b>.bashrc</b> to logyou out we can use SSH command to execute commands before the connection</p>
+                <pre><code class="language-bash">ssh bandit18@bandit.labs.overthewire.org -p 2220 "cat readme"</code></pre>
+            </ul>
+
+            <h2>Level 20</h2>
+            <ul>
+                <p>Using the binary file we can execute commands as another use, so we show the password located at /etc/bandit_pass/bandit20</p>
+                <pre><code class="language-bash">./bandit20-do cat /etc/bandit_pass/bandit20</code></pre>
+                <p>Then performing a cat into <b>/etc/bandit_pass/bandit14</b></p>
+            </ul>
+            <h2>Level 21</h2>
+            <ul>
+                <p>Since the binary performs a connection to the port we want and compares the string provided se used nc</p>
+                <pre><code class="language-bash">echo "0qXahG8ZjOVMN9Ghs7iOWsCfZyXOUbYO" | nc -l -p 12345</code></pre>
+                <pre><code class="language-bash">./suconnect 12345</code></pre>
+            </ul>
+
+            <h2>Level 22</h2>
+            <ul>
+                <p>Looking at cronjob_bandit22 located in /etc/cron.d</p>
+                <p>we see a binary called /usr/bin/cronjob_bandit22.sh</p>
+                <p>Listing its contents, we found that it is making a cat over the file which contains the password from the next level and saving at  </p>
+                <pre><code class="language-bash">/tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv</code></pre>
+
+            </ul>
+
+            <h2>Level 23</h2>
+            <ul>
+                <p>Analyzing the script found we execute the command to get the md5sum </p>
+                <pre><code class="language-bash">echo I am user bandit23 | md5sum | cut -d ' ' -f 1</code></pre>
+                <p> Result: 8ca319486bfbbc3663ea0fbe81326349</p>
+                <p>Using the hash we know the name of the password file</p>
+                <pre><code class="language-bash">cat /tmp/8ca319486bfbbc3663ea0fbe81326349</code></pre>
+            </ul>
+
+            <h2>Level 24</h2>
+            <ul>
+                <p>Creation of script </p>
+                <pre><code class="language-bash">echo -e '#!/bin/bash\ncat /etc/bandit_pass/bandit24 | nc localhost 4444' > /var/spool/bandit24/foo/sendpass.sh && chmod +x /var/spool/bandit24/foo/sendpass.sh</code></pre>
+                <p> Use nc to recieve the password</p>
+                <pre><code class="language-bash">nc -lvnp 4444</code></pre>
+            </ul>
+
+        </div>
+    </div>
+
+
+</body>
+</html>

