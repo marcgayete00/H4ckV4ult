@@ -196,9 +196,115 @@
                 <pre><code class="language-bash">nc -lvnp 4444</code></pre>
             </ul>
 
+            <h2>Level 25</h2>
+            <ul>
+                <p>To beat this level we need to provide the password from the last level separated by and space and a secret number of 4 digits </p>
+                <p>We developed the following script to test all codes </p>
+                <pre><code class="language-bash">WE developed the following script to test all codes </code></pre>
+                <p> Use nc to recieve the password</p>
+                <pre><code class="language-bash">#!/bin/bash
+
+MAXJOBS=50  # número máximo de jobs paralelos
+
+for i in $(seq 1 10000); do
+  (
+    echo $i
+    content=$(echo gb8KRRCsshuZXI0tUuR6ypOFjiZbf3G8 $i | nc 127.0.0.1 30002 -w 1)
+    if [[ "$content" != *"Wrong!"* ]]; then
+      echo "The right code is $i"
+      kill 0  # mata todos los procesos del script (opcional)
+    fi
+  ) &
+
+  # Limitar número de jobs concurrentes
+  while [ $(jobs -r | wc -l) -ge $MAXJOBS ]; do
+    sleep 0.01
+  done
+done
+
+wait</code></pre>
+            <p>Finally the right code is 4325</p>
+            </ul>
+
+            <h2>Level 26</h2>
+            <ul>
+                <p>In this level you must login to the next user using the key provided even though everytime we login the terminal will be close abruptly</p>
+                <p>In case we look at what kind of terminal well discover /usr/bin/showtext which is a custom script that only performs a more command over a text file</p>
+                <p>With that i mind we must find a way to scape from that more command. In case we perform the connection with the full screen window the more will list the content of the text file since the content length can fit the screen nothing will happen</p>
+                <p>The thing here is to make a smaller window and then perform the connection. That way more command will start in interactive mode and we will be able to start vim from more pressing letter V</p>
+                <p>from vim we will be able to spawn a shell using</p>
+                <pre><code class="language-bash">:set shell=/bin/sh|:shell</code></pre>
+                <p>Then look for the password in /etc/bandit_pass/bandit26</p>
+            </ul>
+            
+            <h2>Level 27</h2>
+            <ul>
+                <p>Inside bandit26 you'll find a script which will let you execute commands as another user (i asume bandit27)</p>
+                <p>just perform a cat and grab the password</p>
+                <pre><code class="language-bash">./bandit27-do cat /etc/bandit_pass/bandit27</code></pre>
+            </ul>
+
+            <h2>Level 28</h2>
+            <ul>
+                <p>Just clone the repo by using </p>
+                <pre><code class="language-bash">git clone ssh://bandit27-git@bandit.labs.overthewire.org:2220/home/bandit27-git/repo</code></pre>
+                <p>Read the file and retrieve the password</p>
+            </ul>
+
+            <h2>Level 29</h2>
+            <ul>
+                <p>Download the repo using the previous command, and then look for a hidden directory called .git</p>
+                <p>Now use</p>
+                <pre><code class="language-bash">git log </code></pre>
+                <p>to see all changes performed to that repo</p>
+                <p>Since we see that data have been removed in the last commit we will show changes from this one using</p>
+                <pre><code class="language-bash">git show 710c14a2e43cfd97041924403e00efb00b3a956e</code></pre>
+                <p>then the password will be listed </p>
+            </ul>
+
+
+            <h2>Level 30</h2>
+            <ul>
+                <p>Clone the repo just as the past 2 labs</p>
+                <p>In this time the password is not in the main branch so we will need to list branches using </p>
+                <pre><code class="language-bash">git branch -a</code></pre>
+                <p>now we can change the branch by using</p>
+                <pre><code class="language-bash">git checkout dev</code></pre>
+                <p>Using again git log to list all commits and if we list commit </p>
+                <pre><code class="language-bash">git show 569126a0bce9ecbddc03f41a8f0deab819bc28a8</code></pre>
+                <p>Password will be there</p>
+            </ul>
+
+            <h2>Level 31</h2>
+            <ul>
+                <p>A repo can have tags which may contain hidden data, to show tags you must do</p>
+                <pre><code class="language-bash">git tag</code></pre>
+                <p>Here you will se a tag named secret</p>
+                <pre><code class="language-bash">git show secret</code></pre>
+                <p>Password will be there</p>
+            </ul>
+
+            <h2>Level 32</h2>
+            <ul>
+                <p>The thing here is to perform a push to a repository</p>
+                <p>First we need to create a file with the content that is required (Found in readme file)</p>
+                <pre><code class="language-bash">echo "May I come in?" > key.txt</code></pre>
+                <p>Then we add it to the repo since this is a new file</p>
+                <pre><code class="language-bash">git add -f key.txt</code></pre>
+                <p>Perform a commit with any kind of text we want</p>
+                <pre><code class="language-bash">git commit -m "Add key.txt with secret content"</code></pre>
+                <p>git push origin master</p>
+            </ul>
+
+            <h2>Level 33</h2>
+            <ul>
+                <p>Finally this is a shell that converts all chars from lower case to upper case. We used...</p>
+                <pre><code class="language-bash">$0</code></pre>
+                <p>to invoce a new shell  since this a envrionment variable and its executed after its converted</p>
+            </ul>
+
+            <h2 class="notion-link">Finished on 26/08/2025</h2>
         </div>
     </div>
-
-
 </body>
 </html>

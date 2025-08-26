@@ -23,6 +23,51 @@
             <p>A web-based platform that uses the Git version control system to help developers store, manage, and collaborate on their code</p>
         </div>
         <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <p>Here there are a few commands to use git in terminal in order to perform some actions</p>
+                <h3>Clone repo</h3>
+                <ul>
+                    <pre><code class="language-bash">git clone URL</code></pre>
+                    <p>You can always clone a ssh repo </p>
+                    <pre><code class="language-bash">git clone ssh://bandit27-git@bandit.labs.overthewire.org:2220/home/bandit27-git/repo</code></pre>
+                </ul>
+                
+                <h3>Check log</h3>
+                <ul>
+                    <p>Show all changes performed in a repo</p>
+                    <pre><code class="language-bash">git log</code></pre>
+                    <p>In case we want to check changes for a specific commit we could do</p>
+                    <pre><code class="language-bash">git show 710c14a2e43cfd97041924403e00efb00b3a956e</code></pre>
+                </ul> 
+
+                <h3>Show branches</h3>
+                <ul>
+                    <p>Show all branches from a repo</p>
+                    <pre><code class="language-bash">git branch -a</code></pre>
+                    <p>In case we want to change the branch were we are (Where dev is branchname)</p>
+                    <pre><code class="language-bash">git checkout dev</code></pre>
+                </ul>
+                
+                <h3>Show tags</h3>
+                <ul>
+                    <p>Show all tas of a repo</p>
+                    <pre><code class="language-bash">git tag</code></pre>
+                    <p>In case we want to check content of a tag (Where secret is the name of the tag)</p>
+                    <pre><code class="language-bash">git show secret</code></pre>
+                </ul>
+
+                <h3>Perform a push</h3>
+                <ul>
+                    <p>How to perform a push</p>
+                    <p>Once you have the file we want to push we will need to add it to the repo</p>
+                    <pre><code class="language-bash">git add -f key.txt</code></pre>
+                    <p>Perform a commit with any kind of text we want</p>
+                    <pre><code class="language-bash">git commit -m "Add key.txt with secret content"</code></pre>
+                    <p>Just perform the push</p>
+                    <pre><code class="language-bash">git push origin master</code></pre>
+                </ul>
+            
             <h2>Enumeration</h2>
             <ul>    
                 <h3>Last commit</h3>
