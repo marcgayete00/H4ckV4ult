@@ -193,6 +193,15 @@
     background-color: rgb(142, 76, 181);
 }
 
+.grid-item-tags-windows {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000000;
+    background-color: rgb(255, 0, 102);
+}
+
 .main-banner{
     display: flex;
 }

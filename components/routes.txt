@@ -31,6 +31,8 @@
 /H4ckV4ult/pages/protocols/xwiki
 /H4ckV4ult/pages/protocols/netdata
 /H4ckV4ult/pages/protocols/perl
+/H4ckV4ult/pages/protocols/npbackup
+/H4ckV4ult/pages/protocols/legacy
 /H4ckV4ult/pages/machines/escapetwo
 /H4ckV4ult/pages/machines/support
 /H4ckV4ult/pages/machines/natas

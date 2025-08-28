@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Legacy Systems</h1>
+            <p>This page pretends to document several vulnerabilities that may occur in legacy systems such as Windows XP, 2003, old unix distributions...</p>
+        </div>
+        <div class="notion-body">
+            <h2>Windows XP, 2000 2003, Vista, 2008</h2>
+            <ul>
+                <h3>MS08-067</h3>
+                <p>Allows an attacker to send SMB especially crafted packages in order to remote code execution. Used by conficker worm</p>
+                <p>Metasploit module</p>
+                <pre><code class="language-bash">use exploit/windows/smb/ms08_067_netapi </code></pre>
+
+                <h3>MS17-010 (Eternalblue)</h3>
+                <p>Allows an attacker to send SMB packages and gain RCE in the victim</p>
+                <p>This can only be used in 64 bit architecture</p>
+                <p>Metasploit module</p>
+                <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
+                
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>
