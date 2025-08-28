@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Npbackup</h1>
+            <p>Another backup tool based on restic. This is designed for sys admins or for final users</p>
+            <p>Other similar tools <a class="notion-link" href="http://localhost/H4ckV4ult/pages/protocols/backrest.html"> backrest </a></p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Visualizase content of files</h3>
+                <p>In case you have permisions to create backups you'll be able to restore content and visualice content of files which sometimes may be useful</p>
+                <p>Create backup. Remember to have the config file aiming to the folder you would like to backup.</p>
+                <pre><code class="language-bash">sudo npbackup-cli -c file.conf -b</code></pre>
+                <p>Check if backup was correctly created. With that command you can also check the which files were backed up </p>
+                <pre><code class="language-bash">sudo npbackup-cli -c file.conf --ls</code></pre>
+                <p>Finaly show content of specific file</p>
+                <pre><code class="language-bash">sudo npbackup-cli -c file.conf --dump /root/root.txt</code></pre>
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>
