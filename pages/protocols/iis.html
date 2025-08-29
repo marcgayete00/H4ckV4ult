@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>IIS (TCP/80 - TCP/443)</h1>
+            <p>Internet Information Services, is web server developed by microsoft which is used to host wesites or web applications in windows environments</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>    
+                <h3>IIS 6.0</h3>
+                <ul>
+                    <p>The IIS 6.0 contains a buffer overflow vulnerability in the ScStoragePathFromUrl function in the WebDAV</p>
+                    <p>There are multiple exploits available</p>
+                    <p> Github: <a class="notion-link" href="https://github.com/g0rx/iis6-exploit-2017-CVE-2017-7269"> Link </a> (Remember to setup nc in background)</p>
+                    <p>Metasploit</p>
+                    <pre><code class="language-bash">use windows/iis/iis_webdav_scstoragepathfromurl</code></pre>
+                </ul>
+            </ul>   
+        </div>
+    </div>
+</body>
+</html>
