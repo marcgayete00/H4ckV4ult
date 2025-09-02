@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>MremoteNG</h1>
+            <p>Multi-Remote Next Generation (mRemoteNG) is an open source remote connections manager that supports the following protocols: Remote Desktop Protocol (RDP), Virtual Network Computing (VNC), Independent Computing Architecture (ICA), Secure Shell (SSH), Telnet, Hypertext Transfer Protocol/Secure (HTTP/HTTPS) and rlogin.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CVE-2023-30367 (Cleartext Storage of Sensitive Information)</h3>
+                <p>mRemoteNG configuration files can be stored in an encrypted state on disk. mRemoteNG version <= v1.76.20 and <= 1.77.3-dev loads configuration files in plain text into memory (after decrypting them if necessary) at application start-up, even if no connection has been established yet. This allows attackers to access contents of configuration files in plain text through a memory dump and thus compromise user credentials when no custom password encryption key has been set. This also bypasses the connection configuration file encryption setting by dumping already decrypted configurations from memory.</p>
+                <p>Since all credentials are stored in a file called  <b>confCons.xml</b> In case you can't read the file it can be dumped using the following script </p>
+                <p>This file can be dumped with the following script <a class="notion-link" href="https://www.exploit-db.com/exploits/51637"> here </a>  </p>
+                <ul>
+                    <p>Advice: To run this script you must compile it using the following command in a windows machine</p>
+                    <pre><code class="language-bash"> C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /t:exe /out:mRemoteDump.exe script.txt</code></pre>
+                </ul>
+               
+               <p>Either if you copy the <b>confCons.xml</b> or you dump it using the script you'll get an Encrypted password (AES) and in some cases you'll get the <b>Decrypted password</b></p>
+               <p>In case you did't get it you can use another script to brute force it</p>
+               <p>But after all since the script uses a progress bar module which does not accept any kind of chars we'll need to convert the wordlist we would like to use to UTF-8</p>
+               <pre><code class="language-bash"> iconv -f ISO-8859-1 -t UTF-8 /usr/share/wordlists/rockyou.txt -o rockyou-utf8.txt </code></pre> 
+               <p>Now use the script</p>
+               <pre><code class="language-bash">python3 mremoteng_decrypt.py -s "aEWNFV5uGcjUHF0uS17QTdT9kVqtKCPeoC0Nw5dmaPFjNQ2kt/zO5xDqE4HdVmHAowVRdC7emf7lWWA10dQKiw==" -b y -w rockyou-utf8.txt</code></pre>
+            </ul>
+            <ul>
+            </ul>        
+
+        </div>
+    </div>
+
+
+</body>
+</html>

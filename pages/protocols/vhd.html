@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>VHD (Virtual Hard Disk)</h1>
+            <p>WinRM stands for Virtual Hard Disk. It is a file format that contains an entire hard drive, primarily used to store the operating system and data of a virtual machine.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <p>You may find this files alone or by couple. Normally one file belongs to the partition system (which does not contain valuable information about anything)</p>
+                <p>And anotherone which contain the whole file system itself which means we can find anything inside the virtual disk </p>
+                <p>To navigate inside this files we'll need to use the following commands </p>
+                
+                <p>First of all we will need to install qemu-utils</p>
+                <pre><code class="language-bash">sudo apt update
+sudo apt install qemu-utils</code></pre>
+                <p>Then we'll load the nbd module into the kernel in order to make a virtual file behave as a local block</p>
+                <pre><code class="language-bash">sudo modprobe nbd max_part=8</code></pre>
+                <p>Then connect the VHD file to our filesystem</p>
+                <pre><code class="language-bash">sudo qemu-nbd --connect=/dev/nbd0 file.vhd</code></pre>    
+                <p>A drive will appear into the desktop, open it an navigate...</p>
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>

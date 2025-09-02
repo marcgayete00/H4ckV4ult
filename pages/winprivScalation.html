@@ -136,6 +136,16 @@ reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></
                         <pre><code class="language-powershell">pr.exe "more \"C:\\Documents and Settings\\Harry\\Desktop\\user.txt\""</code></pre>    
                     </ul>
                 </div>
+
+                <div class="notion-body">
+                    <h2 id="Sudo & SUID">Dumping SAM credentials</h2>
+                    <ul>
+                        <p>In case you found that you have access to SAM and SYSTEM files you can dump credentials and crack them offline. By anycase, you only be able to do so in case you found this files in a backup you can access or if you have admin rights</p>
+                        <p>Download both files and use <b>secretsdump</b> from impacket</p>
+                        <pre><code class="language-cmd">mpacket-secretsdump -hashes 'LMHASH:NTHASH' -sam 'SAM' -system 'SYSTEM' LOCAL</code></pre>
+                        <p>Then use hashcat and do the rest...</p>   
+                    </ul>
+                </div>
         </div>
     </div>
 </body>
