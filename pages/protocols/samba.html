@@ -37,12 +37,46 @@
 
             <h2>Explotation</h2>
             <ul>
-                <p> Samba version 3.0.20 it explotable using the following</p>
-                <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
-            </ul>
+                <h3>Samba "username map script" Command Execution</h3>
+                <ul>
+                    <p> Samba version 3.0.20 it explotable using the following</p>
+                    <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
+                </ul>    
+            
+                <h3>Interaction with the user - exploits</h3>
+                <ul>
+                    <p>CVE-2025-24071</p>
+                </ul>
 
-            <h3>Interaction with the user - exploits</h3>
-            <p>CVE-2025-24071</p>
+                <h3>EternalBlue</h3>
+                <ul>
+                    <p>SMB1 is vulnerable to a common vulnerability called Eternal Blue this one allows to inject code in SMB and spawn a shell as NT Authority\Systen</p>
+                    <p>Use the following metasploit module</p>
+                    <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
+                </ul>
+
+                <h3>Path traversal (Situationship)</h3>
+                <ul>
+                    <p>In case you found anywhere paths inside the SMB share that you cant no access since you cant list files there is a solution to access</p>
+                    <p>The share may be wrong configured and will lead you access using a simple cd command and specifying the path</p>
+                </ul>
+
+                <h3>Alternate Data Streams (ADS)</h3>
+                <ul>
+                    <p>In case you find a file which seems suspicious and does not have any content it is possible that content is located in another data stream</p>
+                    <p>Basically data streams are like branchs inside a file which let you store data. To view its content inside smb you can use the command <b>allinfo</b> over a file to view its contents</p>
+                    <p>The output will be similar to:</p>
+                    <pre><code class="language-bash">altname: DEBUGM~1.TXT
+create_time:    Thu Aug  8 07:06:12 PM 2019 EDT
+access_time:    Thu Aug  8 07:06:12 PM 2019 EDT
+write_time:     Thu Aug  8 07:08:17 PM 2019 EDT
+change_time:    Wed Jul 21 02:47:12 PM 2021 EDT
+attributes: A (20)
+stream: [::$DATA], 0 bytes
+stream: [:Password:$DATA], 15 bytes</code></pre>
+                   <p>As you can see there is a data stream called <b>Password</b> we can view its content using the command <b>more</b> over the file</p>
+                </ul>
+            </ul>
         </div>
     </div>
 
