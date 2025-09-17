@@ -75,6 +75,10 @@
                     <ul>
                         <h3> Watch out for env_keep+=LD_PRELOAD </h3>
                         <pre><code class="language-bash">sudo -l</code></pre>
+                        <ul>
+                            <h4>SETENV</h4>
+                            <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful </p>
+                        </ul>
                         <h3> SUID propietary execution </h3>                          
                         <pre><code class="language-bash">find / -type f -perm -4000 2>/dev/null</code></pre>
                         <h3>Find world-executable folders </h3>

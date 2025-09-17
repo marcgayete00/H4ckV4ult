@@ -33,6 +33,13 @@
 /H4ckV4ult/pages/protocols/perl
 /H4ckV4ult/pages/protocols/npbackup
 /H4ckV4ult/pages/protocols/legacy
+/H4ckV4ult/pages/protocols/iis
+/H4ckV4ult/pages/protocols/adobeColdFusion
+/H4ckV4ult/pages/protocols/nvms-1000
+/H4ckV4ult/pages/protocols/nsclient++
+/H4ckV4ult/pages/protocols/vhd
+/H4ckV4ult/pages/protocols/mremoteng
+/H4ckV4ult/pages/protocols/adminer
 /H4ckV4ult/pages/machines/escapetwo
 /H4ckV4ult/pages/machines/support
 /H4ckV4ult/pages/machines/natas

