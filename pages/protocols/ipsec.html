@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>IPsec (500/UDP)</h1>
+            <p>Set of protocols for security at the network layer of the OSI model. Basically IPsec secures data when communication is happening betwenn two points over a network, this is done by adding encryption and authentication</p>
+            <p>Ipsec works by creating secure tunnels to protect data during transfer. This is done in 2 phases using a protocol called <b>IKE (Internet key exchange)</b></p>
+            <p>Phase 1: The 2 sites will identify each other and negotiate parameters for authentication and encryption methods, this is achieved through the use of Pre-Shared Key (PSK) or certificates. The establishment of a security association (SA) between two points is managed by IKE. </p>
+            <p>Phase 2: Creation of the IPsec tunnel, but before any data is send there are two protocols that are involved in the process.</p> 
+              <ul>
+                <p><b>AH (Authentication Header)</b> - Offers authentication and integrity but it does not offer any encryption</p>  
+                <p><b>ESP (Authentication Header)</b> - Offers authentication, integrty and encryption</p>  
+              </ul>
+            <p>In order to use IPsec both sender and reciever must share a public key. This key is it used to decrypt recieved data </p>
+            <p>Have in mind that IPsec is widely recognized as the principal technology for securing communications between networks (LAN-to-LAN) and from remote users to the network gateway (remote access), serving as the backbone for enterprise VPN solutions. </p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <h3>Finding a valid transformation</h3>
+            <ul>
+                <p>The IPSec configuration can be prepared only to accept one or a few transformations. A transformation is a combination of values. Each transform contains a number of attributes like DES or 3DES as the encryption algorithm, SHA or MD5 as the integrity algorithm, a pre-shared key as the authentication type, Diffie-Hellman 1 or 2 as the key distribution algorithm and 28800 seconds as the lifetime.</p>
+                <p>Then, the first thing that you have to do is to find a valid transformation, so the server will talk to you. To do so, you can use the tool ike-scan. By default, Ike-scan works in main mode, and sends a packet to the gateway with an ISAKMP header and a single proposal with eight transforms inside it.</p>
+                <p>Depending on the response you can obtain some information about the endpoint</p>
+                <pre><code class="language-bash">root@bt:~# ike-scan -M 172.16.21.200
+Starting ike-scan 1.9 with 1 hosts (http://www.nta-monitor.com/tools/ike-scan/)
+172.16.21.200    Main Mode Handshake returned
+    HDR=(CKY-R=d90bf054d6b76401)
+    SA=(Enc=3DES Hash=SHA1 Group=2:modp1024 Auth=PSK LifeType=Seconds LifeDuration=28800)
+    VID=4048b7d56ebce88525e7de7f00d6c2d3c0000000 (IKE Fragmentation)
+
+Ending ike-scan 1.9: 1 hosts scanned in 0.015 seconds (65.58 hosts/sec). 1 returned handshake; 0 returned notify</code></pre>    
+               <p>As you can see in the previous response, there is a field called AUTH with the value PSK. This means that the vpn is configured using a preshared key (and this is really good for a pentester).</p>     
+               <p>The value of the last line is also very important:
+               <ul>
+                    <p>Case 1: 0 returned handshake; 0 returned notify: This means the target is not an IPsec gateway.</p>
+                    <p>Case 2: 1 returned handshake; 0 returned notify: This means the target is configured for IPsec and is willing to perform IKE negotiation, and either one or more of the transforms you proposed are acceptable (a valid transform will be shown in the output).</p>
+                    <p>Case 3: 0 returned handshake; 1 returned notify: VPN gateways respond with a notify message when none of the transforms are acceptable (though some gateways do not, in which case further analysis and a revised proposal should be tried).</p>
+                </ul> 
+                <p>In case you are in case 1 or 2 you already have a valid transformation but if you are in the third case you'll have to brute force a little bit </p>
+            
+                <h3>Capturing & cracking the hash</h3>
+                <ul>
+                    <p>Finally, If you have found a valid transformation and the group name and if the aggressive mode is allowed, then you can very easily grab the crackable hash:</p>
+                    <pre><code class="language-bash">ike-scan -M -P -A -n GROUPNAME --pskcrack=hash.txt TARGET</code></pre>
+                    <p>Then using hashcat you can crack the hash</p>    
+                    <pre><code class="language-bash">hashcat -m 5400 hash.txt WORDLIST</code></pre>
+                </ul>    
+
+
+</ul>    
+        </div>
+    </div>
+</body>
+</html>

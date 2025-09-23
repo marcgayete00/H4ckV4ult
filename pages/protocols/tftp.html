@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>TFTP (69/UPD)</h1>
+            <p>Trivial File Transfer Protocol (TFTP) is a straightforward protocol used on UDP port 69 that allows file transfers without needing authentication</p>
+        </div>
+        <div class="notion-body">
+            <h2>File acquisition</h2>
+            <ul>
+               <p>Since TFTP dont let you know which files contain we need to perform bruteforce overit. We can do it using the following module in metasploit</p>
+               <p>Warning ⚠️ - This plugin may cause false positives to have in mind...</p>
+               <pre><code class="language-bash">use auxiliary/scanner/tftp/tftpbrute</code></pre>
+               <p>In order to download the file we want we could use the following metasploit plugin</p> 
+               <pre><code class="language-bash"> auxiliary/admin/tftp/tftp_transfer_util</code></pre> 
+            </ul>       
+        </div>
+    </div>
+</body>
+</html>
