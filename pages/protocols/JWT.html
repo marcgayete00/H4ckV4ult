@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>JWT (JSON Web Token)</h1>
+            <p>is an open standard (RFC 7519) that defines a compact and self-contained way for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage / Theory</h2>
+            <ul>
+                <h3>Token Info</h3>
+                <ul>
+                    <p>When ever you get a token (look at your own cookies) you can check if the website you are visiting is using JWT tokens by pasting it into this website <a class="notion-link" href="https://www.jwt.io/">HERE</a></p>
+                    <p>Tokens have distinctive parts</p>
+                    <h4>header</h4>
+                    <p>It contains some data about the type and the algorithm used to encrypt the token and most important JKU (JSON Web Signature) this parameter indicates where JWKS (Set of keys) are stored to validate the cookie</p>
+                    <h4>Payload</h4>
+                    <p>It contains the actual data of the cookie. Sometimes you can see the username, permssions, </p>
+                </ul>
+
+                <h3>JWKS</h3>
+                </ul>    
+                    <p>In case we are able to take a look at the jwks.json file (sometimes accessible inside the website) we will encounter several parameters</p>
+                    <p>This ones can be kty, kid, alg, and most important <b>n</b> which is the module of the RSA key</p>    
+                </ul>
+                    
+            </ul>
+
+            <h2>Explotation</h2>
+            <ul>
+                <h3>JSON web token forge</h3>
+                <ul>
+                    <p> The goal here is to acquire the JWT which is provided by the server, modify some data to make the JWT point towards our machine and perform the validation there to trick the server</p>
+                    <p>First of all we must capture the token and place into a web like <a class="notion-link" href="https://token.dev/">token.dev</a> which lets you modify the contents of the token</p>
+                    <p>There we can modify the username and other parameters in order to acquire access as another user. <b>Commonly you'll modify the username and set it to admin</b></p>
+                    <p>At this moment we have a modified token but in order to validate this token we must link it to the JWKS using private/public keys. This proccess can be done generating the keys manually but in this case we'll do it using another website that generate those keys for us</p>
+                    <p>Enter at <a class="notion-link" href="https://mkjwk.org/">mkjw.org</a> and configure it according to the parameters of your token <b>(Normally: 2048 | Signature | RS256: RSASSA...using SHA-256 | SHA-256 | Yes)</b></p>
+                    <p>Once generated you'll get Public key, Public Key (X.509 PEM Format) and Private Key (X.509 PEM Format)</p>
+                    <p>Copy Public and private keys in X.509 PEM Format and set them into the corresponding field inside the <b>token.dev</b> website. For the normal public key you must copy the <b>n</b> value into your jwks.json file which you can get by downloading the one from the victim's server. Place jwks.json file inside you attacker machine</p>
+                    <p>Now grab the token and modify the field <b>jku</b> and make it point to the file you just edited in our server called (jwks.json). Normally by doing</p>
+                    <pre><code class="language-json">"jku" "http://ATTACKERIP/jwks.json" </code></pre>                    
+                    <p>Finally setup a python server hosting that file, change the cookie and refresh the website to get admin</p>
+
+                    <h4>Alternatives</h4>
+                    <p>The previously mentioned process is the baseline, from this point there are some tricky ways to avoid mitigations i'll show some of them</p>
+                    <ul>
+                        <h5>Domain sanitization</h5>
+                        <p>In some cases you may found that the JKU parameter which points to the file you are hosting can't point to your server because it is prevented</p>
+                        <p>In that case you must found another file from where you can perform requests to external servers. For example: In Unicode machine you cound't do</p>
+                        <pre><code class="language-json">"jku" "http://10.10.14.17/jwks.json" </code></pre>
+                        <p>Since there was the sanitization that I told you. In that case we found a /redirect endpoint which allowed to perform a the query</p>
+                        <pre><code class="language-json">"jku" "http://hackmedia.htb/static/../redirect?url=10.10.14.17.jwks" </code></pre>
+                    </ul>
+    
+        </div>
+    </div>
+
+
+</body>
+</html>

