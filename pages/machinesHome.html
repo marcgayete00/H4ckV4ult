@@ -33,6 +33,19 @@
 
         <div class="grid-item htb" onclick="window.location.href=''">
             <div class="active-machine"><a>Season 9</a></div>
+            <img src="/H4ckV4ult/images/machinesImages/imagery.png" alt="Machine 1">
+            <div class="grid-item-data">
+                <a class="grid-item-data-difficulty">Name: Imagery</a>
+                <a class="grid-item-data-difficulty">Difficulty: Medium</a>
+                <a class="grid-item-data-date">Date: 02/10/2025</a>
+            </div>
+            <div class="grid-item-tags">
+                <a class="grid-item-tags-owasp">OWASP TOP 10</a>
+            </div>
+        </div>
+
+        <div class="grid-item htb" onclick="window.location.href=''">
+            <div class="active-machine invisible"><a>Season 9</a></div>
             <img src="/H4ckV4ult/images/machinesImages/unicode.png" alt="Machine 1">
             <div class="grid-item-data">
                 <a class="grid-item-data-difficulty">Name: Unicode</a>
@@ -679,7 +692,15 @@
           thmItems.forEach(el => el.style.display = 'none');
           natasItems.forEach(el => el.style.display = 'none')  
         }
-}
+    }
+
+document.querySelectorAll(".grid-item htb").forEach(img => {
+  img.addEventListener("click", e => {
+    console.log("hasclicado")
+    const card = e.target.closest(".grid-item");
+    card.classList.toggle("active");
+  });
+});
 </script>
 </body>
 </html>

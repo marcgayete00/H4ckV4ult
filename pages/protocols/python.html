@@ -126,6 +126,17 @@ print(r.text)</code></pre>
             <p>Then upload the file into  <a class="notion-link" href="https://pylingual.io/">PYlingual</a> and view its contents</p>
         </ul>
         </ul>
+
+        <h2>Shell = true</h2>
+        <ul>
+            <p>In case you find shell=true means that the command it is being passed as a parameter will be executed in a command interpreter. Here is an example:</p>
+            <pre><code class="language-python">command = f"{IMAGEMAGICK_CONVERT_PATH} {original_filepath} -crop {width}x{height}+{x}+{y} {output_filepath}"
+            subprocess.run(command, capture_output=True, text=True, shell=True, check=True)</code></pre>
+            <p>Using that we you perform a command exection using any reverse shell comand</p>
+            <pre><code class="language-python">; COMMAND ;#</code></pre>
+        </ul>
+        </ul>
+
         </div>
     </div>
 

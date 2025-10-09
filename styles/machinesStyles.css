@@ -12,6 +12,12 @@
     padding: 10px; 
 }
 
+.grid-item.active {
+  transform: scale(1.05);
+  height: 350px; /* se amplía */
+}
+
+
 .grid-item img {
     width: 40%;
     height: auto;
