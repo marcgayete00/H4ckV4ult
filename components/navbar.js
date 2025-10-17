@@ -30,6 +30,7 @@ function renderNavbar() {
     }
 }
 
+
 function createSearchContainer() {
     return `
         <div id="searchContainer" style="display: none;">
@@ -41,7 +42,6 @@ function createSearchContainer() {
         </div>
     `;
 }
-
 // Función para cerrar el contenedor de búsqueda
 function closeSearchContainer(searchContainer, searchInput) {
     searchContainer.style.display = 'none';

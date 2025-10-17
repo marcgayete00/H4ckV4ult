@@ -40,6 +40,14 @@
 /H4ckV4ult/pages/protocols/vhd
 /H4ckV4ult/pages/protocols/mremoteng
 /H4ckV4ult/pages/protocols/adminer
+/H4ckV4ult/pages/protocols/dns
+/H4ckV4ult/pages/protocols/ipsec
+/H4ckV4ult/pages/protocols/tftp
+/H4ckV4ult/pages/protocols/nginx
+/H4ckV4ult/pages/protocols/curl
+/H4ckV4ult/pages/protocols/compressed
+/H4ckV4ult/pages/protocols/certpy
+/H4ckV4ult/pages/protocols/owasp
 /H4ckV4ult/pages/machines/escapetwo
 /H4ckV4ult/pages/machines/support
 /H4ckV4ult/pages/machines/natas

@@ -31,7 +31,7 @@
 
     <div class="grid-container">
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine"><a>Season 9</a></div>
             <img src="/H4ckV4ult/images/machinesImages/imagery.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -44,7 +44,8 @@
             </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Season 9</a></div>
             <img src="/H4ckV4ult/images/machinesImages/unicode.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -54,6 +55,16 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-jwt">JWT</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺JWT Attack</li>
+                    <li>🔺Local File Inclusion with UNICODE bypass</li>
+                    <li>🔺Research for credentials inside file system</li>
+                    <li>🔺Decompile python script and using pylingual to view the code</li>
+                    <li>🔺Using curl config to escalate privileges</li>
+                </ul>
             </div>
         </div>
 
@@ -70,7 +81,7 @@
             </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/popcorn.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -81,9 +92,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-php">PHP</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺File Upload and RCE with PHP</li>
+                    <li>🔺Research for credentials inside file system</li>
+                    <li>🔺Exploiting PAM MOTD to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/bank.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -94,9 +113,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-php">PHP</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺DNS zone transfer attack</li>
+                    <li>🔺Directory listing reaveals a folder with .acc files</li>
+                    <li>🔺File upload vulnerability to gain shell access</li>
+                    <li>🔺Find and run a binary to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/admirer.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -107,9 +135,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-php">PHP</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Directory listing over admin folder</li>
+                    <li>🔺Finding adminer.php and attemp to exploit it</li>
+                    <li>🔺File upload vulnerability to gain shell access</li>
+                    <li>🔺Python Library Hijacking to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/nest.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -120,9 +157,19 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-samba">Samba</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Connecting to SMB share and gathering credentials</li>
+                    <li>🔺Accessing directories wich are not allowed</li>
+                    <li>🔺Analyzing the code and decrypting password</li>
+                    <li>🔺Checking data streams over a suspicious file </li>
+                    <li>🔺Using a provided script to get Admin's password</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/blue.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -133,9 +180,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Checking SMB and OS versión</li>
+                    <li>🔺Accessing directories wich are not allowed</li>
+                    <li>🔺Exploiting MS17-010 to root</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href=''">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/tombwatcher.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -146,9 +201,21 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-ad">Active Directory</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Target Kerberoasting attack over AD (Pwned)</li>
+                    <li>🔺Changing to diferent group</li>
+                    <li>🔺Listing GMSA Password over computer</li>
+                    <li>🔺Performing a change ownership and ForceChangePassword attack over user (Pwned)</li>
+                    <li>🔺Looking for deleted users and restore it</li>
+                    <li>🔺Abusing certificate vuln EC15</li>
+
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/bastion.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/bastion.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -159,9 +226,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
             </div>
+
+             <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Downloading .vhd file and mounting into the system</li>
+                    <li>🔺Gathering  SAM hashes</li>
+                    <li>🔺Exploiting CVE-2023-30367 over mRemoteNG to get root</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/servmon.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/servmon.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -172,9 +247,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Gathring information over SMB share</li>
+                    <li>🔺Collecting password exploiting CVE-2019-20085 over NVMS-1000</li>
+                    <li>🔺Abusing of NSCLIENT++ to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/artic.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/artic.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -185,9 +268,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Performing directory listing and finding an admin panel</li>
+                    <li>🔺Exploiting Adobe ColdFusion 8 to get shell</li>
+                    <li>🔺Attempting with Juicy Potato to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/grandpa.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/grandpa.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -198,9 +289,16 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
             </div>
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Identification of a Legacy System</li>
+                    <li>🔺Using IIS exploit to get RCE</li>
+                    <li>🔺Using MS09-012 to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/legacy.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/legacy.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -210,6 +308,12 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-windows">Windows</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Exploiting ms08_067 to get shell access as admin</li>
+                </ul>
             </div>
         </div>
 
@@ -223,6 +327,12 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-python">Python</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Exploiting ms08_067 to get shell access as admin</li>
+                </ul>
             </div>
         </div>
 
@@ -252,9 +362,7 @@
             </div>
         </div>
 
-        
-
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/iClean.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/IClean.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -265,9 +373,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Cookie harvesting using XSS</li>
+                    <li>🔺SSTI to get shell access</li>
+                    <li>🔺Looking for credentials</li>
+                    <li>🔺Exploiting qpdf and attaching senstive files to a pdf</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/cicada.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/cicada.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -278,9 +395,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-ad">Active Directory</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Credential Gathering over SMB share</li>
+                    <li>🔺User enumeration via sid (impacket)</li>
+                    <li>🔺Performing LDAP search and looking for credentials in user properties</li>
+                    <li>🔺Extracting SAM and SYSTEM and dumping hashes of admin accounts</li>
+                </ul>
+            </div>
         </div>
         
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/sea.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/sea.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -291,9 +417,16 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Cookie harvesting over XSS </li>    
+                    <li>🔺Exploiting CVE-2023-41425 over wonderCMS to get a shell </li>
+                    <li>🔺Performing Local File Inclusion over a rnning local server</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/outbound.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -304,9 +437,16 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Exploiting Roundcube version to get shell access</li>    
+                    <li>🔺Decrypting creds</li>
+                    <li>🔺Performing Local File Inclusion over a running local server</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/titanic.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/titanic.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -317,9 +457,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Local File Inclusion</li>    
+                    <li>🔺Subdomain Enumeration  </li>
+                    <li>🔺Docker creation in order to find a database</li>
+                    <li>🔺Cracking Gittea credentials</li>
+                    <li>🔺Exploiting Imagemagick to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/dog.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -330,9 +479,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-cms">CMS</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Directory Listing vulnerability</li>    
+                    <li>🔺Gathering credentials by looking at webfiles  </li>
+                    <li>🔺Exploiting local binary to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/code.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -343,9 +500,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-python">Python</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Escaping from controlled environments using python</li>    
+                    <li>🔺Cracking credentials  </li>
+                    <li>🔺Exploiting local binary to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/fluffy.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -356,9 +521,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-ad">Active Directory</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Debugging a .exe file</li>    
+                    <li>🔺Capturing NTLMv2 hash </li>
+                    <li>🔺Using bloodyAD to addusers into SERVICE ACCOUNTS group</li>
+                    <li>🔺Exploiting certipy vuln to escalate privileges</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/sauna.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/sauna.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -368,6 +542,15 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-ad">Active Directory</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Performing AS-REP Roasting Attack</li>    
+                    <li>🔺Cracking hashes</li>
+                    <li>🔺Performing a kerberoasting attack</li>
+                    <li>🔺Using Mimitkatz over the domain to show NTLM password</li>
+                </ul>
             </div>
         </div>
         
@@ -384,7 +567,7 @@
             </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/jerry.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div> 
             <img src="/H4ckV4ult/images/machinesImages/jerry.png" alt="Machine 1">        
             <div class="grid-item-data">
@@ -395,9 +578,17 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-tomcat">Tomcat</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Detection of a tomcat server</li>
+                    <li>🔺Accessing admin panel</li>
+                    <li>🔺Creation of a malicious .WAR file which contains a reverse shell</li>    
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine"><a>Season 8</a></div>
             <img src="/H4ckV4ult/images/machinesImages/artificial.png" alt="Machine 1">        
             <div class="grid-item-data">
@@ -408,10 +599,20 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Detection of a web which uses TensorFlows</li>
+                    <li>🔺Creation of a malicious H5 file to gain shell access</li> 
+                    <li>🔺Database dump with credentials</li>   
+                    <li>🔺Password found inside backup</li>   
+                    <li>🔺Exploiting RESTIC to get a backup of senstive files</li> 
+                </ul>
+            </div>
         </div>
 
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible">
                 <a>Active</a>
             </div>
@@ -424,9 +625,18 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-owasp">OWASP TOP 10</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Web vuln which let you check files from other users</li>
+                    <li>🔺Bruteforce of valid users and found a credentials file</li> 
+                    <li>🔺Access admin panel and detect a RCE with some sanitization</li>   
+                    <li>🔺Exploiting ISPCONFIG to get root access</li>   
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='#'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible">
                 <a>Active</a>
             </div>
@@ -438,6 +648,15 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-docker">Docker</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Detecting a grafana subdomain</li>
+                    <li>🔺Exploiting grafana's vuln to get shell access</li> 
+                    <li>🔺Access admin panel and detect a RCE with some sanitization</li>   
+                    <li>🔺Exploiting a local service for the creation of crontabs to escalate privileges</li>   
+                </ul>
             </div>
         </div>
  
@@ -454,7 +673,7 @@
             </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/twoMillion.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/twoMillion.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -466,9 +685,18 @@
                 <a class="grid-item-tags-api">APIs</a>
                 <a class="grid-item-tags-php">PHP</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Solving original HTB Challenge to get in</li>
+                    <li>🔺Becoming admin exploiting the API</li> 
+                    <li>🔺Command injection in VPN generate function</li>   
+                    <li>🔺Exploiting Kernel to privilege escalation</li>  
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/lame.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/lame.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -479,9 +707,16 @@
             <div class="grid-item-tags">
                 <a class="grid-item-tags-samba">SAMBA</a>
             </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Detecting a legacy system</li>
+                    <li>🔺Exploiting SMB to become root</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="grid-item htb" onclick="window.location.href='/H4ckV4ult/pages/machines/cap.ctb'">
+        <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine invisible"><a>Active</a></div>
             <img src="/H4ckV4ult/images/machinesImages/cap.png" alt="Machine 1">
             <div class="grid-item-data">
@@ -491,6 +726,14 @@
             </div>
             <div class="grid-item-tags">
                 <a class="grid-item-tags-python">Python</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Discovering a web and showing data from Wireshark captures</li>
+                    <li>🔺Gathering credentials of an FTP inside that capture</li>
+                    <li>🔺Using python capability to escalate privileges</li>
+                </ul>
             </div>
         </div>
 
@@ -701,6 +944,14 @@ document.querySelectorAll(".grid-item htb").forEach(img => {
     card.classList.toggle("active");
   });
 });
+
+
+    function toggleExpand(el) {
+    el.closest(".grid-item").classList.toggle("show-info");
+    }
+
+
+</script>
 </script>
 </body>
 </html>
