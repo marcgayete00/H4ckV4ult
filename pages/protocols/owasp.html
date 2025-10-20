@@ -23,6 +23,25 @@
             <p>The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.</p>
         </div>
         <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Directory fuzzing</h3>
+                <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
+                <p>In case certificates annoy you</p>
+                <pre><code class="language-bash">feroxbuster -k -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
+                <p>Filtering status code</p>
+                <pre><code class="language-bash">-C 404</code></pre>
+            </ul>
+
+            <h2> Virtual Host (Subdomain) Enumeration (Now using CAIDO)</h2>
+            <ul>
+                <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
+                <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
+                <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
+                
+                <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
+            </ul>
+
             <h2>Exploitation</h2>
             <ul>
             </div>

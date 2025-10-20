@@ -41,12 +41,22 @@
             <h2>Exploitation</h2>
             <ul>
                 <h3>AES encrypted file</h3>
-                <p>In case you find a file like:</p>
-                <pre><code class="language-bash">file.zip.aes</code></pre>
-                <p>You can decode it using</p>
-                <pre><code class="language-bash">pyAesCrypt -d file.zip.aes</code></pre>
-                <p>In case you don't know the passwd you can use the following utility. <a href="/H4ckV4ult/files/brute.py" class="notion-link">Brute.py</a></p>
-            </ul>
+                <ul>
+                    <p>In case you find a file like:</p>
+                    <pre><code class="language-bash">file.zip.aes</code></pre>
+                    <p>You can decode it using</p>
+                    <pre><code class="language-bash">pyAesCrypt -d file.zip.aes</code></pre>
+                    <p>In case you don't know the passwd you can use the following utility. <a href="/H4ckV4ult/files/brute.py" class="notion-link">Brute.py</a></p>
+                </ul>    
+            
+                <h3>Brute Force Zip files</h3>
+                <ul>
+                <p>In order to creack zip files we need to convert the zip file into a hash by using zip2john</p>
+                <pre><code class="language-bash">zip2john download.zip > hash.txt</code></pre>
+                <p>Now brute force it</p>
+                <pre><code class="language-bash">john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt</code></pre>
+                </ul>
+            </ul>    
         </div>
     </div>
 </body>

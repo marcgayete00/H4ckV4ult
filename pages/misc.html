@@ -26,24 +26,8 @@
         </div>
 
         <div class="notion-container">
-            <div class="notion-header">
-                <h1 id="Enumeration" class="top">Enumeration</h1>
-            </div>
-            <h2> Virtual Host (Subdomain) Enumeration (Now using CAIDO)</h2>
-            <ul>
-                <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
-                <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
-                <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
-                
-                <a class="cherry-banner" href="/H4ckV4ult/files/subdomainLister.sh" download="subdomainLister.sh">
-                    <img src="/H4ckV4ult/images/file_logo.png"> 
-                    <h3>SubdomainLister.sh</h3>
-                </a>
-                <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
-            </ul>
-
                 <div class="notion-header">
-                    <h1 id="Webshells">Webshells</h1>
+                    <h1 id="Webshells" class="top">Webshells</h1>
                 </div>
                 
                 <div class="notion-body">
