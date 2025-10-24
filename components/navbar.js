@@ -70,7 +70,7 @@ async function loadRoutes() {
 async function searchInPages(searchQuery) {
     const pages = await loadRoutes();
     const resultsContainer = document.getElementById('searchResults'); // Contenedor de resultados
-
+    console.log(pages)
     resultsContainer.innerHTML = ''; // Limpiar resultados anteriores
 
     pages.forEach(page => {

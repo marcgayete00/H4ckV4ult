@@ -26,7 +26,7 @@
             <h2>Enumeration</h2>
             <ul>
                 <h3>Directory fuzzing</h3>
-                <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
+                <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --dont-filter -C 404</code></pre>
                 <p>In case certificates annoy you</p>
                 <pre><code class="language-bash">feroxbuster -k -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
                 <p>Filtering status code</p>
