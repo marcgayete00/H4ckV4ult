@@ -17,13 +17,19 @@
     <div id="navbar-container"></div>
     <script src="/H4ckV4ult/components/navbar.js"></script>
 
-    <div class="notion-container">
-        <div class="notion-header">
+    <div class="main-container">
+        <div class="sidebar">
+                <h3>Quick content</h3>
+                <ul id="sidebar-menu"></ul>
+        </div>
+
+    <div class="alternative-notion-container">
+        <div class="alternative-notion-header">
             <h1>Active Directory (TCP/53 - DNS, TCP/389 - LDAP, TCP/636 - LDAPS, TCP/88 - Kerberos, TCP/445 - SMB)</h1>
             <p>A directory service developed by Microsoft that acts as a centralized database for managing and organizing resources in a network, particularly within Windows environments. This service relies on multiple ports</p>
         </div>
         <div class="notion-body">
-            <h2>Enumeration</h2>
+            <h2 id="Enumeration">Enumeration</h2>
             <ul>
                 <p> Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the <b>domain name</b></p>
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
@@ -72,13 +78,13 @@ Restore-ADObject -Identity $guid</code></pre>
             </ul>
             <h2>Exploitation</h2>
             <ul>
-                <h2>Certipy Attacks</h2>
+                <h2 id="Certipy Attacks">Certipy Attacks</h2>
                 <div class="banner">
                     <a class="cherry-banner" href="certipy.html">
                         <h2>   Check for more information ↗️</h2>
                     </a>
                 </div>
-                <h2>Post exploitation attacks / Bloodhound related</h2>
+                <h2 id="Post exploitation attacks / Bloodhound related">Post exploitation attacks / Bloodhound related</h2>
                 <ul>
                     <h3> Resource-based Constrained Delegation attack</h3>
                     <ul>
@@ -102,7 +108,7 @@ Restore-ADObject -Identity $guid</code></pre>
                         <p> Exporting ticket and connecting to machine</p>
                     </ul>
 
-                    <h3> Force Change password attack</h3>
+                    <h3>Force Change password attack</h3>
                     <ul>
                         <p> An attacker has certain permissions on user object (like GenericWrite, WriteProperty, WriteOwner) which ables him to change the password of user without knowing it</p>
                         <p>To perform this attack you can follow commands that bloodhound provides (more or less becaouse i had to change one a bit)</p>
@@ -145,7 +151,7 @@ Restore-ADObject -Identity $guid</code></pre>
                 </ul>
                 </ul>
                 
-                <h2>Kerberos Attacks</h2>
+                <h2 id="Kerberos Attacks">Kerberos Attacks</h2>
                 <p>Kerberos works emiting tickets using the KDC (Key Distribution Center). There are two kinds of tickets</p>
                     <p><b>TGT (Ticket Granting Ticket)</b> -> Emited by KDC and allows to request more tickets</p>
                     <p><b>TGS (Ticket Granting Service)</b> -> Service tickets used to authenticate against an specific service (MSSQL, CIFS, HTTP) </p>
@@ -222,7 +228,40 @@ IT</code></pre>
             </ul>        
         </div>
     </div>
-
-
+</div>
 </body>
+<script>
+    function generateMenu() {
+        const headers = document.querySelectorAll('.alternative-notion-container h2');
+        const sidebarList = document.querySelector('#sidebar-menu');
+
+        headers.forEach(header => {
+            if (!header.id) return;
+
+            // Texto original del encabezado
+            const headerText = header.textContent.trim();
+
+            // Texto que aparecerá en el menú
+            let menuText = headerText;
+
+            // Excepción específica
+            if (headerText.toLowerCase() === 'post exploitation attacks / bloodhound related') {
+            menuText = 'Post exploitation';
+            }
+
+            // Crear elementos del menú
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.textContent = menuText;
+            link.setAttribute('href', `#${header.id}`);
+
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        });
+}
+
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+</script>
 </html>

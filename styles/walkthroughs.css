@@ -1,4 +1,10 @@
 /* Main content container (Hoja estilo Notion) */
+.main-container {
+    display: flex; /* Usamos flexbox para alinear la barra lateral y el contenido en una fila */
+    margin-top: 60px; /* Deja espacio para el navbar */
+    padding: 0 20px; /* Asegura un pequeño espacio a los lados */
+}
+
 .notion-container {
     max-width:85%; /* Limita el ancho máximo */
     margin: 0 auto; /* Centra el contenido en la página */
@@ -9,7 +15,46 @@
     margin-top: 50px;
 }
 
-/* Header styles (Título de la hoja) */
+.alternative-notion-container{
+    flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-left: 30px;
+}
+
+.alternative-notion-header{
+     margin-bottom: 30px;
+}
+
+.alternative-notion-header .top {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-top: 1px;
+}
+
+.alternative-notion-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.alternative-notion-header p {
+    font-size: 18px;
+    color: #666;
+}
+
+.alternative-notion-header ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+
 .notion-header {
     margin-bottom: 30px;
 }
@@ -23,6 +68,34 @@
 .notion-header p {
     font-size: 18px;
 }
+
+
+.alternative-notion-body h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.alternative-notion-body p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.alternative-notion-body ul {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.alternative-notion-body li {
+    margin-bottom: 10px;
+    position: relative;
+ 
+}
+
+
+
 
 /* Body styles (Contenido de la hoja) */
 .notion-body h2 {
@@ -70,4 +143,44 @@ h2{
     border-radius: 10px;
     text-decoration: none;
     
+}
+
+.sidebar {
+    width: 270px;
+    background: linear-gradient(to bottom, #a100ff, #b700ff, #da00ff, #f000ff, #ff47ff);
+    color: white;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 10px;
+    text-decoration: none; 
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.sidebar ul li a:hover {
+    color: rgb(0, 0, 0);
+    transition: 1s;
+    text-decoration: none;
 }
