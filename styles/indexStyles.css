@@ -79,8 +79,62 @@
   text-decoration: none;
 }
 
-section{
-    width: 95%;
-    margin-left: -25px;
+
+#wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 50px;          /* separación entre la Todo list y el gráfico */
+  margin-top: -20px;   /* espacio respecto al texto anterior */
+  width: 100%; 
 }
+
+/* el contenedor del gráfico */
+#wrapper section {
+  flex: 1; /* ocupa todo el espacio restante */
+  display: flex;
+  justify-content: center; /* centra el canvas dentro */
+}
+
+/* hace que el canvas se expanda completamente dentro del section */
+#wrapper canvas {
+  width: 100% !important;
+  height: 600px !important; /* altura similar a la que tenías */
+  max-width: 100%;
+}
+
+.todolist {
+    width: 320px;
+    color: rgb(6, 6, 6);
+    padding: 10px;
+    height: 100%;
+    box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-left: 20px;
+    border: 1px solid #333;
+    text-indent: 3em each-line
+}
+
+.todolist ul{
+    list-style: none;
+    margin-left: -30px; 
+    
+}
+
+.todolist li{
+    font-size: 20px;
+    padding-bottom: 5px;
+
+}
+
+#title{
+    padding-left: 20px;
+    padding-bottom: 10px;
+}
+
+#wrapper2{
+    display: flex;
+}
+
+
+
 
