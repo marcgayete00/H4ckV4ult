@@ -31,8 +31,13 @@
         <div class="notion-body">
             <h2 id="Enumeration">Enumeration</h2>
             <ul>
-                <p> Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the <b>domain name</b></p>
-                <pre><code class="language-bash">crackmapexec smb 10.10.11.174</code></pre>
+                <p> </p>
+                <pre><code class="language-bash">crackmapexec smb 10.10.11.174 #Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the domain name
+crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --rid-brute #Once you have a user you can rid-brute to show all users
+crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"           #Check for winrm 
+</code></pre>
+
+                
                 <p> To dump all ldap information</p>
                 <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
                 <p>User enumration via SID</p>
@@ -72,6 +77,8 @@ Select-Object Name, SamAccountName, LastKnownParent</code></pre>
                 <p>Restore the user based on the GUID. Previously you need to find a command to show thr GUID of certain user</p>
 <pre><code class="language-powershell">$guid = [guid]"938182c3-bf0b-410a-9aaa-45c8e1a02ebf"
 Restore-ADObject -Identity $guid</code></pre>
+                <p>Getting winlogon credentials</p>
+                <pre><code class="language-powershell">reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" </code></pre>
                 </ul>
                 
                 

