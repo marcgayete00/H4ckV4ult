@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>SSH (TCP/22)</h1>
+            <p>SSH (Secure Shell) is a network protocol that establishes encrypted connections between computers for secure remote access</p>
+        </div>
+        <div class="notion-body">
+            <h2>Interesting files</h2>
+            <ul>
+            <p>In some exploitations you may find a private key file which is super important. Using it we can stablish an SSH connection without using any password</p>
+            
+            <h3>Windows typical location</h3>
+            <ul>
+                <pre><code class="language-bash">C:\Users\$USERNAME\.ssh</code></pre>
+                <p>File is normally called</p>
+                <pre><code class="language-bash">id_rsa</code></pre>
+            </ul>
+            <h3>Linux typical location</h3>
+            <ul>
+                <pre><code class="language-bash">/etc/ssh/</code></pre>
+                <p>File is normally called</p>
+                <pre><code class="language-bash">ssh_host_rsa_key</code></pre>    
+            </ul>
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

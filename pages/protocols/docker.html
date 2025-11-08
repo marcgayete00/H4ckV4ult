@@ -63,6 +63,7 @@ done; wait</code></pre>
                 </ul>
             </ul>
             <h2>Docker Privilege Escalation</h2>
+            <ul>
             <p>It is posible that from inside a container you are accesing a folder which can be accessed as well from outside the container. The key here is that from inside you must be root to proceed with that priv esc</p>
             <p>In that case you could create a script with SUID privileges and executed from outside. There are two options of creating the script</p>
             <p>1. Coping the bash binary (you got it all)</p>
@@ -91,6 +92,14 @@ int main(void) {
 chmod 4755 file.sh</code></pre>            
           <p>In case you use the first option bash must be executed with -p flag (as in the C script)</p>
           <pre><code class="language-bash">./bash -p</code></pre>
+          </ul>
+          
+          <h2>Docker Toolbox</h2>
+          <p>Docker Toolbox was an old way (Previous to docker desktop) to use docker in Windows environments which coudn't execute docker natively. It was a package that included several tools and a virtual machine where the <b>dockerd</b> deamon was running</p>
+          <p>In order to achieve this docker uses the <b>Boot2Docker</b> distribution on virtual box looking at the documentation or forums the local credentials can be found</p>
+          <pre><code class="language-docker">User: docker
+Pass: tcuser</code></pre>
+          <p>Now we can perform an SSH and pivot to the virtual machine that hosts all the container</p>  
         </div>
     </div>
 
