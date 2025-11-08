@@ -51,6 +51,7 @@
 /H4ckV4ult/pages/protocols/roundcube
 /H4ckV4ult/pages/protocols/samba
 /H4ckV4ult/pages/protocols/snort
+/H4ckV4ult/pages/protocols/ssh
 /H4ckV4ult/pages/protocols/tensorflow
 /H4ckV4ult/pages/protocols/tftp
 /H4ckV4ult/pages/protocols/tomcat
