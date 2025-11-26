@@ -24,15 +24,21 @@
         </div>
         <div class="notion-body">
             <h2>Enumeration</h2>
-            <p>Login location</p>
-            <pre><code class="language-bash"> http://domain.com/wp-admin </code></pre>
+            <ul>
+                <p>Global enumeration</p>
+                <pre><code class="language-bash"> wpscan --url giveback.htb -e vp --plugins-detection mixed --api-token D1bt...</code></pre>
 
-            <p>List users which have made a post</p>
-            <pre><code class="language-bash"> http://domain.com/wp-json/wp/v2/users/ </code></pre>
+                <p>Login location</p>
+                <pre><code class="language-bash"> http://domain.com/wp-admin </code></pre>
+
+                <p>List users which have made a post</p>
+                <pre><code class="language-bash"> http://domain.com/wp-json/wp/v2/users/ </code></pre>
+                
+                <p>Wordpress Core &gt;5.2.3 permits attacks to list Private posts. <a class="notion-link" href="https://www.exploit-db.com/exploits/47690">Here</a></p>
+                <pre><code class="language-bash"> http://office.paper/?static=1&order=desc </code></pre>
+            </ul>
             
-            <p>Global enumeration</p>
-            <pre><code class="language-bash"> wpscan --url giveback.htb -e vp --plugins-detection mixed --api-token D1bt...</code></pre>
-            </ul>        
+            
         </div>
     </div>
 

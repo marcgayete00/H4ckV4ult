@@ -199,12 +199,13 @@ int main(){
                         <p>During privilege escalation you may find polkit version <b>0.113</b> and previous are afected by a vulnerability which will add a new user to the server with sudo permisions</p>
                         <p>This is due curious behaviour of polkit software which it's function defines and controls system-wide privielges </p>
                         <p>When a the process is canceled while polkit is still procesing the request this behaviour will be triggered</p>
-                        <p>Performing this actions several times will allow us to escalate privielges. Here you have an script to automate it. <a class="notion-link" href="https://github.com/swapravo/polkadots/blob/main/polkadots">Here</a></p>
+                        <p>Performing this actions several times will allow us to escalate privielges. Here you have an script to automate it. <a class="notion-link" href="https://github.com/secnigma/CVE-2021-3560-Polkit-Privilege-Esclation/tree/main">Here</a></p>
                     
                         <p><b>IMPORTANT!!</b></p>
                         <p>In some cases the detection of this CVE be a false positive even though try yo exploit it anyway</p>
                         <p>To check polkit version use (Ubuntu, debian)</p>
-                        <pre><code class="language-bash">dpkg -l | grep policykit-1</code></pre>
+                        <pre><code class="language-bash">dpkg -l | grep policykit-1
+rpm -qa</code></pre>
                         
                     </ul>   
         </div>

