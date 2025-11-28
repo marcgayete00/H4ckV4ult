@@ -48,8 +48,10 @@
 /H4ckV4ult/pages/protocols/playsms
 /H4ckV4ult/pages/protocols/python
 /H4ckV4ult/pages/protocols/qpdf
+/H4ckV4ult/pages/protocols/rdp
 /H4ckV4ult/pages/protocols/roundcube
 /H4ckV4ult/pages/protocols/samba
+/H4ckV4ult/pages/protocols/snmp
 /H4ckV4ult/pages/protocols/snort
 /H4ckV4ult/pages/protocols/ssh
 /H4ckV4ult/pages/protocols/tensorflow

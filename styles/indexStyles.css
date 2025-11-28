@@ -48,6 +48,13 @@
     background-position: right; /* Mueve el gradiente hacia la derecha */
 }
 
+#profile{
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    height: 50px;
+}
+
 .select-date{
   background-color: #fff;
   color: #333;
@@ -79,12 +86,50 @@
   text-decoration: none;
 }
 
+.text-with-img {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.text-with-img p {
+    width: 100%;
+}
+
+.profile-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el texto bajo la imagen */
+    gap: 4px;
+}
+
+#profile {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: transform 0.4s ease;
+}
+
+#profile:hover {
+    transform: scale(1.08);
+    transition: 0.4s;
+}
+
+#profile-caption {
+    font-size: 15px;
+    color: #ff07fb;
+    font-weight: bold;
+}
+
+
 
 #wrapper {
   display: flex;
   align-items: flex-start;
   gap: 50px;          /* separación entre la Todo list y el gráfico */
-  margin-top: -20px;   /* espacio respecto al texto anterior */
+  margin-top: -10px;   /* espacio respecto al texto anterior */
   width: 100%; 
 }
 
