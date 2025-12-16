@@ -28,6 +28,7 @@
 /H4ckV4ult/pages/protocols/grafana
 /H4ckV4ult/pages/protocols/iis
 /H4ckV4ult/pages/protocols/imagemagick
+/H4ckV4ult/pages/protocols/imap
 /H4ckV4ult/pages/protocols/ipsec
 /H4ckV4ult/pages/protocols/ispconfig
 /H4ckV4ult/pages/protocols/jwt
@@ -36,7 +37,9 @@
 /H4ckV4ult/pages/protocols/mongodb
 /H4ckV4ult/pages/protocols/mremoteng
 /H4ckV4ult/pages/protocols/mssql
+/H4ckV4ult/pages/protocols/mysql
 /H4ckV4ult/pages/protocols/netdata
+/H4ckV4ult/pages/protocols/nfs
 /H4ckV4ult/pages/protocols/nginx
 /H4ckV4ult/pages/protocols/npbackup
 /H4ckV4ult/pages/protocols/nsclient++

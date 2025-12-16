@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Mysql (TCP/3306)</h1>
+            <p>MySQL is an open source relational database management system (RDBMS) that's used to store and manage data</p>
+        </div>
+        <div class="notion-body">
+
+            <h2>Usage</h2>
+            <h3> Connect to DB </h3>
+            <ul>
+                <p> You must have impacket suit installed (/examples directory)</p>
+                <pre><code class="language-bash">mysql -u root -h 10.129.14.132 -p</code></pre>
+                <p>In case you see an error like <b>"ERROR 2026 (HY000): TLS/SSL error: self-signed certificate in certificate chain"</b> just use <b>--skip-ssl</b></p>
+            </ul>
+
+           
+        </div>
+    </div>
+
+
+</body>
+</html>

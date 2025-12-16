@@ -22,17 +22,38 @@
             <h1>DNS - Domain Name Server (TCP/53)</h1>
             <p>A Domain Name System (DNS) turns domain names into IP addresses, which allow browsers to get to websites and other internet resources.</p>
         </div>
+        <p>A little bit of theory of different DNS records</p>
+        <p><b>A</b> records: We recognize the IP addresses that point to a specific (sub)domain through the A record. Here we only see one that we already know.
+        <p><b>MX records</b>: The mail server records show us which mail server is responsible for managing the emails for the company. Since this is handled by google in our case, we should note this and skip it for now.</p>
+        <p><b>NS records</b>: These kinds of records show which name servers are used to resolve the FQDN to IP addresses. Most hosting providers use their own name servers, making it easier to identify the hosting provider.</p>
+        <p><b>TXT records</b>: this type of record often contains verification keys for different third-party providers and other security aspects of DNS, such as SPF, DMARC, and DKIM, which are responsible for verifying and confirming the origin of the emails sent. Here we can already see some valuable information if we look closer at the results.</p>
+
         <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Getting DNS records</p>
+                <pre><code class="language-bash">dig any inlanefreight.com</code></pre>
+                <p>DNS lookup <a class="notion-link" href="https://domain.glass/">Domain Glass</a></p>
+                <p>Lookup anything about a website <a class="notion-link" href="https://buckets.grayhatwarfare.com/">gray hat warfare</a></p>
+                <p>Other ways to perform DNS lookup</p>
+                <pre><code class="language-bash">dig any inlanefreight.htb @10.129.242.130</code></pre>
+                <h3>Automation</h3>
+                <p>We can automate the process of finding subodmains by using the following tool. Wordlists that may come handy (fierce-hostlist.txt)</p>
+                <pre><code class="language-bash">dnsenum --dnsserver 10.129.242.130 --enum -p 0 -s 0 -o subdomains.txt -f /usr/share/wordlists/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt inlanefreight.htb</code></pre>
+                
+            </ul>
+
             <h2>Exploitation</h2>
             <ul>
                 <h3>Dns zone transfer attack</h3>
                 <ul>
                 <p>DNS is configured to be able to tranfer domain names to other domain name servers. This may be done due reduce load or to sync data</p>
-                <p>Here you can see diferent examples to perform the attack</p>    
+                <p>Here you can see diferent examples to perform the attack</p>
+                <p>When performing this attack remember to do it again for the subdomains</p>    
                 <pre><code class="language-bash">dig axfr @DNS_IP #Try zone transfer without domain</code></pre>
-                <pre><code class="language-bash">dig axfr @DNS_IP DOMAIN #Try zone transfer guessing the domain</code></pre>    
+                <pre><code class="language-bash">dig axfr @DNS_IP DOMAIN #Try zone transfer guessing the domain</code></pre> 
                 <pre><code class="language-bash">fierce --domain DOMAIN --dns-servers DNS_IP #Will try toperform a zone transfer against every authoritative name server and if this doesn'twork, will launch a dictionary attack</code></pre>    
-</ul>    
+            </ul>    
             </ul>    
         </div>
     </div>

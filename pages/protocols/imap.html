@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>IMAP (143/TCP, 993/TCP) POP3 (110/TCP, 995/TCP)</h1>
+            <p>IMAP allows online management of emails directly on the server and supports folder structures.POP3, on the other hand, does not have the same functionality as IMAP, and it only provides listing, retrieving, and deleting emails as functions at the email server.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Performing basic scan in order to detect data</p>
+                <pre><code class="language-bash">nmap 10.129.14.128 -sV -p110,143,993,995 -sC</code></pre>
+
+                <h3>Connect to server</h3>
+                <ul>
+                    <p>If we would like to connect to webserver we should use the following command (Recomended since this one allows to interact with the mail server)</p>
+                    <pre><code class="language-bash">openssl s_client -connect 10.129.242.130:imaps  #IMAP</code></pre>
+                    <pre><code class="language-bash">openssl s_client -connect 10.129.14.128:pop3s    #POP3</code></pre>
+                    <p>Also in case we have valid credentials we could perform:  (You are only able to list the different mailboxes)</p>
+                    <pre><code class="language-bash">curl -k 'imaps://10.129.14.128' --user user:p4ssw0rd</code></pre>
+                </ul>
+                <h3>Usage</h3>
+                <ul>
+                    <p>Once we have performed a connection with the previously mentioned commands we could perform:</p>
+                    <pre><code class="language-imap">1 LOGIN username password
+1 LIST "" *  #Lists all INBOXES
+1 SELECT INBOX  
+1 FETCH ID all  #Show message headers (From, to, concept)
+1 FETCH 1 BODY[TEXT] #Show text of the message</code></pre>
+                </ul>    
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -49,7 +49,13 @@ crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"           #Check for w
                     <p>Null sesion with rpcclient in order to enumerate users</p>
                     <pre><code class="language-bash">rpcclient -U "" 10.10.11.51 -N</code></pre>
                     <p>Once inside, user enumeration</p>
-                    <pre><code class="language-bash">enumdomusers</code></pre>
+                    <pre><code class="language-bash">enumdomusers #Enumerates all domain users.
+srvinfo #Server information.
+enumdomains #Enumerate all domains that are deployed in the network.
+querydominfo #Provides domain, server, and user information of deployed domains.
+netshareenumall #Enumerates all available shares.
+netsharegetinfo $sharename #Provides information about a specific share.
+queryuser RID  #Provides information about a specific user.</code></pre>
                 </ul>
 
                 <h3> BloodHound </h3>
