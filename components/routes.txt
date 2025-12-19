@@ -14,9 +14,11 @@
 /H4ckV4ult/pages/protocols/apache
 /H4ckV4ult/pages/protocols/backdrop
 /H4ckV4ult/pages/protocols/backrest
+/H4ckV4ult/pages/protocols/bashScripting
 /H4ckV4ult/pages/protocols/bufferoverflow
 /H4ckV4ult/pages/protocols/certipy
 /H4ckV4ult/pages/protocols/compressed
+/H4ckV4ult/pages/protocols/crawling
 /H4ckV4ult/pages/protocols/curl
 /H4ckV4ult/pages/protocols/dns
 /H4ckV4ult/pages/protocols/docker
@@ -29,6 +31,7 @@
 /H4ckV4ult/pages/protocols/iis
 /H4ckV4ult/pages/protocols/imagemagick
 /H4ckV4ult/pages/protocols/imap
+/H4ckV4ult/pages/protocols/ipmi
 /H4ckV4ult/pages/protocols/ipsec
 /H4ckV4ult/pages/protocols/ispconfig
 /H4ckV4ult/pages/protocols/jwt
@@ -45,6 +48,7 @@
 /H4ckV4ult/pages/protocols/nsclient++
 /H4ckV4ult/pages/protocols/ntlm
 /H4ckV4ult/pages/protocols/nvms-1000
+/H4ckV4ult/pages/protocols/oracle
 /H4ckV4ult/pages/protocols/owasp
 /H4ckV4ult/pages/protocols/perl
 /H4ckV4ult/pages/protocols/php
@@ -53,6 +57,8 @@
 /H4ckV4ult/pages/protocols/qpdf
 /H4ckV4ult/pages/protocols/rdp
 /H4ckV4ult/pages/protocols/roundcube
+/H4ckV4ult/pages/protocols/rservices
+/H4ckV4ult/pages/protocols/rsync
 /H4ckV4ult/pages/protocols/samba
 /H4ckV4ult/pages/protocols/snmp
 /H4ckV4ult/pages/protocols/snort

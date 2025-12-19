@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Bash scripting</h1>
+            <p>Bash scripts are files containing commands that you run in the terminal. They automate tasks and make your work more efficient.</p>
+        </div>
+
+        <div class="notion-body">
+            <h2>Useful Snipets of code</h2>
+            <ul>
+                <h3>Arguments</h3>
+                <ul>
+                <p>The first argument (0) correspond to the script name other ones correspond to the flags you use</p>
+                <pre><code class="language-bash">#!/bin/bash
+echo $0
+echo $1
+echo $2</code></pre>
+
+            <pre><code class="language-bash">┌──(kali㉿kali)-[~/Desktop/bash_scripting]
+└─$ ./script2.sh 1 2 3 4
+./script2.sh
+1
+2
+3</code></pre>
+                <p>You can count the number of arguments with </p>
+                <pre><code class="language-bash">echo "Number of arguments" $#</code></pre>
+                </ul>
+
+                <h3>Conditionals</h3>
+                <ul>
+                <p>There are several conditionals to perform comparations here comes the list:</p>
+                <ul>
+                    <h4>Logical operators</h4>
+                    <li><b>!</b> logical negotation NOT</li>
+                    <li><b>&&</b> logical AND</li>
+                    <li><b>||</b> locagical OR</li>
+
+                    <h4>Integer operators</h4>
+                    <li><b>-eq</b> is equal to</li>
+                    <li><b>-ne</b> is not equal to</li>
+                    <li><b>-gt</b> is greater than</li>
+                    <li><b>-ge</b> is greater than or equal</li>
+                    <li><b>-lt</b> is lower than</li>
+                    <li><b>-le</b> is lower than or equal</li>
+                    <li><b>!=</b>  is different than</li>
+                    
+
+                    <h4>String operators</h4>
+                    <li><b>==</b> is equal to</li>
+                    <li><b>!=</b> is not equal to</li>
+                    <li><b><</b> is less than in ASCII alphabetical order</li>
+                    <li><b>></b> is greater than in ASCII alphabetical order</li>
+                    <li><b>-z</b> if the string is empty (null)</li>
+                    <li><b>-n</b> if the string is not null</li>
+
+                    <h4>File operators</h4>
+                    <li><b>-e</b> if the file exist</li>
+                    <li><b>-f</b> tests if it is a file</li>
+                    <li><b>-d</b> tests if it is a directory</li>
+                    <li><b>-L</b> tests if it is if a symbolic link</li>
+                    <li><b>-N</b> checks if the file was modified after it was last read</li>
+                    <li><b>-O</b> if the current user owns the file</li>
+                    <li><b>-G</b> if the file’s group id matches the current user’s</li>
+                    <li><b>-s</b> tests if the file has a size greater than 0</li>
+                    <li><b>-r</b> tests if the file has read permission</li>
+                    <li><b>-w</b> tests if the file has write permission</li>
+                    <li><b>-x</b> tests if the file has execute permission</li>
+                </ul>    
+                <p>Example of a conditional</p>
+
+                    <pre><code class="language-bash">#!/bin/bash
+echo $#
+if [ $# -lt 4 ]
+then 
+	echo "Introduce more than 4 arguments"
+else
+	echo "Great"
+fi</code></pre>
+               <p>Simplifyed if</p>         
+               <pre><code class="language-bash">#!/bin/bash
+echo $#
+if [ $# == 4 ]
+then 
+	echo "equal to 4 arguments"
+fi
+</code></pre>
+              </ul>
+              
+              <h3>Looping methods</h3>
+              <ul>
+                <p>A loop consists in a operation that is used to perform one o serveral actions repeatedly. Some examples are</p>
+                <h4>For loop</h4>
+                <ul>
+                <p>This one is used when you need to perform a static number of operations. For example 40</p>
+                <pre><code class="language-bash">for counter in {1..40}
+do
+    #Perform operations here
+done</code></pre>
+                <p>Another example of looping with for is, iteration between arguments</p>
+                <pre><code class="language-bash">for arg in "$@"
+do
+    echo "Argumento: $arg"
+done</code></pre>
+                
+                </ul>
+                
+
+                <h4>While loop</h4>
+                <ul>
+                    <p>This one is used then you want to perform the action repeatedly after a trigger shows up</p>
+                    <pre><code class="language-bash">counter=1
+while [ $counter -le 5 ]
+do
+  echo "Welcome $counter times"
+  counter=$(( $counter + 1 ))
+done</code></pre>
+                </ul>
+<p>It is important to mention that in order to increase the value of the variable inside the loop we should perform someting like:</p>
+<pre><code class="language-bash">$variable=$(( $counter + 1 )) ||  OR  || var=$(echo $var | base64)</code></pre>
+              </ul> 
+              
+              <h3>Exit methods</h3>
+              <ul>
+                <p>When attempting to exit in a part of a script we can use the special word <b>exit</b> exit comes with a number that indicates how the script exited. Here you can find the diferent exit numbers</p>
+                <ul>
+                    <li>Value <b>0</b> - represents successful execution</li>
+                    <li>Value <b>1</b> - represents a result of a failure</li>
+                </ul>
+              </ul>  
+              
+              <h3>Arrays</h3>
+              <ul>
+                <p>Imporatant thing here is that the values of arrays are separated by spaces</p>
+                <pre><code class="language-bash">#!/bin/bash
+domains=(www.inlanefreight.com ftp.inlanefreight.com vpn.inlanefreight.com www2.inlanefreight.com)
+echo ${domains[0]}</code></pre>
+              </ul>
+
+              <h3>Functions</h3>
+              <ul>
+                <pre><code class="language-bash">function name {
+	#your code here
+}</code></pre>
+             <p>Passing parameters</p>
+             <pre><code class="language-bash">#!/bin/bash
+function print_pars {
+	echo $1 $2 $3
+}
+
+one="First parameter"
+two="Second parameter"
+three="Third parameter"
+
+print_pars "$one" "$two" "$three"</code></pre> 
+            </ul>
+
+            </ul>    
+        </div>
+
+    </div>
+
+
+</body>
+</html>

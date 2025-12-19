@@ -45,7 +45,8 @@
                 <ul>
                     <p> In some cases it would be necessary to enumrate subdomains so we can use wfuzz. We use --hl 234 (Which is the code) in case there are multiple request with the same code </p>
                     <pre><code class="language-bash">wfuzz -c --hc 404 -t 200 --hl 234 -w /usr/share/wordlists/dirb/small.txt -u http://thetoppers.htb -H "Host: FUZZ.thetoppers.htb"
-ffuf -w /opt/useful/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.academy.htb/</code></pre>
+ffuf -w /opt/useful/seclists/Discovery/DNS/subdomains-top1million-5000.txt:FUZZ -u http://FUZZ.academy.htb/
+gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --append-domain</code></pre>
                     <p> In case that the server responds equally for real subdomains and for not real subdomains we can use the following script that compare the hash of the requests to identify possible true subdomains </p>
                     
                     <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>

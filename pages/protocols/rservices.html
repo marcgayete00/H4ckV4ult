@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>R-Services (TCP/512 ,TCP/513 ,TCP/514) </h1>
+            <p>R-Services are a suite of services hosted to enable remote access or issue commands between Unix hosts over TCP/IP.The R-services were the de facto standard for remote access between Unix operating systems until they were replaced by the Secure Shell (SSH)</p>
+            <p>The suite consists of the following commands</p>
+            <ul>
+                <li><b>rcp</b> (remote copy)</li>
+                <li><b>rexec</b> (remote execution)</li>
+                <li><b>rlogin</b> (remote login)</li>
+                <li><b>rsh</b> (remote shell)</li>
+                <li><b>rstat</b></li>
+                <li><b>ruptime</b></li>
+                <li><b>rwho</b> (remote who)s</li>
+            </ul>
+        </div>
+
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <p>The most important file to look for is called <b>hosts.equiv</b> which  is recognized as the global configuration regarding all users on a system, whereas <b>.rhosts</b> provides a per-user configuration. </p>
+                <h3>Logging in Using Rlogin</h3>
+                <ul>
+                    <p>In order to find that user it is necesary to check host.equiv file since it contains this kind of names</p>
+                    <pre><code class="language-bash">rlogin 10.0.17.2 -l htb-student</code></pre>
+                </ul>
+                <h3>Listing authenticated Users</h3>
+                <ul>
+                    <p>Once in you are able to list users using rwho command</p>
+                    <pre><code class="language-bash">rwho</code></pre>
+                    <p>Another way of listing users is by using rusers command</p>
+                    <pre><code class="language-bash">rusers -al 10.0.17.5</code></pre>
+                </ul>  
+
+            </ul>    
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -19,23 +19,24 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>RDP (Remote Desktop Protocol) (TCP/3389)</h1>
-            <p>Remote Desktop Protocol (RDP), a secure network communication protocol offered by Microsoft, allows users to execute remote operations on other computers</p>
+            <h1>rsync (TCP/873)</h1>
+            <p>rsync (remote sync) is a utility for transferring and synchronizing files between a computer and a storage drive and across networked computers by comparing the modification times and sizes of files</p>
         </div>
         <div class="notion-body">
-            <h2>Usage from Linux</h2>
+            <h2>Usage</h2>
             <ul>
-                <p>Using xfreerdp3 we can connect to any computer if the port is open and we have the right credentials
-                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun!</code></pre>
-                <p>Also you can mount the filesystem</p>
-                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun! /drive:linux,/home</code></pre>    
-            </ul>
-            
-            <h2>Enumeration</h2>
-            <ul>
-                <pre><code class="language-bash">nmap -sV -sC 10.129.201.248 -p3389 --script rdp*</code></pre> 
-            </ul>
+                <h3>Accessing shares</h3>
+                <ul>
+                    <pre><code class="language-bash">nc -nv 127.0.0.1 873</code></pre>
+                    <p>Once insede you must type <b>#list</b> in order to list all shares</p>
+                    <p>In case we would like to check what content is inside a share we could perform</p>
+                    <pre><code class="language-bash">rsync -av --list-only rsync://127.0.0.1/$sharename</code></pre>
+                </ul>
+
+            </ul>    
         </div>
     </div>
+
+
 </body>
 </html>

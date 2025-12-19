@@ -35,11 +35,13 @@
                 <pre><code class="language-bash">dig any inlanefreight.com</code></pre>
                 <p>DNS lookup <a class="notion-link" href="https://domain.glass/">Domain Glass</a></p>
                 <p>Lookup anything about a website <a class="notion-link" href="https://buckets.grayhatwarfare.com/">gray hat warfare</a></p>
+                <p>Find information about the domain <a class="notion-link" href="https://search.censys.io/">Censys </a></p>
+                <p>Find certifcate logs (issued subdomains) <a class="notion-link" href="https://crt.sh/">crt.sh</a></p>
                 <p>Other ways to perform DNS lookup</p>
                 <pre><code class="language-bash">dig any inlanefreight.htb @10.129.242.130</code></pre>
                 <h3>Automation</h3>
                 <p>We can automate the process of finding subodmains by using the following tool. Wordlists that may come handy (fierce-hostlist.txt)</p>
-                <pre><code class="language-bash">dnsenum --dnsserver 10.129.242.130 --enum -p 0 -s 0 -o subdomains.txt -f /usr/share/wordlists/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt inlanefreight.htb</code></pre>
+                <pre><code class="language-bash">dnsenum --enum inlanefreight.com -f  /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt </code></pre>
                 
             </ul>
 

@@ -63,7 +63,7 @@ export SHELL=bash</code> </pre>
                 </div>
                 
             <div class="notion-header">
-                <h1 id="Python">Metasploit</h1>
+                <h1 id="Metasploit">Metasploit</h1>
             </div>   
             <div class="banner">
                     <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/metasploit.html">
@@ -322,11 +322,13 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
 
 
             <div class="notion-header"> 
-                <h1 id="IDS/Fierwall Evasion">IDS/Fierwall Evasion</h1>
+                <h1 id="IDS/Firewall Evasion">IDS/Firewall Evasion</h1>
             </div>
 
             <div class="notion-body">
                 <ul>
+                    <h2>Evasion using nmap</h2>
+                    <ul>
                     <p>Here you can find some ways to be sneaky with nmap</p>
                     <p><b>-Pn</b> Disables ICMP requests, <b>-sA</b> Performs ACK scan on specified ports.</p>
                     <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 21,22,25 -sA -Pn -n --disable-arp-ping --packet-trace</code></pre> 
@@ -338,11 +340,29 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
                     <p><b>--source-port 53</b> This method could be fundamental to us if we are in a demilitarized zone (DMZ). The company's DNS servers are usually more trusted than those from the Internet. So, for example, we could use them to interact with the hosts of the internal network </p>
                     <pre><code class="language-bash">sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace --source-port 53
 ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pre>
+                    </ul>        
+                
 
-                   
+                    <h2>Detecting WAF</h2>
+                    <ul>
+                        <p>Using the tool <b>wafw00f</b></p>
+                        <pre><code class="language-bash">wafw00f inlanefreight.com
+[*] Checking https://inlanefreight.com
+[+] The site https://inlanefreight.com is behind Wordfence (Defiant) WAF.
+[~] Number of requests: 2</code></pre>
+                    </ul>
                 </ul>
             </div>
-            
+
+            <div class="notion-header">
+                <h1 id="Bash scripting">Bash scripting</h1>
+            </div>   
+            <div class="banner">
+                    <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/bashScripting.html">
+                        <h2>Check for more information ↗️</h2>
+                    </a>
+            </div>  
+
             
                     
                 </ul>

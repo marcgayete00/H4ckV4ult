@@ -19,23 +19,21 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>RDP (Remote Desktop Protocol) (TCP/3389)</h1>
-            <p>Remote Desktop Protocol (RDP), a secure network communication protocol offered by Microsoft, allows users to execute remote operations on other computers</p>
+            <h1>Web Crawling</h1>
+            <p>Crawling, often called spidering, is the automated process of systematically browsing the World Wide Web. Similar to how a spider navigates its web, a web crawler follows links from one page to another, collecting information.</p>
         </div>
+
         <div class="notion-body">
-            <h2>Usage from Linux</h2>
-            <ul>
-                <p>Using xfreerdp3 we can connect to any computer if the port is open and we have the right credentials
-                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun!</code></pre>
-                <p>Also you can mount the filesystem</p>
-                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun! /drive:linux,/home</code></pre>    
-            </ul>
-            
-            <h2>Enumeration</h2>
-            <ul>
-                <pre><code class="language-bash">nmap -sV -sC 10.129.201.248 -p3389 --script rdp*</code></pre> 
-            </ul>
+           <ul>
+                <h3>Usage</h3>
+                <ul>
+                    <pre><code class="language-bash">python3 ReconSpider.py http://inlanefreight.com</code></pre>
+                    <p>Results will be located at a json file on the same folder</p>
+                </ul>
+           </ul>   
         </div>
     </div>
+
+
 </body>
 </html>
