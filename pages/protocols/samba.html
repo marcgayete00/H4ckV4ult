@@ -51,6 +51,7 @@
                 <h3>EternalBlue</h3>
                 <ul>
                     <p>SMB1 is vulnerable to a common vulnerability called Eternal Blue this one allows to inject code in SMB and spawn a shell as NT Authority\Systen</p>
+                    <p>This vuln affects <b>WS 2008 to WS 2016 Remeber to try different exploits</b></p>
                     <p>Use the following metasploit module</p>
                     <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
                 </ul>
@@ -75,6 +76,12 @@ attributes: A (20)
 stream: [::$DATA], 0 bytes
 stream: [:Password:$DATA], 15 bytes</code></pre>
                    <p>As you can see there is a data stream called <b>Password</b> we can view its content using the command <b>more</b> over the file</p>
+                </ul>
+
+                <h3>psexec using admin credentials</h3>
+                <ul>
+                    <p>In case you have admin credentials of a computer you may be able to use the following metasploit module which grants access to the server</p>
+                    <pre><code class="language-bash">exploit/windows/smb/psexec</code></pre>
                 </ul>
             </ul>
         </div>

