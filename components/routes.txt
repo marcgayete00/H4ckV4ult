@@ -15,9 +15,11 @@
 /H4ckV4ult/pages/protocols/backdrop
 /H4ckV4ult/pages/protocols/backrest
 /H4ckV4ult/pages/protocols/bashScripting
+/H4ckV4ult/pages/protocols/bitlocker
 /H4ckV4ult/pages/protocols/bufferoverflow
 /H4ckV4ult/pages/protocols/certipy
 /H4ckV4ult/pages/protocols/compressed
+/H4ckV4ult/pages/protocols/cracking
 /H4ckV4ult/pages/protocols/crawling
 /H4ckV4ult/pages/protocols/curl
 /H4ckV4ult/pages/protocols/dns

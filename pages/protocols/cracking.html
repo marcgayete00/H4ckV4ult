@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Cracking passwords</h1>
+            <p>Here you can find a cheatsheet for cracking some passwords. There will be uncommon things hard to remember...</p>
+        </div>
+        <div class="notion-body">
+            <h2>John the reaper</h2>
+            <ul>
+                <h3>Specifying hash formats</h3>
+                <ul>
+                    <pre><code class="language-bash">john hash.txt --format=afs</code></pre>
+                </ul>
+            </ul>
+            <h2>Hashcat</h2>
+            <ul>
+                <h3>Hashcat rules</h3>
+                <ul>
+                    <p>In case you found that you are not able to crack certain password with default wordlist you can use rules which provide variations of password presents in wordlists</p>
+                    <pre><code class="language-bash">hashcat -m 0 hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule</code></pre>
+                </ul>
+                <h3>Hascat masks </h3>
+                <ul>
+                    <p>In case you know that password contains certain format like (4 digits or first uppercase and other ones no...) we can specified in hashcat by using <b>-a</b> flag</p>
+                    <p>The following command means first uppercase (u) next four are lowercase (l) then a digit (d) finally a symbol (s) </p>
+                    <pre><code class="language-bash">hashcat -a 3 -m 0 1e293d6912d074c0fd15844d803400dd '?u?l?l?l?l?d?s'</code></pre>
+                </ul>
+            </ul>
+            
+            <h2>Cewl</h2>
+            <ul>
+                <p>In case you would like to find passwords based on the information of a company you could use cewl</p>
+                <p>The following command is an example of how to scan a web for credentials (-d) depth of spider, (-m) min length of words</p>
+                <pre><code class="language-bash">cewl https://www.inlanefreight.com -d 4 -m 6 --lowercase -w inlane.wordlist</code></pre>
+                <h3>Creating custom wordlist</h3>
+                <ul>
+                    <p>1. Situate the key words in a txt file</p>
+                    <p>2. Duplicate the key words by using</p>
+                    <pre><code class="language-bash">hashcat --stdout \
+-a 1 \
+wordlist.txt \
+wordlist.txt \
+> new_wordlist.txt</code></pre>
+                    <p>3. (Optional) remove all password less than 12 chars</p>
+                    <p>4. Create a custom rule, chars used can be</p>
+                    <pre><code class="language-bash">:
+c
+so0
+c so0
+sa@
+c sa@
+c sa@ so0
+$!
+$! c
+$! so0
+$! sa@
+$! c so0
+$! c sa@
+$! so0 sa@
+$! c so0 sa@</code></pre>  
+                 <p>5. Apply custom rule</p> 
+                 <pre><code class="language-bash">hashcat --stdout \                                                                   
+  -r custom.rule \
+  new_second_wordlist.txt \ 
+> final_wordlist.txt</code></pre>
+                 <p>6. Finally use the final_wordlist.txt to crack the hash</p>   
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

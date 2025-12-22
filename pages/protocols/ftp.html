@@ -19,22 +19,14 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>FTP (TCP/21)</h1>
-            <p>Protocol to transfer files</p>
+            <h1>Bitlocker</h1>
+            <p>BitLocker is a full disk encryption feature built into specific Windows versions (Pro, Enterprise, Education) that protects data by scrambling everything on a drive, making it unreadable without the correct decryption key or recovery key</p>
         </div>
         <div class="notion-body">
-            <h2>Usage</h2>
-            <ul>
-                <h3>Connection</h3>
-                <pre><code class="language-bash">ftp TARGET_IP</code></pre>
-
-                <h3>Get files</h3>
-                <pre><code class="language-bash">get FILE_NAME</code></pre>
-            </ul>    
             <h2>Exploitation</h2>
             <ul>
-                <p> VSFTPD version 2.3.4 may be explotable</p>
-                <pre><code class="language-bash"> use exploit/unix/ftp/vsftpd_234_backdoor</code></pre>
+               <p>In order to crack a bitlocker password we muest use a tool called <b>Bitlocker2john</b></p>
+               bitlocker2john -i Backup.vhd > backup.hashes
             </ul>
             
 

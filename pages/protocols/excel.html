@@ -33,13 +33,21 @@
             </ul>
             <ul>
             <h3>Password Protected</h3>
-            
-                <p>Can't access your excel? Password protected?</p>
-                <p>Rename file to .zip and navigate to <b>xl</b> folder then access <b>Worksheets</b></p>
-                <p>Select the worksheet you can to remove password and open it with a CodeEditor</p>
-                <p>Serch for <b>"Protect"</b> string and youll find the following XML tag</p>                
-                <pre><code class="language-xml">&lt;sheetProtection scenarios="1" objects="1" spinCount="10000" saltValue="VALUE" hashValue="VALUE" algorithmName="SHA-512"&gt;</code></pre>
-                <p>Remove that line, save file, rename file agant to .xlsx and open it </p>
+                <h4>Remove password from files</h4>
+                <ul>
+                    <p>Can't access your excel? Password protected?</p>
+                    <p>Rename file to .zip and navigate to <b>xl</b> folder then access <b>Worksheets</b></p>
+                    <p>Select the worksheet you can to remove password and open it with a CodeEditor</p>
+                    <p>Serch for <b>"Protect"</b> string and youll find the following XML tag</p>                
+                    <pre><code class="language-xml">&lt;sheetProtection scenarios="1" objects="1" spinCount="10000" saltValue="VALUE" hashValue="VALUE" algorithmName="SHA-512"&gt;</code></pre>
+                    <p>Remove that line, save file, rename file agant to .xlsx and open it </p>
+                </ul>  
+                
+                <h4>Cracking password-protected documents</h4>
+                <p>In case you have a list of possible passwords you can attempt to crack a document's password</p>
+                <pre><code class="language-bash">office2john.py Protected.docx > protected-docx.hash
+john --wordlist=rockyou.txt protected-docx.hash
+john protected-docx.hash --show</code></pre>
             </ul>    
         </div>
     </div>

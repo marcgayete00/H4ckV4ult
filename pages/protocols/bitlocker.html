@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Bitlocker</h1>
+            <p>BitLocker is a full disk encryption feature built into specific Windows versions (Pro, Enterprise, Education) that protects data by scrambling everything on a drive, making it unreadable without the correct decryption key or recovery key</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <p>First we will use a tool from john the reaper suite in order to get the password hashes</p> 
+                <pre><code class="language-python">bitlocker2john -i Backup.vhd > backup.hashes</code> </pre>
+                <p>The output will be the following</p>
+                <pre><code class="language-python">$bitlocker$0$16$b3c105c7ab7faaf544e84d712810da65$1048576$12$b020fe18bbb1db0103000000$60$e9c6b548788aeff190e517b0d85ada5daad7a0a3f40c4467307011ac17f79f8c99768419903025fd7072ee78b15a729afcf54b8c2e3af05bb18d4ba0
+Hash type: User Password with MAC verification (slower solution, no false positives)
+$bitlocker$1$16$b3c105c7ab7faaf544e84d712810da65$1048576$12$b020fe18bbb1db0103000000$60$e9c6b548788aeff190e517b0d85ada5daad7a0a3f40c4467307011ac17f79f8c99768419903025fd7072ee78b15a729afcf54b8c2e3af05bb18d4ba0
+Hash type: Recovery Password fast attack
+$bitlocker$2$16$1d06e8b3aa5f14ddcb5ad7415c1d24f5$1048576$12$b020fe18bbb1db0106000000$60$8ff2e9cdd6ec25df9060e95e3c490a9aefd5601f4cefa47da810339f809a90187cbbd907bd1077565293727114f3c218c078e03f2f8baa214f1de800
+Hash type: Recovery Password with MAC verification (slower solution, no false positives)
+$bitlocker$3$16$1d06e8b3aa5f14ddcb5ad7415c1d24f5$1048576$12$b020fe18bbb1db0106000000$60$8ff2e9cdd6ec25df9060e95e3c490a9aefd5601f4cefa47da810339f809a90187cbbd907bd1077565293727114f3c218c078e03f2f8baa214f1de800</code> </pre>
+                <p>the first two correspond to the BitLocker password, while the latter two represent the recovery key. Because the recovery key is very long and randomly generated, it is generally not practical to guess—unless partial knowledge is available. Therefore, we will focus on cracking the password</p>    
+                <p>Then we can crack it using hashcat or whatever</p>
+                <pre><code class="language-python">hashcat -m 22100 hash.txt /usr/share/wordlists/rockyou.txt</code></pre>
+                <p>In order to view whats inside we must mount the device/disk. First we will create the following folders</p>
+                <pre><code class="language-python">sudo mkdir -p /media/bitlocker
+sudo mkdir -p /media/bitlockermount</code></pre>
+                <p>We then use losetup to configure the VHD as loop device, decrypt the drive using dislocker, and finally mount the decrypted volume</p>
+                <pre><code class="language-python">sudo losetup -f -P Backup.vhd
+sudo dislocker /dev/loop0p2 -u1234qwer -- /media/bitlocker
+sudo mount -o loop /media/bitlocker/dislocker-file /media/bitlockermount</code></pre>
+                <p>Finally access...</p>    
+                <pre><code class="language-python">cd /media/bitlockermount/</code></pre>    
+            </ul>
+
+            
+
+        </div>
+    </div>
+
+
+</body>
+</html>

