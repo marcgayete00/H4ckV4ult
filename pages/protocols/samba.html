@@ -33,6 +33,16 @@
             <ul>
                 <h3>Enumeration of shares</h3>
                 <pre><code class="language-bash">smbclient -L VICTIM_IP -N </code></pre>
+
+                <h3>Enumeration of files</h3>
+                <ul>
+                    <p>In case would you like to list files inside a share you could do some spidering with netexec. Here are some examples</p>
+                    <pre><code class="language-bash">nxc smb 10.129.234.121 -u mendres -p 'Inlanefreight2025!' --spider IT --content --pattern "passw"</code></pre>
+                    <p>Also you can download all files and then perform some filtering over them</p>
+                    <pre><code class="language-bash">smb 10.129.234.173 -u jbader -p "ILovePower333###" -M spider_plus Finance -o DOWNLOAD_FLAG=True --smb-timeout 60</code></pre>
+                    <p>In order to perform the filtering, identify the folder and perform a grep. This allows you to even grep within folders</p>
+                    <pre><code class="language-bash">grep -ri "passw"</code></pre>
+                </ul>
             </ul>    
 
             <h2>Explotation</h2>

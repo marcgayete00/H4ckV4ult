@@ -265,9 +265,21 @@ int main() {
 
             <div class="notion-body">
                 <ul>
-                    <p>This are several ways of bruteforcing using crackmapexec</p>
-                    <p>You can always check for default credentials using</p>    
+                    <h2>Default credentials</h2>
+                    <ul>
+                        <p>This are several ways of bruteforcing using crackmapexec</p>
+                        <p>You can always check for default credentials using</p>
+                     
                     <pre><code class="language-bash">creds search mysql</code></pre>
+                    </ul>
+                    
+                    <h2>Developing a username wordlist</h2>
+                    <ul>
+                        <p>In case we found names and surnames of employees we can try to guess it's usernames by using <b>Anarchy-names</b>. This will create different combinations with the provided names</p>
+                        <pre><code class="language-bash">./username-anarchy -i /home/ltnbob/names.txt t</code></pre>
+                    </ul>
+                    <h2>Examples of bruteforcing</h2>
+                    <ul>
                     <pre><code class="language-bash">crackmapexec smb 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ftp 10.10.10.184 -u USERNAME -p passwords.txt
 crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
@@ -276,24 +288,25 @@ crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
                     <pre><code class="language-bash">hydra -L user.list -P password.list ssh://10.129.42.197
 hydra -L user.list -P password.list drp://10.129.42.197
 hydra -L user.list -P password.list smb://10.129.42.197</code></pre>
-                   
+                   </ul>
                     
 
                    <h2>Useful wordlists to enum website </h2>
-
+                   <ul>
                    <p>Start with directory listing</p>
                    <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-small.txt
 /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt
 /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-large.txt</code></pre>
                    
-                   <h2>In case you coudn't find anything go on with  </h2>
+                   <p>In case you coudn't find anything go on with  </p>
                    <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/raft-small-files-lowercase.txt     
 /usr/share/wordlists/seclists/Discovery/Web-Content/raft-medium-files-lowercase.txt
 /usr/share/wordlists/seclists/Discovery/Web-Content/raft-large-files-lowercase.txt</code></pre>
 
-                    <h2>Finally desperately use</h2>
+                    <p>Finally desperately use</p>
                     <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/big.txt</code></pre>
-            </ul>
+                    </ul>
+                </ul>
             </div>
 
 
@@ -408,6 +421,17 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                     <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/cracking.html">
                         <h2>Check for more information ↗️</h2>
                     </a>
+            </div>
+
+
+            <div class="notion-header">
+                <h1 id="Passwords over the network">Passwords over the network</h1>
+            </div>   
+            <div class="banner">
+                <ul>
+                        <p>It is possible to capture passwords over the network or even scan a package capture (.pcap) in order to find passwords. To do se we can use the tool <b>pcredz</b></p>
+                        <pre><code class="language-bash">python3 Pcredz -f ../Desktop/demo.pcapng</code></pre>
+                </ul>    
             </div>
 
             

