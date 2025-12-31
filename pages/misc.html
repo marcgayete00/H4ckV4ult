@@ -434,10 +434,68 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                 </ul>    
             </div>
 
-            
+            <div class="notion-header">
+                <h1 id="Pivoting Ligolo">Pivoting Ligolo</h1>
+            </div>   
+            <div class="banner">
+                <ul>
+                    <p>Here we'll show the steps in order to use ligolo and pivot over networking. In order to make it clear we will steup a environment as following</p>
+                    <p> Box1 (Attacker) 10.10.14.100</p>
+                    <p> Box2 (DMZ) 10.120.113.73, 172.16.5.129</p>
+                    <p> Box3 (Internal) 172.16.5.19</p>
+                    <p>As you can see Box1 can only talk to box2 and box3 can only talk to box2</p>
+
+                    <p>Using ligolo we will be able to talk to any box. First of all we need to download the agent and the proxy from their offical site <a class="notion-link" href="https://github.com/nicocha30/ligolo-ng/releases">here</a></p>
+                    <p>Have in mind that based on the operating system the proxy and agent will change. <b>Proxy runs over our machine and agent runs over the intermediate machine</b></p>
+                    <h2>Setup</h2>
+                    <ul>
+                    <p>Create a network interface for ligolo</p>
+                    <pre><code class="language-bash">sudo ip tuntap add user $USER mode tun ligolo</code></pre>
+                    <p>Change state of network interface</p>
+                    <pre><code class="language-bash">sudo ip link set ligolo up</code></pre>
+                    <p>Create a route in the routing table <b> The address must the IP address of the box we would like to access finally in that case box3</b></p>
+                    <pre><code class="language-bash">sudo ip route add 172.16.5.0/24 dev ligolo</code></pre>
+                    <p>Start proxy on kali machine</p>
+                    <pre><code class="language-bash">./proxy -selfcert </code></pre>
+                    <p>Transfer the agent to the intermediate machine and start it using</p>
+                    <pre><code class="language-bash">./agent -connect 10.10.14.100:11601 -ignore-cert (That is the IP of the kali machine)</code></pre>
+                    <p>At this point a new agent should appear in the proxy. To finish we will start the tunnel doing</p>
+                    <pre><code class="language-bash">ligolo-ng » session
+? Specify a session : 1 - ubuntu@WEB01 - 10.129.113.73:57336 - 005056b0f45a
+[Agent : ubuntu@WEB01] » start</code></pre>
+                    <p>From now everything will be connected and from our kali machine we should be able to ping the box3 </p>
+                    </ul>
+                    <h2>Reverse shell (pivoting)</h2>
+                    <ul>
+                        <p>In order to reach from box3 the box1 just in case you would like to perform a reverse shell we need to setup a listener </p>
+                        <p>From proxy panel type: With that, all trafic that comes to the proxy from port 4444 will be redirected to localhost (kali) port 44</p>
+                        <pre><code class="language-bash">listener_add --addr 0.0.0.0:4444 --to 127.0.0.1:44</code></pre>    
+                        <p>We can check all the listeners by using <b>listener_list</b></p>
+                        <p>Finally in order to transfers files from box3 we need to point the second interface of the box2 the one we can comunicate from that box</p>
+                        <pre><code class="language-bash">ping 172.16.5.129</code></pre>        
+                    </ul>
+
+                    <h2>Cleaning out</h2>
+                    <ul>
+                        <p>In order to revert all changes we must delete the route</p>
+                        <pre><code class="language-bash">sudo ip route del 192.168.10.0/24 dev ligolo</code></pre>
+                        <p>Delete de device</p>        
+                        <pre><code class="language-bash">sudo ip link del ligolo</code></pre>        
+
+                    </ul>
                     
-                </ul>
+
+                    
+                    
+                    
+
+
+
+                </ul>    
             </div>
+                    
+        </ul>
+        </div>
     </div>
 
     <!-- Mover el script al final del body para asegurar que todo el DOM esté cargado -->
