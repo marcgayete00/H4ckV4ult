@@ -286,7 +286,7 @@ int main() {
                     
                     <h2>Developing a username wordlist</h2>
                     <ul>
-                        <p>In case we found names and surnames of employees we can try to guess it's usernames by using <b>Anarchy-names</b>. This will create different combinations with the provided names</p>
+                        <p>In case we found names and surnames of employees we can try to guess it's usernames by using <b>Username-anarchy</b>. This will create different combinations with the provided names</p>
                         <pre><code class="language-bash">./username-anarchy -i /home/ltnbob/names.txt t</code></pre>
                     </ul>
                     <h2>Examples of bruteforcing</h2>
@@ -317,6 +317,15 @@ hydra -L user.list -P password.list smb://10.129.42.197</code></pre>
                     <p>Finally desperately use</p>
                     <pre><code class="language-bash">/usr/share/wordlists/seclists/Discovery/Web-Content/big.txt</code></pre>
                     </ul>
+
+                    <h2>Useful wordlist to enumerate users</h2>
+                    <ul>
+                    <pre><code class="language-bash">https://github.com/insidetrust/statistically-likely-usernames #Based on the username format
+/usr/share/wordlists/seclists/Usernames/xato-net-10-million-usernames.txt</code></pre>
+                    </ul>
+
+                    
+
                 </ul>
             </div>
 
@@ -529,9 +538,9 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
                     <h2>Host identification</h2>
                     <ul>
                         <p>As it is likely that nmap does not work to identify hosts we can perform ping sweep from our kali or the compromised host</p>
-                        <p>Linux</p>
+                        <b>Linux</b>
                         <pre><code class="language-bash">for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done</code></pre>
-                        <p>Windowss</p>        
+                        <b>Windows</b>        
                         <pre><code class="language-bash">$network = "172.16.5"
 1..254 | ForEach-Object {
     $ip = "172.16.10.$_"
@@ -543,6 +552,11 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
     }
 }
 </code></pre>        
+                    <b>Wireshark</b>
+                    <p>Filtering by arp in wireshark and waiting a little bit allow us to identify hosts</p>
+                    <b>fping</b>
+                    <pre><code class="language-bash">fping -asgq 172.16.5.0/24</code></pre>
+
                     </ul>
 
                     

