@@ -32,6 +32,49 @@
                 <pre><code class="language-bash">net view \\IP</code></pre>
 
                 <pre><code class="language-bash">dir \\IP\SHARE</code></pre>
+                <p> In case you are in a graphical environment you coud perform just from the explorer or the Windows + R</p>
+                <pre><code class="language-powershell">\\192.168.220.129\Finance\</code></pre>
+                <p>From powershell...</p>
+                <pre><code class="language-powershell">Get-ChildItem \\192.168.220.129\Finance\</code></pre>
+                
+                <h3>Mouting units</h3>
+                <ul>
+                    <h4>Windows</h4>
+                    <ul>
+                        <p>In order to mount a unit using CMD you could use</p>
+                        <pre><code class="language-powershell">net use n: \\192.168.220.129\Finance</code></pre>
+                        <p>Once mounted you could perform a filtering by file name</p>
+                        <pre><code class="language-powershell">dir n:\*cred* /s /b</code></pre>
+                     </ul>  
+                    <h4>Powershell</h4>
+                    <ul>
+                    <p>Perform a mounting with powershell</p>
+                    <pre><code class="language-powershell">New-PSDrive -Name "N" -Root "\\192.168.220.129\Finance" -PSProvider "FileSystem"</code></pre>
+                    <p>In case you would need a credential</p>
+                    <pre><code class="language-powershell">$username = 'plaintext'
+$password = 'Password123'
+$secpassword = ConvertTo-SecureString $password -AsPlainText -Force
+$cred = New-Object System.Management.Automation.PSCredential $username, $secpassword
+New-PSDrive -Name "N" -Root "\\192.168.220.129\Finance" -PSProvider "FileSystem" -Credential $cred</code></pre>
+                    <p>Or even performing some filtering</p>
+                    <pre><code class="language-powershell">Get-ChildItem -Recurse -Path N:\ -Include *cred* -File</code></pre>
+                    </ul>
+                    
+                    <h4>Linux</h4>
+                    <ul>
+                        <p>Mount unit by doing:</p>
+                        <pre><code class="language-bash">sudo mkdir /mnt/Finance
+sudo mount -t cifs -o username=plaintext,password=Password123,domain=. //192.168.220.129/Finance /mnt/Finance</code></pre>
+                        <p>In acse of requring credentials</p>
+                        <pre><code class="language-bash">mount -t cifs //192.168.220.129/Finance /mnt/Finance -o credentials=/path/credentialfile</code></pre>
+                        <p>Credential file must have the following format</p>
+                        <pre><code class="language-bash">username=plaintext
+password=Password123
+domain=.</code></pre>
+                        <p>Once inside we can use find in order to locate files</p>
+                        <pre><code class="language-bash">find /mnt/Finance/ -name *cred*</code></pre>
+                    </ul>
+                </ul>
             </ul>
 
             <h2>Enumeration</h2>

