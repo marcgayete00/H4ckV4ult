@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>CoreFTP (TCP/21), (TCP/22) - SFTP (SSH), (TCP/990) - FTPS (SECURE)</h1>
+            <p>Fast, reliable, FTP client software with SFTP (SSH), SSL, and TLS support. Download a free, secure ftp program</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <h3>Accessing shares</h3>
+                <ul>
+                    <pre><code class="language-bash">nc -nv 127.0.0.1 873</code></pre>
+                    <p>Once insede you must type <b>#list</b> in order to list all shares</p>
+                    <p>In case we would like to check what content is inside a share we could perform</p>
+                    <pre><code class="language-bash">rsync -av --list-only rsync://127.0.0.1/$sharename</code></pre>
+                </ul>
+
+            </ul>
+            
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CVE-2022-22836</h3>
+                <ul>
+                <p>Previous versions of CoreFTP 727 are affected by a path traversal vulnerability which also allows to create files in the target computer. This vulnerability is for an FTP service that does not correctly process the HTTP PUT request and leads to an authenticated directory/path traversal, and arbitrary file write vulnerability</p>
+                
+                    <p>This FTP service uses an HTTP POST request to upload files. However, the CoreFTP service allows an HTTP PUT request, which we can use to write content to files</p>
+                    <pre><code class="language-bash">curl -k -X PUT -H "Host: TARGET_IP" --basic -u username:password --data-binary "PAYLOAD" --path-as-is https://TARGET_IP/../../../../../../whoops</code></pre>
+                    <p>Based on how </p>
+                </ul>
+
+            </ul> 
+        </div>
+    </div>
+
+
+</body>
+</html>

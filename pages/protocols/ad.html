@@ -32,14 +32,15 @@
             <h2 id="Enumeration">Enumeration</h2>
             <ul>
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.174  #Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the domain name
-crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"  #Check for winrm </code></pre>
+crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"  #Check for WinRM
+ crackmapexec smb 10.10.110.0/24 -u administrator -p 'Password123!' --loggedon-users #Check for logged on users</code></pre>
 
             <p>To dump all ldap information</p>
             <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
             <p>Another tool to dump itneresting information is windapsearch.py</p>
-            <pre><code class="language-bash">python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU
-python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -u</code></pre>
+            <pre><code class="language-bash">python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 --da #Enum members of group
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU #Enum members privileged-users
+python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -u #Enum specific user</code></pre>
             
             <h3>User enumeration</h3>
             <ul>

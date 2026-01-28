@@ -19,17 +19,39 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Bitlocker</h1>
-            <p>BitLocker is a full disk encryption feature built into specific Windows versions (Pro, Enterprise, Education) that protects data by scrambling everything on a drive, making it unreadable without the correct decryption key or recovery key</p>
+            <h1>FTP (TCP/21)</h1>
+            <p>Is a standard communication protocol used for the transfer of computer files from a server to a client on a computer network</p>
         </div>
+
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+               <h3>Upload a file</h3>
+               <pre><code class="language-bash">put file.txt</code></pre>
+               <h3>Download all available files</h3>
+               <pre><code class="language-bash">wget -m --no-passive ftp://anonymous:anonymous@10.129.14.136</code></pre>
+            </ul>
+        </div>
+
+
         <div class="notion-body">
             <h2>Exploitation</h2>
             <ul>
-               <p>In order to crack a bitlocker password we muest use a tool called <b>Bitlocker2john</b></p>
-               bitlocker2john -i Backup.vhd > backup.hashes
-            </ul>
-            
 
+                <h3>Bruteforcing</h3>
+                <ul>
+                <p>Simple way to bretuce force for specific user an FTP service</p>
+                <pre><code class="language-bash">hydra -L users.list -P passwords.list ftp://10.129.5.150 -s 21</code></pre> 
+                </ul>    
+            
+                <h3>FTP bounce attack</h3>
+                <ul>
+                    <p>This attack it is likely to not work since modern system will have features to stop it even though is it worth it to be documented here</p>
+                    <p>An FTP bounce attack is a network attack that uses FTP servers to deliver outbound traffic to another device on the network. The attacker uses a PORT command to trick the FTP connection into running commands and getting information from a device other than the intended server.</p>
+                    <p>We can perform it using nmap. In this case we are trying to scan the port 80 of the host 172.17.0.2 though the FTP port of the host 10.10.110.213</p>
+                    <pre><code class="language-bash">nmap -Pn -v -n -p80 -b anonymous:password@10.10.110.213 172.17.0.2</code></pre> 
+                </ul>
+            </ul>
         </div>
     </div>
 

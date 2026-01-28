@@ -43,12 +43,14 @@
                 <h3>Automation</h3>
                 <p>We can automate the process of finding subodmains by using the following tool. Wordlists that may come handy (fierce-hostlist.txt)</p>
                 <pre><code class="language-bash">dnsenum --enum inlanefreight.com -f  /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt </code></pre>
+                <p>Other alternatives</p>
+                <pre><code class="language-bash">./subfinder -d inlanefreight.com -v  </code></pre>
                 
             </ul>
 
             <h2>Exploitation</h2>
             <ul>
-                <h3>Dns zone transfer attack</h3>
+                <h3>DNS zone transfer attack</h3>
                 <ul>
                 <p>DNS is configured to be able to tranfer domain names to other domain name servers. This may be done due reduce load or to sync data</p>
                 <p>Here you can see diferent examples to perform the attack</p>
@@ -56,7 +58,40 @@
                 <pre><code class="language-bash">dig axfr @DNS_IP #Try zone transfer without domain</code></pre>
                 <pre><code class="language-bash">dig axfr @DNS_IP DOMAIN #Try zone transfer guessing the domain</code></pre> 
                 <pre><code class="language-bash">fierce --domain DOMAIN --dns-servers DNS_IP #Will try toperform a zone transfer against every authoritative name server and if this doesn'twork, will launch a dictionary attack</code></pre>    
-            </ul>    
+                </ul>    
+
+                <h3>Subdomain takeover</h3>
+                <ul>
+                <p>Let's supose the following situation:</p>
+                <p>A company has a external resource which is linked to a subdomain called blog.mycompany.com. This can be configured in the CNAME property of the DNS.</p>
+                <p>In case this external resource becomes unavailable an attacker could create a new resource with the same domain and put it's own page</p>
+                <p>Since the DNS of our company is still configured with the CNAME it will detect that the resource is now available and will resolve the attacker website</p>
+                </ul> 
+
+                <h3>Local DNS Cache Poisoning</h3>
+                <ul>
+                <p>This is a way of poisoning DNS of a victim to make the user resolve the address of the attacker instead of the real address that the user is requesting</p>
+                <p>We can perform this with the tool etercap. First we need to setup the the domains we want to spoof by eding the following file</p>
+                <pre><code class="language-bash">cat /etc/ettercap/etter.dns
+inlanefreight.com      A   192.168.225.110
+*.inlanefreight.com    A   192.168.225.110
+#Domain to spoof       A   #Adress of the attacker</code></pre>
+               
+                <p>Then open ettercap and scan for hosts. Once you identified a target host and the gateway you need to set them in the ettercap application. Here i show you how</p>
+                <p><b>Add target 1:</b> Victim computer</p>
+                <p><b>Add target 2:</b> Gateway address</p>
+                <p>Finally go to the plugin section and enable the dns_spoof to being poisoning</p>
+                </ul> 
+
+                <h3>Subdomain enumeration</h3>
+                <ul>
+                <p>Targeting the DNS server itself we can perform some bruteforcing using a tool called subbrute follow the steps</p>
+                <p>Edit the /etc/host setting up the IP and doman of your target</p>
+                <pre><code class="language-bash">192.168.4.6 targetdomain.com</code></pre>
+                <p>Edit the file resolvers.txt located at the folder of subbrute and add the IP of the target server at the end. It's recommended to create new file. If not it will increase a lot the time of bruteforcing</p>
+                <p>Finally use the following command. Have in mind that names.txt is the wordlist where all subdomains are</p>
+                <pre><code class="language-bash">./subbrute.py -p inlanefreight.htb -s names.txt -r resolvers2.txt </code></pre>
+                </ul>
             </ul>    
         </div>
     </div>

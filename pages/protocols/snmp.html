@@ -35,8 +35,7 @@
                 <ul>
                     <p>Once we are inside the SNMP we are able to identify system users by using the follwing command. If the result code equals 252 means that the user exits</p>
                     <pre><code class="language-bash">VRFY root</code></pre>
-                    <p>We are able to automate this by using the metasploit module <b>auxiliary/scanner/smtp/smtp_enum</b> or <b>smtp-user-enum</b></p>
-                    <pre><code class="language-bash">smtp-user-enum -M VRFY -U /home/kali/Downloads/footprinting-wordlist.txt -t 10.129.242.130</code></pre>
+                    <p>We are able to automate this by using the metasploit module <b>auxiliary/scanner/snmp/snmp_enum</b></p>
                 </ul>
                 <h3>String enumeration</h3>
                 <ul>

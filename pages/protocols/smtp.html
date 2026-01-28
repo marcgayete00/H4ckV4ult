@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>SMTP (TCP/25)</h1>
+            <p>SMTP (Simple Mail Transfer Protocol) is the global standard for sending emails over the internet. It acts as the transfer protocol that moves messages from the email client (such as Outlook or Gmail) to the destination server.</p>
+        </div>
+        <div class="notion-body">
+
+            <h2>Usage</h2>
+            <ul>
+                <p>Once you have a username and password you can attemp to login by doing:</p>
+                <p>Remeber that if you previously performed an attack over the port 103 also attempt to login through this port</p>
+                <pre><code class="language-bash">telnet 10.10.10.101 103</code></pre>
+                <p>Once inside type</p>
+                <pre><code class="language-bash">USER yourusername@example.htb
+PASS PasswordForthatUser</code></pre>
+                <p>Then list the emails stored using</p>
+                <pre><code class="language-bash">LIST</code></pre>
+                <p>In case you see the following output with 1 or more emails you hit bingo</p>    
+                <pre><code class="language-bash">+OK 1 messages (601 octets)
+1 601</code></pre>
+                <p>In order to check the content of the message just use</p>    
+                <pre><code class="language-bash">RETR mail_ID</code></pre>
+            </ul>
+            <h2>Local Enumeration</h2>
+            <ul>
+                <p>We can use the Mail eXchanger (MX) DNS record to identify a mail server. The MX record specifies the mail server responsible for accepting email messages on behalf of a domain name. It is possible to configure several MX records, typically pointing to an array of mail servers for load balancing and redundancy.</p>
+                <p>Tools such as <a class="notion-link" href="https://mxtoolbox.com/SuperTool.aspx?action=mx%3aaena.es&run=toolpage">MXToolbox</a> to query information about the MX records of a domain </p>
+                <p>Other ways of discovering MX records</p>
+                <pre><code class="language-bash">host -t MX hackthebox.eu</code></pre>
+                <pre><code class="language-bash">dig mx plaintext.do | grep "MX" | grep -v ";"</code></pre>
+
+                <h3>User enumeration</h3>
+                <ul>
+                    <b>After all remember you can always use metasploit module "auxiliary/scanner/smtp/smtp_enum"</b>
+                    <p>The tool<a class="notion-link" href="https://github.com/pentestmonkey/smtp-user-enum">smtp-user-enum tool</a> also provides a new weay of doing it</p>
+                    <pre><code class="language-bash">smtp-user-enum -M RCPT -U userlist.txt -D inlanefreight.htb -t 10.129.203.7</code></pre>
+                    
+                    <p>In case you are able to connect though telnet to the SMTP server you could  be able to enumerate valid usernames</p>
+                    <pre><code class="language-bash">telnet 10.10.110.20 25</code></pre>
+                    <p>Now if the telnet session does not close type the following</p>
+                    <pre><code class="language-bash">VRFY root
+VRFY www-data
+VRFY new-user</code></pre>
+                    <p>If result it's like the following means that the user you are trying exists in the server</p>
+                    <pre><code class="language-bash">252 2.0.0 root
+252 2.0.0 www-data</code></pre>
+                </ul>
+
+                <h3>Enumerate usernames though RCPT TO</h3>
+                <ul>
+                <p>Another way to so is by creating a temporay mail and performing RCTP TO to check usernames that could recibe the mail. Perform the same process (Telnet)</p>
+
+                <pre><code class="language-bash">EXPN support-team
+250 2.0.0 carol@inlanefreight.htb
+250 2.1.5 elisa@inlanefreight.htb</code></pre>
+               </ul>  
+               
+               <h3>Enumerate usernames though pop3</h3>
+                <ul>
+                    <p>An easy way is through pop3. In this case we need to change the port you are using</p>
+                    <pre><code class="language-bash">telnet 10.10.110.20 25</code></pre>
+                    <p>Once inside perform</p>
+                    <pre><code class="language-bash">USER julio
+-ERR
+
+USER john
++OK</code></pre>
+                    
+               </ul>  
+
+                <h3>Enumerate distribution list</h3>
+                <ul>
+                <p>Perform the same process but this case with quering a distribution list. The following list the users inside that distribution list</p>
+                <pre><code class="language-bash">MAIL FROM:test@htb.com
+testmail
+250 2.1.0 test@htb.com... Sender ok
+
+RCPT TO:julio
+550 5.1.1 julio... User unknown
+
+RCPT TO:john
+250 2.1.5 john... Recipient ok</code></pre>
+                <p>As you can see user john exists</p>    
+
+                
+            </ul>
+            <h2>Cloud Enumeration</h2>
+            <ul>
+                <p>Remember that most companies use cloud mail services. Using a tools called <a class="notion-link" href="https://github.com/0xZDH/o365spray">o365spray</a> to enumerate usernames as well</p>
+                <p>First we need to check if the domain uses Office365</p>
+                <pre><code class="language-bash">python3 o365spray.py --validate --domain msplaintext.xyz</code></pre>
+                <p>In case validate field is set to true we can start enumerating usernames</p>
+                <pre><code class="language-bash">python3 o365spray.py --enum -U users.txt --domain msplaintext.xyz</code></pre>
+                <p>We can also perform a password spraying</p>
+                <pre><code class="language-bash">python3 o365spray.py --spray -U usersfound.txt -p 'March2022!' --count 1 --lockout 1 --domain msplaintext.xyz</code></pre>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Password attacks</h3>
+                <ul>
+                    <p>Cloud services support SMTP, POP3, or IMAP4 protocols, we may be able to attempt to perform password spray using tools like Hydra, but these tools are usually blocked </p>
+                    <pre><code class="language-bash">hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3</code></pre>
+                    <p>You can also perform on user and a lot of passwords</p>
+                    <p>Important things after performing this attack. It is possible that you need to specify all FQDN for the username meaning: user@mydomain.com</p>
+                    <pre><code class="language-bash">hydra -l user -P passwords.txt -f 10.10.110.20 pop3</code></pre>
+
+                    <p>Other tools can be used such as <a class="notion-link" href="https://github.com/ustayready/CredKing">CredKing</a> for Gmail or Okta</p>
+                </ul>
+
+                <h3>SMTP Open Relay</h3>
+                <p>An open relay is a Simple Mail Transfer Protocol (SMTP) server, which is improperly configured and allows an unauthenticated email relay</p>
+                <p>First we need to identify the smtp open relay in the server. Use the following nmap script</p>
+                <pre><code class="language-bash">nmap -p25 -Pn --script smtp-open-relay 10.10.11.213</code></pre>
+                <p>Next use any mail client to connect to the server and send our mail</p>
+                <pre><code class="language-bash">swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'subject of the message here' --body 'body of the message here' --server 10.10.11.213</code></pre>
+            </ul>   
+        </div>
+    </div>
+</body>
+</html>

