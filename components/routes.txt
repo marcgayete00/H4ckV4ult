@@ -19,6 +19,7 @@
 /H4ckV4ult/pages/protocols/bufferoverflow
 /H4ckV4ult/pages/protocols/certipy
 /H4ckV4ult/pages/protocols/compressed
+/H4ckV4ult/pages/protocols/coreftp
 /H4ckV4ult/pages/protocols/cracking
 /H4ckV4ult/pages/protocols/crawling
 /H4ckV4ult/pages/protocols/curl
@@ -62,8 +63,10 @@
 /H4ckV4ult/pages/protocols/rservices
 /H4ckV4ult/pages/protocols/rsync
 /H4ckV4ult/pages/protocols/samba
+/H4ckV4ult/pages/protocols/smtp
 /H4ckV4ult/pages/protocols/snmp
 /H4ckV4ult/pages/protocols/snort
+/H4ckV4ult/pages/protocols/sqlmap
 /H4ckV4ult/pages/protocols/ssh
 /H4ckV4ult/pages/protocols/tensorflow
 /H4ckV4ult/pages/protocols/tftp
