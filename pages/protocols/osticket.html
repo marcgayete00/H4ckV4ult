@@ -19,24 +19,14 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Legacy Systems Windows</h1>
-            <p>This page pretends to document several vulnerabilities that may occur in legacy systems such as Windows XP, 2003,</p>
+            <h1>OSticket (TCP/80, TCP/443)</h1>
+            <p>Ticketing system</p>
         </div>
         <div class="notion-body">
-            <h2>Windows XP, 2000 2003, Vista, 2008</h2>
+            <h2>Information gathering</h2>
             <ul>
-                <h3>MS08-067</h3>
-                <p>Allows an attacker to send SMB especially crafted packages in order to remote code execution. Used by conficker worm</p>
-                <p>Metasploit module</p>
-                <pre><code class="language-bash">use exploit/windows/smb/ms08_067_netapi </code></pre>
-
-                <h3>MS17-010 (Eternalblue)</h3>
-                <p>Allows an attacker to send SMB packages and gain RCE in the victim</p>
-                <p>This can only be used in 64 bit architecture</p>
-                <p>Metasploit module</p>
-                <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
-                
-            </ul>
+                <p>Once you get access to the ticketing system it is highly recommended to search for closed tickets which could contain credentials. To do so filter using the word password or similar</p>
+            </ul>    
         </div>
     </div>
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Legacy Systems Unix</h1>
+            <p>This page pretends to document several vulnerabilities that may occur in legacy systems such as Debian 6, Ubuntu 10.04, Fedora 14, SUSE 11</p>
+        </div>
+        <div class="notion-body">
+            <h2>Shellshock (CGI)</h2>
+            <ul>
+                <p>A Common Gateway Interface (CGI) is used to help a web server render dynamic pages and create a customized response for the user making a request via a web application. This is found in form of script normally located in Linux systems in <b>/cgi-bin</b> folder</p>
+                <p>Extensions type could be. Windows: <b>.cgi .bat. cmd .exe .pl .py .cgi</b> | Linux: <b>.cgi .pl .py .sh .cgi</b> </p>
+                <p>In case we found any script located in the /cgi-bin directory we should test the following to check if the system is vulnerable</p>
+                <pre><code class="language-bash">curl -H 'User-Agent: () { :; }; echo ; echo ; /bin/whoami' bash -s :'' http://10.129.205.27/cgi-bin/access.cgi</code></pre>
+                <p>Remember that shellshock is only exploitable if the server uses CGI, that CGI executes bash, bash is old and the server pass the http headers to environment variables</p>
+
+                 
+
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

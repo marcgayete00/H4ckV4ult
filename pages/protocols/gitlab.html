@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>GitLab (TCP/80, TCP/443, TCP/22)</h1>
+            <p>GitLab is a comprehensive, open-core DevOps platform delivered as a single application, allowing teams to plan, build, secure, and deploy software in one interface</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>The only way to acquire a valid option is through the page <b>/help</b> but we need to be logged in</p>
+                <p>Inside <b>/explore</b> we can find interestig projects which could be public.</p>
+
+                <h3>Username Enumeration</h3>
+                <ul>
+                    <p>From the register page you are able to perform user enumeration since the software tells you which users are already registered. Intercept the request from the API and filter the json result</p>
+                    <p>In case you have a valid user you can know intercept a login request and start bruteforcing. The request with a redirect is the good one</p>
+                </ul>
+            </ul>    
+            
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Gitlab 13.10.2 - Remote code execution</h3>
+                <ul>
+                    <p>Here you can find an exploit which you can use in case you have a valid user to gain a reverse shell. It affects versions prior to 13.10.3 <a class="notion-link" href="https://www.exploit-db.com/exploits/49951">PoC</a></p>
+                </ul>    
+            </ul>
+            
+
+
+        </div>
+    </div>
+
+
+</body>
+</html>

