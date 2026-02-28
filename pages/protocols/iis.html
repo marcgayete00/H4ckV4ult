@@ -29,6 +29,28 @@
                 <pre><code class="language-bash">C:\inetpub\
  C:\inetpub\wwwroot\</code></pre>
                 <p>Not confuse with intsrv <b>(c:\windows\system32\inetsrv)</b> where the configuration files are located</p>       
+            
+                 <h3>IIS Tilde Enumeration</h3>
+                 <ul>
+                    <p>IIS tilde directory enumeration is a technique utilised to uncover hidden files, directories, and short file names (aka the 8.3 format). The explanation of this format can be found <a class="notion-link" href="https://marcgayete00.github.io/H4ckV4ult/pages/protocols/owasp.html#Command%20Injection">here</a></p>
+                    <p>We can identify files based using the follwing script</p>
+                    <pre><code class="language-bash">java -jar iis_shortname_scanner.jar 0 5 http://10.129.204.231/</code></pre>
+                    <p>This script will be bruteforcing the filename using a,b,c,d... and so on. This way in case it finds a coincidence it will try again using aa,ab,ac,ad... The script outout shows</p>
+                    <pre><code class="language-bash">|_ Number of sent requests: 553
+|_ Identified directories: 2
+   |_ ASPNET~1
+    |_ UPLOAD~1
+  |_ Identified files: 3
+    |_ CSASPX~1.CS
+      |_ Actual extension = .CS
+    |_ CSASPX~1.CS??
+    |_ TRANSF~1.ASP</code></pre>
+                   <p>As we can see the script identifyed three files and two directories but it does not give us the all the filename. We can try by just simply using <b>TRANSF~1.ASP</b> but in case it does not work we'll have to create a wordlist. To do so we can use the following command</p>
+                   <p>This command will go over all files located at <b>/usr/share/wordlist</b> and will only select the words that start with <b>transf</b> creating a wordlist located at /tmp</p>
+                   <pre><code class="language-bash">egrep -r ^transf /usr/share/wordlists/* | sed 's/^[^:]*://' > /tmp/list.txt</code></pre>
+                   <p>Now use this wordlist combinaed with dirb or feroxbuster to reveal the file if the name matches</p>
+                 </ul>
+
             </ul>
 
             <h2>Exploitation</h2>

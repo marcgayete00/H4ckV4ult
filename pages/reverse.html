@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
+    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+
+    <title>Minimalist Webpage</title>
+</head>
+<body>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+    
+    <div id="navbar-container"></div>
+    <div class="main-container">
+        <div class="sidebar">
+            <h3>Quick content</h3>
+            <ul id="sidebar-menu"></ul>
+        </div>
+
+        <div class="notion-container">
+            <div class="notion-header">
+                <h1>Reverse Engineering and debugging</h1>
+            </div>
+
+                <div class="notion-body">
+                    <h2 id="Automation">Behaviour detection</h2>
+                    <ul>
+                        <p>In order to detect what you PE is doing on backguards it is highly recomended to use <b>procmon</b> filtering by the <b>process name</b> there you'll be able to check if the process creates and deletes files and more</p>
+                        <h3>Disable file removal in Windows Temp</h3>
+                        <ul>
+                            <p>In some cases the executable will create files in <b>C:\Users\$username\AppData\Local\Temp\</b> this folder deletes some files by default so in order to disable that function we can check the following</p>
+                            <ul>
+                                <li><b>Properties</b> -> <b>Security</b> -> <b>Advanced</b> -> <b>cybervaca</b> -> <b>Disable inheritance</b> -> <b>Convert inherited permissions into explicit permissions on this object</b> -> <b>Edit</b> -> <b>Show advanced permissions</b></li>
+                                <li>Deselect the <b>Delete subfolders and files</b>, and <b>Delete checkboxes.</b></li>
+                            </ul>
+                        </ul>
+                    </ul>
+                    
+                    <h2 id="Debugging a PE (.exe)">Debugging a PE (.exe)</h2>
+                    <ul>
+                        <p>In this section we are documenting some informatation that might be useful when debugging with <b>x64dbg</b></p>
+                        <h3>Setup</h3>
+                        <ul>
+                            <p>We will use x64dbg. When debugging with x64dbg it's recommended to select the Exit Breakpoint <b>(Reboot required to apply changes)</b>. To do so go to  <b>Options</b> -> <b>Preferences</b> and uncheck everything except Exit Breakpoint:</p>
+                        </ul>
+                        <h3>Credential gathering</h3>
+                        <ul>
+                            <p>Once your PE have been loaded click on the tab <b>Memory Map</b> here you should look for a register which is <b>Type MAP</b> and has a protection set to <b>-RW--</b>.</p>
+                            <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/other.png">
+                            <p>Once you find it double click on it and look for the magic byte in the lower part. In case there is <b>MZ</b> means that file is a DOS MZ executable</p>
+                            <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/other2.png">      
+                            <p>In order to extract that right click over the address and select <b>Dump Memory to File</b></p>
+                            <p>Then use strings over the file you have exported in order to retrieve some data and credentials might be there</p>    
+                            <pre><code class="language-powershell">C:\TOOLS\Strings\strings64.exe .\restart-service_00000000001E0000.bin</code></pre>
+                        </ul>
+                    </ul>
+
+                    <h2 id="Debugging a .jar">Debugging a .jar</h2>
+                    <ul>
+                        <p>jar files are archives so we can click over the file and unarchive all the files that contain. In case we would like to search for a specific string on the folder where are all the files</p>
+                        <pre><code class="language-powershell">ls fatty-client\ -recurse | Select-String "8000" | Select Path, LineNumber | Format-List</code></pre>
+                        <p>One of the files that may contain interesting information is the <b>beans.xml</b></p>
+
+                        <h3>Rebuilding .jar file Basic</h3>
+                        <ul>
+                            <p>In case we would like to perform any modifications in the main files (.xml) not in the code itself, we can do it but we need to have in mind that the <b>beans.xml</b> may contain some kind of salting which will be appended in all file hashes which then will be checked with the base file hash to check if there was any modifications. Here is an example of that</p>
+                            <pre><code class="language-powershell">&lt;bean id="secretHolder" class = "htb.fatty.shared.connection.SecretHolder"&gt;
+      &lt;property name = "secret" value = "clarabibiclarabibiclarabibi"/&gt;
+&lt;/bean&gt;</code></pre>
+                         <p>To bypass this checks we need to remove all hashes present in the file <b>META-INF/MANIFEST.MF</b> and delete <b>1.RSA</b> and <b>1.SF</b> This may vary depending of the jar file. Here is an example of how the MANIFEST.MF should be. <b>Remember to leave a blank space at the end</b></p>
+                         <pre><code class="language-powershell">Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: root
+Sealed: True
+Created-By: Apache Maven 3.3.9
+Build-Jdk: 1.8.0_232
+Main-Class: htb.fatty.client.run.Starter
+                                        </code></pre>
+                         <p>Once done compile the java again</p>                          
+                         <pre><code class="language-powershell">jar -cmf .\META-INF\MANIFEST.MF ..\fatty-client-new.jar *</code></pre>
+                        </ul>
+
+                        <h3>Rebulding .jar file Advanced</h3>
+                        <ul>
+                            <p>If we would like to perform any mofification in the java code we need to use a java debugger. In this case we will use <b>JD-GUI</b>. Just open it and select your .jar file</p>
+                            <p>From inside you'll be able to view the code and also to export it to make some modifications. To do press the button <b>Save All Sources</b> <p>At this point you'll have access to all the code file so open any of then and perform all the modifications</p>
+                            <p>Now use the following command to compile the file you modified using an external library which in this case is the original jar file we have downloaded previously. This will create some class files inside the directory of the file you are compiling</p>
+                            <pre><code class="language-powershell">javac -cp fatty-client-new.jar Newjar\htb\fatty\client\gui\ClientGuiTest.java</code></pre>
+                            <p>Now create a new folder (folder name: raw) and copy and paste the original .jar file inside this folder. Then extract it's contents by right clicking on it and selecting extract here</p>
+                            <p>Now we will copy all the classes that we generated previously to the folder where our new .jar is being builded (folder name: raw) </p>
+                            <pre><code class="language-powershell">mv -Force newjar\htb\fatty\client\gui\*.class raw\htb\fatty\client\gui\</code></pre>
+                            <p>Finally access the new folder (raw) and compily a new jar using all the content you copyed. This way a new jar file will be created. Double click to open it and test your new modifications</p>
+                            <pre><code class="language-powershell">jar -cmf META-INF\MANIFEST.MF traverse.jar .</code></pre>
+                        </ul>
+                    </ul>
+
+                    <h2 id="Debugging a ELF">Debugging a ELF</h2>
+                    <ul>
+                        <p>In order to check if a file is an ELF we can can use the following command</p>
+                        <pre><code class="language-bash">file octopus_checker 
+octopus_checker: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2,...</code></pre>
+                        <p>To debug this file we can use dbg. Here are some commands to use it. First open the file</p>
+                        <pre><code class="language-bash">gdb ./octopus_checker</code></pre>
+                        <p>Then configure the disassembly-flavour to define the display style of the code and proceed with disassembling the main function of the program. </p>
+                        <pre><code class="language-bash">disas main 
+set disassembly-flavor intel</code></pre>
+                        <p>In this case we saw a SQL Driver connection string so we configured a breakpoint there</p>
+                        <pre><code class="language-bash">0x0000000000001607 <+433>:   call   0x11b0 &lt;SQLDriverConnect@plt&gt;
+   0x000000000000160c <+438>:   add    rsp,0x10
+   0x0000000000001610 <+442>:   mov    WORD PTR [rbp-0x4b4],ax
+   0x0000000000001617 <+449>:   lea    rsi,[rip+0xa70]        # 0x208e
+   0x000000000000161e <+456>:   lea    rdi,[rip+0x2a1b]        # 0x4040 &lt;_ZSt4cout@@GLIBCXX_3.4&gt;</code></pre>
+                        <p>To setup the breakpoint use directly the string and the software itself will calculate the memory address. But you can specify the memory address itself </p>
+                        <pre><code class="language-bash">break SQLDriverConnect@plt   #Using the string 
+b* 0x0000000000001607   #Using the memory adress</code></pre>
+                        <p>In case you would like to view all breakpoints and remove any of them we can do.</p>
+                        <pre><code class="language-bash">info breakpoints 
+delete 1</code></pre>
+                        <p>Finally just run the code with the breakpoint. In case it fails try to change the way you are setting up the breakpoint.</p>
+                        <p>This will automatically show the code inside <b>PLEASE READ CAREFULLY SINCE THERE IS A LOT OF CONTENT AND YOU MAY MISS SOMETHING</b></p>    
+
+                       <h2 id="Debugging a .dll">Debugging a .dll</h2>
+                       <ul>
+                        <p>In case you found a DLL file and you would like to check it's content you should use <b>dnspy</b> since this files are written in .NET you'll be able to read the code with any issues unless is offuscated. But in that case use the <b>de4dot.exe</b></p>
+                       </ul> 
+                    </ul>
+
+
+                    <h2 id="Desofuscation">Desofuscation</h2>
+                    <ul>
+                        <p>Many times will find out that the code we have is offuscated. There are several softwares which we can use to solve that</p>
+                        <h3>.NET PE (Executable)</h3>
+                        <ul>
+                            <p>In case we find out that the file we have looks like a .NET executable (Run strings over the file and look for <b>NETFramework</b>) we can use <b>De4dot</b> to solve that. The following output shows the command we can use to desofuscate a file</p>
+                            <pre><code class="language-powershell">de4dot.exe C:\Users\auditor\Desktop\restart-service_00000000026A0000.bin</code></pre>
+                            <p>Once done we can use <b>dnspy</b> to view the content of the .NET executable just by opening the file and going to <b>Executable_name.exe</b> -> <b>{} Executable_name.exe</b></p>
+                        </ul>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</body>
+
+<script>
+        
+    function generateMenu(){
+        const headers = document.querySelectorAll('.notion-container h2');
+        const sidebarList = document.querySelector('#sidebar-menu');
+
+        headers.forEach(header => {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.textContent = header.textContent;
+            console.log(header.textContent);
+            link.setAttribute('href', `#${header.textContent}`);
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        });
+    }
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+</script>
+</html>

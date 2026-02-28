@@ -13,6 +13,7 @@ function Navbar() {
                         <a href="/H4ckV4ult/pages/winprivScalation.html">Windows</a>
                     </div>
                 </div>
+                <a href="/H4ckV4ult/pages/reverse.html">Reverse Engineering</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
