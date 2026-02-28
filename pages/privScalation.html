@@ -59,15 +59,33 @@
                 <div class="notion-body">
                     <h2 id="Enumeration">Enumeration</h2>
                     <ul>
-                        <h3> Check permisions </h3>
-                        <pre><code class="language-bash">hostname</code></pre>
-                        <pre><code class="language-bash">ps</code></pre>
-                        <pre><code class="language-bash">env</code></pre>
-                        <pre><code class="language-bash">ifconfig</code></pre>
-                        <pre><code class="language-bash">id</code></pre>
-                        <pre><code class="language-bash">cat /etc/passwd</code></pre>
-                        <pre><code class="language-bash">cat /etc/shadow</code></pre>
+                        <h3> Basic commands </h3>
+                        <ul>
+                            <pre><code class="language-bash">hostname</code></pre>
+                            <pre><code class="language-bash">ps</code></pre>
+                            <pre><code class="language-bash">env</code></pre>
+                            <pre><code class="language-bash">ifconfig</code></pre>
+                            <pre><code class="language-bash">id</code></pre>
+                            <pre><code class="language-bash">cat /etc/os-release</code></pre>
+                            <pre><code class="language-bash">ps au #Check logged in users</code></pre>
+                            <pre><code class="language-bash">find / -path /proc -prune -o -type d -perm -o+w 2>/dev/null  #Check writeable folders</code></pre>
+                            <pre><code class="language-bash"> find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null  #Check writeable files</code></pre>
+                        </ul>
+
+                        <h3> Check for security measures</h3>
+                        <ul>
+                            <p><b>Exec Shield</b>Reduces the risk of worm or other automated remote attacks on Linux systems</p>
+                            <pre><code class="language-bash">cat /proc/sys/kernel/exec-shield</code></pre>
+                            
+                            <h4>iptables</h4>
+                            <h4>AppArmor</h4>
+                            <h4>SELinux</h4>
+                            <h4>Fail2ban</h4>
+                            <h4>Snort</h4>
+                            <h4>Uncomplicated Firewall (ufw)</h4>
+                        </ul>
                     </ul> 
+                    
                 </div>
 
                 <div class="notion-body">
