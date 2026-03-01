@@ -48,6 +48,7 @@
 /H4ckV4ult/pages/protocols/mremoteng
 /H4ckV4ult/pages/protocols/mssql
 /H4ckV4ult/pages/protocols/mysql
+/H4ckV4ult/pages/protocols/nagios
 /H4ckV4ult/pages/protocols/netdata
 /H4ckV4ult/pages/protocols/nfs
 /H4ckV4ult/pages/protocols/nginx
@@ -80,8 +81,10 @@
 /H4ckV4ult/pages/protocols/tomcat
 /H4ckV4ult/pages/protocols/unifi
 /H4ckV4ult/pages/protocols/vhd
+/H4ckV4ult/pages/protocols/weblgic
 /H4ckV4ult/pages/protocols/winrm
 /H4ckV4ult/pages/protocols/wondercms
 /H4ckV4ult/pages/protocols/wordpress
 /H4ckV4ult/pages/protocols/xwiki
+/H4ckV4ult/pages/reverse
 /H4ckV4ult/pages/winprivScalation
