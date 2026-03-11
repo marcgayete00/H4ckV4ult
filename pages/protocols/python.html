@@ -24,16 +24,37 @@
         </div>
         <div class="notion-body">
 
-            <h2>Library Hijacking</h2>
+            <h2>Privilege Escalation Library Hijacking</h2>
             <ul>
-                <p>This method is very similar to path hijacking but you must need the SETENV privilege (sudo -l) and any import of a library in python for example</p>
-                <pre><code class="language-python">from shutil import make_archive</code></pre>
-                <p>Since python acts like the Linux path in terms of looking for the libraries in the file system we can set <b>PYTHONPATH=/tmp</b> env variable to especify a new folder to look for libraries</p>
-                <p>Inside /tmp we will create our shutil.py malicious file which can contain any command which will be executed as root</p>    
-                <p>The execute the whole command as root providing the env variable and the malicious file will be executed. Example:</p>
-                <pre><code class="language-bash">#!/bin/bash
-chmod u+s /bin/bash</code></pre>
-                <pre><code class="language-python">sudo PYTHONPATH=/tmp ./admin_tasks.sh 6</code></pre>
+                <p>There are several methods to perform library Hijacking:</p>
+                <h3>Modifying a library</h3>
+                <ul>
+                    <p>In case we found a python code which uses any library we could try the following</p>
+                    <p>Search for the location of the library, we can do this several ways</p>
+                    <pre><code class="language-bash">#Search for a function name in all files inside python directory
+grep -r "def virtual_memory" /usr/local/lib/python3.8/*
+#Find directly the name of the library
+/usr/local/lib/python3.8/dist-packages/psutil</code></pre>
+                    <p>Once you found it look for the file <b>__init__.py</b> which is the one the library uses to work properly. <b>In case you can't edit that library don't use this method</b></p>
+                    <p>Open the file and look for the name of the function which is being used in the code you found. Once you found it add the following code at the beggining of the function to perform command execution</p>
+                    <pre><code class="language-python">import os
+os.system('id')</code></pre>
+                    <p>Finally run the code again en enjoy. <b>Obiously run it with sudo</b></p> 
+                    
+                </ul>
+
+                <h3>Library hijacking</h3>
+                <ul>
+                    <p>Have in mind the same example, you found a code where there some python libraries</p>
+                    <p>Since we saw that the code is importing a library called <b>psutil</b> we will create a file with name <b>psutil.py</b> <b>in the same place where we found the code which imports libraries</b></p>
+                    <p>Inside we'll place the following: <b>Obviously the code must have the function which is located in the real psutil and also it's called in the vulnerable code we found</b></p>
+                    <pre><code class="language-python">import os
+def virtual_memory():
+    os.system('id')</code></pre>
+                    <p>That way when we execute the code it will go to found our malicious library instead of the legit one</p>
+                    <p>Finally run the code as root</p>   
+                    
+                </ul>
             </ul>
 
             <h2>Escape from restricted environment (Python IDE)</h2>
