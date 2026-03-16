@@ -124,32 +124,6 @@ PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
                 
             </ul>
 
-            <h2 id="Enumerating security controls">Enumerating security controls</h2>
-            <ul>
-                <h3>Windows Defender</h3>
-                <ul>
-                <p>In order to check if windows defender is active we could use the following command</p>
-                <pre><code class="language-powershell">Get-MpComputerStatus</code></pre>
-                </ul>
-                
-                <h3>AppLocker</h3>
-                <ul>
-                <p>App locker is a software for whitelisting programs on a computer. We can list the prohibited executables by using that in powershell</p>
-                <pre><code class="language-powershell">Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections</code></pre>
-                <p>Here are listed all paths of powershell</p>
-                <pre><code class="language-powershell">32-bit (x86) PowerShell executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
-64-bit (x64) Powershell executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
-32-bit (x86) Powershell ISE executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell_ise.exe
-64-bit (x64) Powershell ISE executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell_ise.exe</code></pre>    
-                </ul>
-
-                <h3>LAPS (Local Administrator Password Solution)</h3>
-                <ul>
-                    <p>LAPS is used to randomize and rotate local administrator passwords on Windows hosts and prevent lateral movement. By using the following command we will be able to show the password expiration and if our user has rights the password in clear text</p>
-                    <pre><code class="language-powershell">Get-LAPSComputers</code></pre>
-                </ul>    
-            </ul>
-
             </ul>
             <h2>Exploitation</h2>
             <ul>

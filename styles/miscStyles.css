@@ -10,10 +10,23 @@
 .notion-container {
     flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
     background-color: white;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;   
     border-radius: 8px;
     box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
     padding: 30px;
     margin-left: 30px; /* Separación entre la barra lateral y el contenido */
+}
+
+pre {
+    display: block;
+    overflow-x: auto;       /* Scroll horizontal solo para el pre */
+    white-space: pre;       /* Mantiene los espacios y saltos */
+    max-width: 100%;        /* No excede el contenedor */
+    box-sizing: border-box;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 /* Header styles (Título de la hoja) */
@@ -81,7 +94,7 @@
 
 
 .sidebar {
-    width: 200px;
+    width: 300px;
     background: linear-gradient(to bottom, #a100ff, #b700ff, #da00ff, #f000ff, #ff47ff);
     color: white;
     padding: 20px;
@@ -234,3 +247,16 @@
     border-radius: 10px;
     z-index: 9999;
 }
+
+.content {
+    display: none; /* Empieza plegado */
+    padding: 10px;
+    border: 1px solid #ccc;
+    }
+
+.button {
+    background-color: #eee;
+    padding: 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    } 

