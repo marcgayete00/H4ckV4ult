@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
     
         <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
@@ -24,13 +24,13 @@
                 <ul id="sidebar-menu"></ul>
         </div>
 
-        <div class="alternative-notion-container">
-            <div class="alternative-notion-header">
+        <div class="notion-container">
+            <div class="notion-header">
                 <h1>OWASP</h1>
                 <p>The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.</p>
             </div>
 
-            <div class="alternative-notion-body">
+            <div class="notion-body">
                 <h2 id="Enumeration">Enumeration</h2>
                 <ul>
                     <h3>Directory fuzzing</h3>
@@ -915,8 +915,6 @@ file`whoami`.jpg</code></pre>
                                     <p>Then send the request </p>
                                     <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
                                 </ul>
-
-                                
                             </ul>
                     </div>
                 </ul>
@@ -928,7 +926,7 @@ file`whoami`.jpg</code></pre>
 <script>
         
     function generateMenu(){
-        const headers = document.querySelectorAll('.alternative-notion-container h2');
+        const headers = document.querySelectorAll('.notion-container h2');
         
         const sidebarList = document.querySelector('#sidebar-menu');
 

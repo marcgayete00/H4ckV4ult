@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
         <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
@@ -23,8 +23,8 @@
                 <ul id="sidebar-menu"></ul>
         </div>
 
-    <div class="alternative-notion-container">
-        <div class="alternative-notion-header">
+    <div class="notion-container">
+        <div class="notion-header">
             <h1>Active Directory (TCP/53 - DNS, TCP/389 - LDAP, TCP/636 - LDAPS, TCP/88 - Kerberos, TCP/445 - SMB)</h1>
             <p>A directory service developed by Microsoft that acts as a centralized database for managing and organizing resources in a network, particularly within Windows environments. This service relies on multiple ports</p>
         </div>
@@ -33,7 +33,7 @@
             <ul>
                 <pre><code class="language-bash">crackmapexec smb 10.10.11.174  #Basic SMB enumeration to check if it vulnerable to SMB relay (signing:False). Additionally you can get the domain name
 crackmapexec winrm 10.10.11.250 -u USERNAME -p "PASSWORD"  #Check for WinRM
- crackmapexec smb 10.10.110.0/24 -u administrator -p 'Password123!' --loggedon-users #Check for logged on users</code></pre>
+crackmapexec smb 10.10.110.0/24 -u administrator -p 'Password123!' --loggedon-users #Check for logged on users</code></pre>
 
             <p>To dump all ldap information</p>
             <pre><code class="language-bash">ldapsearch -H ldap://DOMAIN_NAME -D 'USER@DOMAIN_NAME' -w 'PASSWORD' -b 'dc=DOMAIN_NAME,dc=SECOND_DOMAIN_NAME'</code></pre>
@@ -608,7 +608,7 @@ psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.loc
 </body>
 <script>
     function generateMenu() {
-        const headers = document.querySelectorAll('.alternative-notion-container h2');
+        const headers = document.querySelectorAll('.notion-container h2');
         const sidebarList = document.querySelector('#sidebar-menu');
 
         headers.forEach(header => {

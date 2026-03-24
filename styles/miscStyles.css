@@ -260,3 +260,20 @@ pre {
     cursor: pointer;
     border: 1px solid #ccc;
     } 
+
+
+
+.path-analyzer input{
+    width: 100px;
+    height: 30px;
+}
+
+.path-analyzer button{
+    width: 100px;
+    height: 37px;
+}
+
+.path-analyzer-results textarea{
+    width: 507px;
+    margin-top: 10px;
+}

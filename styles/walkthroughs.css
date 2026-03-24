@@ -6,52 +6,28 @@
 }
 
 .notion-container {
-    max-width:85%; /* Limita el ancho máximo */
-    margin: 0 auto; /* Centra el contenido en la página */
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    margin-top: 50px;
-}
-
-.alternative-notion-container{
     flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
     background-color: white;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;   
     border-radius: 8px;
     box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
     padding: 30px;
-    margin-left: 30px;
+    margin-left: 30px; /* Separaci*/
+    margin-top: 30px;
+    margin-right: 30px;
 }
 
-.alternative-notion-header{
-     margin-bottom: 30px;
-}
-
-.alternative-notion-header .top {
-    font-size: 32px;
-    font-weight: bold;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    margin-top: 1px;
-}
-
-.alternative-notion-header h1 {
-    font-size: 32px;
-    font-weight: bold;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-}
-
-.alternative-notion-header p {
-    font-size: 18px;
-    color: #666;
-}
-
-.alternative-notion-header ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+pre {
+    display: block;
+    overflow-x: auto;       /* Scroll horizontal solo para el pre */
+    white-space: pre;       /* Mantiene los espacios y saltos */
+    max-width: 100%;        /* No excede el contenedor */
+    box-sizing: border-box;
+    padding: 200px;
+    border-radius: 100px;
+    
 }
 
 
@@ -157,7 +133,7 @@ h4{
 }
 
 .sidebar {
-    width: 270px;
+    width: 350px;
     background: linear-gradient(to bottom, #a100ff, #b700ff, #da00ff, #f000ff, #ff47ff);
     color: white;
     padding: 20px;

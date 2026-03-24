@@ -22,6 +22,7 @@
 /H4ckV4ult/pages/protocols/coreftp
 /H4ckV4ult/pages/protocols/cracking
 /H4ckV4ult/pages/protocols/curl
+/H4ckV4ult/pages/protocols/dbvisualizer
 /H4ckV4ult/pages/protocols/dns
 /H4ckV4ult/pages/protocols/docker
 /H4ckV4ult/pages/protocols/drupal
@@ -41,6 +42,7 @@
 /H4ckV4ult/pages/protocols/jenkins
 /H4ckV4ult/pages/protocols/joomla
 /H4ckV4ult/pages/protocols/jwt
+/H4ckV4ult/pages/protocols/kubernetes
 /H4ckV4ult/pages/protocols/legacy
 /H4ckV4ult/pages/protocols/legacy_linux
 /H4ckV4ult/pages/protocols/metasploit
@@ -66,6 +68,7 @@
 /H4ckV4ult/pages/protocols/python
 /H4ckV4ult/pages/protocols/qpdf
 /H4ckV4ult/pages/protocols/rdp
+/H4ckV4ult/pages/protocols/restic
 /H4ckV4ult/pages/protocols/roundcube
 /H4ckV4ult/pages/protocols/rservices
 /H4ckV4ult/pages/protocols/rsync

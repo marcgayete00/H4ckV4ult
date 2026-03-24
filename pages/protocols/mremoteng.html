@@ -28,18 +28,16 @@
                 <h3>CVE-2023-30367 (Cleartext Storage of Sensitive Information)</h3>
                 <p>mRemoteNG configuration files can be stored in an encrypted state on disk. mRemoteNG version <= v1.76.20 and <= 1.77.3-dev loads configuration files in plain text into memory (after decrypting them if necessary) at application start-up, even if no connection has been established yet. This allows attackers to access contents of configuration files in plain text through a memory dump and thus compromise user credentials when no custom password encryption key has been set. This also bypasses the connection configuration file encryption setting by dumping already decrypted configurations from memory.</p>
                 <p>Since all credentials are stored in a file called  <b>confCons.xml</b> In case you can't read the file it can be dumped using the following script </p>
-                <p>This file can be dumped with the following script <a class="notion-link" href="https://www.exploit-db.com/exploits/51637"> here </a>  </p>
-                <ul>
-                    <p>Advice: To run this script you must compile it using the following command in a windows machine</p>
-                    <pre><code class="language-bash"> C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe /t:exe /out:mRemoteDump.exe script.txt</code></pre>
-                </ul>
-               
-               <p>Either if you copy the <b>confCons.xml</b> or you dump it using the script you'll get an Encrypted password (AES) and in some cases you'll get the <b>Decrypted password</b></p>
-               <p>In case you did't get it you can use another script to brute force it</p>
-               <p>But after all since the script uses a progress bar module which does not accept any kind of chars we'll need to convert the wordlist we would like to use to UTF-8</p>
-               <pre><code class="language-bash"> iconv -f ISO-8859-1 -t UTF-8 /usr/share/wordlists/rockyou.txt -o rockyou-utf8.txt </code></pre> 
-               <p>Now use the script</p>
-               <pre><code class="language-bash">python3 mremoteng_decrypt.py -s "aEWNFV5uGcjUHF0uS17QTdT9kVqtKCPeoC0Nw5dmaPFjNQ2kt/zO5xDqE4HdVmHAowVRdC7emf7lWWA10dQKiw==" -b y -w rockyou-utf8.txt</code></pre>
+                <p>This file can be dumped with the following script <a class="notion-link" href="https://www.exploit-db.com/exploits/51637"> here </a></p>
+                <p>ConfCons.xml file is normally located at</p>
+                <pre><code class="language-bash">C:\Users\Peter\AppData\Roaming\mRemoteNG</code></pre>
+                
+                <p>Either if you copy the <b>confCons.xml</b> or you dump it using the script you'll get an Encrypted password (AES) and in some cases you'll get the <b>Decrypted password</b></p>
+                
+                <p>In case you didn't get it you will need to use the following script in order to decrypt the password <a class="notion-link" href="https://github.com/haseebT/mRemoteNG-Decrypt">here</a></p>
+                <pre><code class="language-bash">python3 mremoteng_decrypt.py -s "aEWNFV5uGcjUHF0uS17QTdT9kVqtKCPeoC0Nw5dmaPFjNQ2kt/zO5xDqE4HdVmHAowVRdC7emf7lWWA10dQKiw=="</code></pre>
+                <p>If still you are not able to decrypt the password yull need to provide the key to decrypt it. We can use the following bash script to brute force the key</p>
+                <pre><code class="language-bash">for password in $(cat /usr/share/wordlists/rockyou.txt);do echo $password; python3 mremoteng_decrypt.py -s "EBHmUA3DqM3sHushZtOyanm..." -p $password 2>/dev/null;done  </code></pre>
             </ul>
             <ul>
             </ul>        

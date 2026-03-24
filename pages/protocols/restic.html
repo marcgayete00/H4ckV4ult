@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Restic</h1>
+            <p>Restic is a modern, fast, secure, and efficient open-source command-line backup program that supports Linux, macOS, Windows, and BSD</p>
+        </div>
+        <div class="notion-body">
+            <h2>Backup gathering</h2>
+            <ul>
+               <h3>Windows</h3>
+               <p>In case restic is installed in the target system. (Check it typing <b>restic</b> in the terminal) we can try to recover backups performed</p>
+               <p>First we need to identify the restic folder. Look for a folder called restic or similar where there are the following folders <b>data, index, key, locks, snapshots</b></p>
+               <p>Restic works with a password which we can setup as an environment variable. Once you found it use the follwoing command</p>
+               <pre><code class="language-powershell">$env:RESTIC_PASSWORD = 'Superbackup!'</code></pre>
+               <p>Now list the snapshots.</p>
+               <pre><code class="language-powershell">restic -r E:\restic\ snapshots</code></pre>
+               <p>Indentify the snapshot you would like to restore. Take a look at the folders which are being backed up. Restore it the following way</p>
+               <pre><code class="language-powershell">restic -r E:\restic\ restore b2f5caa0 --target C:\Users\jeff\Desktop\new\</code></pre>
+              
+               
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>
