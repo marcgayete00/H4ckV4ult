@@ -46,6 +46,8 @@ python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmc
             <ul>
                 <p>User enumeration via ldapsearch </p>
                 <pre><code class="language-bash">ldapsearch -h 172.16.5.5 -x -b "DC=INLANEFREIGHT,DC=LOCAL" -s sub "(&(objectclass=user))"  | grep sAMAccountName: | cut -f2 -d" "</code></pre>
+                <p>From inside we can perform a query of the users to check description fields which could be useful.</p>
+                <pre><code class="language-bash">Get-LocalUser</code></pre>
                 <p>User enumration via SID</p>
                 <pre><code class="language-bash">impacket-lookupsid anonymous@10.10.11.35 -no-pass</code></pre>
                 <p>Once you have an username you can rid-brute</p>

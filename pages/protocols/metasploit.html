@@ -53,6 +53,13 @@
                 <ul>
                     <p>Using the migrate post module, you can migrate to another process on the victim.</p>
                     <pre><code class="language-bash">meterpreter > run post/windows/manage/migrate</code></pre>
+                    <p>In case the exploit you are trying does not work think about migrating the process where you shell is. First check your pid</p>
+                    <pre><code class="language-bash">getpid</code></pre>
+                    <p>Now list processes</p>
+                    <pre><code class="language-bash">ps</code></pre>
+                    <p>Look for any process which is x64 architecture like (conhost.exe) and migrate passing the pid of that destination process</p>
+                    <pre><code class="language-bash">migrate 2820</code></pre>
+                    <p>Now attempt again</p>
                 </ul>
 
                 <h2>Duplicate Session</h2>

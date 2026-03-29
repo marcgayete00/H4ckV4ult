@@ -30,7 +30,11 @@
                 <p>Also you can mount the filesystem</p>
                 <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /p:Academy_WinFun! /drive:linux,/home</code></pre>    
                 <p>Pass-the-hash example</p>
-                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /pth:0E14B9D6330BF16C30B1924111104824</code></pre>  
+                <pre><code class="language-bash">xfreerdp3 /v:10.129.11.120  /u:htb-student /pth:0E14B9D6330BF16C30B1924111104824</code></pre> 
+                <p>In case you are treating with an old windows server try to use the following flag. <b>Attempt several times it may not work at first</b></p>
+                <pre><code class="language-bash">xfreerdp3 /v:10.129.31.179 /u:htb-student /p:"HTB_@cademy_stdnt\!" /sec:nla /cert:ignore</code></pre> 
+                
+ 
             </ul>
             
             <h2>Enumeration</h2>
