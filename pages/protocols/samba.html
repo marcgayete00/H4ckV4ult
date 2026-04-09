@@ -19,7 +19,7 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Samba (TCP/445)</h1>
+            <h1>SMB (TCP/445)</h1>
             <p>Software dedicated to share files</p>
             
         </div>
@@ -106,6 +106,13 @@ domain=.</code></pre>
                     <pre><code class="language-bash">smb 10.129.234.173 -u jbader -p "ILovePower333###" -M spider_plus Finance -o DOWNLOAD_FLAG=True --smb-timeout 60</code></pre>
                     <p>In order to perform the filtering, identify the folder and perform a grep. This allows you to even grep within folders</p>
                     <pre><code class="language-bash">grep -ri "passw"</code></pre>
+                </ul>
+
+                <h3>Automating enumeration</h3>
+                <ul>
+                    <p>We can use the following tool <a class="notion-link" href="https://github.com/SnaffCon/Snaffler">Snaffler</a> it will find possible passwords and interesting files</p>
+                    <pre><code class="language-bash">snaffler.exe -s</code></pre>
+                    
                 </ul>
 
                 

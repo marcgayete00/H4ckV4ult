@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>DNN - Dot Net Nuke (TCP/80)</h1>
+            <p>CMS written in .NET, basically the WordPress of .NET</p>
+        </div>
+
+        <div class="notion-body">
+            
+            <h2>Default username</h2>
+            <ul>
+                <pre><code class="language-bash">Username: admin
+Password: dnnadmin
+
+Username: host
+Password: dnnhost</code></pre>
+            <p>Password is changed during the installation so you aren't likely to get in by using that</p>    
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <p>Once you are in there are a couple of entry vectors</p>
+
+                <h3>SQL console</h3>
+                <ul>
+                    <p>Accesing to the settings section (at the left part) you and then selecting SQL console you will enter in a SQL console which let's you type MSSQL commands</p>
+                    <p>This can be used to perform command execution into the server. For more information on how to do so check the MSSQL section in this website</p>
+                    <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/mssql.html">
+                        <h2>  Check for more information ↗️</h2>
+                    </a>
+                </ul>
+
+                <h3>Uploading a malicious webshell</h3>
+                <ul>
+                    <p>DNN also allow us to change the allowable file extensions to allow .asp and .aspx files or others. This can be done from the following section</p>
+                    <p><b>Security -> More -> More Security Settings</b> and then adding them under <b>Allowable File Extensions</b> then click <b>save</b> button</p>
+                    <p>Then we can go the file management section</p>
+                    <pre><code class="language-bash">http://172.16.8.20/admin/file-management</code></pre>
+                    <p>Click in upload files button and select the ASP web shell we previously uploaded. Then right click on the uploaded file and select <b>Get URL</b> and you will have the command injection</p>
+                </ul>
+            </ul>
+        </div>
+
+    </div>
+
+
+</body>
+</html>

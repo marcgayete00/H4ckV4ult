@@ -161,9 +161,6 @@ User daniel.carter may run the following commands on NIX02:
                             <pre><code class="language-bash">find / -user root -perm -6000 -exec ls -ldb {} \; 2>/dev/null</code></pre>
                             <p></p>
                         </ul>                     
-                        <p>We can use the following command to filter for the </p>
-
-                        find / -user root -perm -6000 -exec ls -ldb {} \; 2>/dev/null
                         <h3>Find world-executable folders </h3>
                         <pre><code class="language-bash">find / -type d -writable 2>/dev/null</code></pre>
                     </ul> 
@@ -519,6 +516,11 @@ docker -H unix:///run/docker.sock run -d --privileged -v /:/hostsystem ubuntu sl
                         <h4>ADM grup</h4>
                         <ul>
                             <p>Members of the adm group are able to read all logs stored in /var/log</p>
+                            <p>In case we are in this group we could use (if installed) <b>auerport</b> which is a tool used to review logs</p>
+                            <pre><code class="language-bash">aureport --tty</code></pre>
+                            <p>You can try with different flags to acquire several type of information. <a class="notion-link" href="https://linux.die.net/man/8/aureport">Here</a> you can find list of flags</p>
+
+
                     </ul>
                 </ul>
         </div>
