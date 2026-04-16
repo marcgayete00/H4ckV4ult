@@ -147,21 +147,10 @@
   max-width: 100%;
 }
 
-.todolist {
-    width: 320px;
-    color: rgb(6, 6, 6);
-    padding: 10px;
-    height: 100%;
-    box-shadow: 2px 0 5px rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    margin-left: 20px;
-    border: 1px solid #333;
-    text-indent: 3em each-line
-}
+
 
 .todolist ul{
     list-style: none;
-    margin-left: -30px; 
     
 }
 

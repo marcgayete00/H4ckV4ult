@@ -64,8 +64,10 @@
             <marquee id="title" hspace="20">Todo list</marquee>
           <div class="todolist">
             <ul>
-              <li>🔺Shocker - Document box 24/10/2025 </li>
-              <li>🔺Nibbles  - Document box </li>
+              <li>🔺Shocker - Document box 24/11/2025</li>
+              <li>🔺Nibbles  - Document box 24/11/2025</li>
+              <li>🔺Jeewes  - Document box 13/04/2026 </li>
+              <li>🔺Trick  - Document box 15/04/2026 </li>
             </ul>
           </div>
 
@@ -205,12 +207,17 @@ function generateTimeline() {
 
 function getNext12Months(startDate) {
   const months = [];
-  const year = startDate.getFullYear();
-  const month = startDate.getMonth(); // 0-indexed
+
+  let year = startDate.getFullYear();
+  let month = startDate.getMonth();
 
   for (let i = 0; i < 12; i++) {
-    const date = new Date(year, month + i, 1);
-    const label = date.toISOString().slice(0, 7); // "YYYY-MM"
+    const currentMonth = (month + i) % 12;
+    const currentYear = year + Math.floor((month + i) / 12);
+
+    const label =
+      `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
     months.push(label);
   }
 

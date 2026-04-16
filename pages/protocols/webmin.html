@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Webmin (TCP/10000)</h1>
+            <p>Webmin is a free, open-source, web-based control panel for Linux/Unix system administration. It provides a graphical interface (GUI) to manage server tasks, such as user accounts, Apache/Nginx, MySQL/PostgreSQL, DNS, and file systems, eliminating the need to manually edit configuration files or use the command line.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>Version can <b>only</b>found once you are logged in.</p>
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+               <p>There are several exploits that can be used to to obtain RCE in a webmin server. I suggest you to look the metasploit modules. For example</p>
+               <pre><code class="language-bash">exploit(linux/http/webmin_file_manager_rce)</code></pre>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

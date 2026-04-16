@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Fail2ban</h1>
+            <p>Fail2ban is an open-source intrusion prevention framework for Linux that protects servers from brute-force and automated attacks</p>
+        </div>
+        <div class="notion-body">
+            <h2>Privilege escalation</h2>
+            <ul>
+                <p>In case we found that we have sudo privileges over a fail2ban binary we could be able to escalate our privilege. There are many things to do so even though we will focus on sudo privileges over the following command </p>
+                <pre><code class="language-bash">fail2ban restart</code></pre>
+                <p>Fail2ban does have several configuration files located at <b>/etc/fail2ban/</b> the main faile is <b>jail.conf</b> which contains all the inforation of what to to when an IP is banned, how many login attempts are permitted...</p>
+                <p>If we look at it we could look at the following lines</p>
+                <pre><code class="language-bash">banaction = iptables-multiport
+banaction_allports = iptables-allports</code></pre>
+                <p>Here we can see that whenever a banaction is triggered the action defined in <b>iptables-multiport</b> file will be executed. That file is located at <b>/etc/fail2ban/action.d</b></p>
+                <p><b>Since we are members of the group security</b> we could write all files located at that folder (action.d) included the iptables-multiport. Now open that file and look for the following part</p>
+                <pre><code class="language-bash">#Tags: See jail.conf(5) man page
+#Values: CMD
+#
+actionban = PUT YOUR MALICIOUS FILE PATH OR COMMAND HERE </code></pre>
+                <p>As we can see we are able to modify the action ban so once a user get's banned the code placed there will be executed. That way we could introduce the SUID into the /bin/bash with the following command</p>
+                <pre><code class="language-bash">chmod +s /bin/bash</code></pre>    
+                <p>And then escalte with </p>
+                <pre><code class="language-bash">/bin/bash -p</code></pre>        
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>

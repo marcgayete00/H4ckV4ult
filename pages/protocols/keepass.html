@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>KeePass</h1>
+            <p>KeePass is a free, open-source, and highly secure password manager that stores usernames and passwords in an encrypted local database, protected by a single master key</p>
+        </div>
+        <div class="notion-body">
+            <h2>Finding database</h2>
+            <ul>
+                <pre><code class="language-cmd">dir C:\*.kdbx /s /b 2>nul    #cmd</code></pre>
+                <pre><code class="language-cmd">Get-ChildItem -Path C:\ -Filter *.kdbx -Recurse -ErrorAction SilentlyContinue       #powershell</code></pre>
+                <pre><code class="language-cmd">find / -name "*.kdbx" 2>/dev/null            #bash</code></pre>
+            </ul>
+
+            <h2>Cracking master password</h2>
+            <ul>
+                <p>In case you know the password we can use keepassxc from our attacking machine</p>
+                <pre><code class="language-cmd">keepassxc keepass_database.kdbx</code></pre>
+                <p>if not we can use john to crack the password. First convert the file</p>
+                <pre><code class="language-cmd">keepass2john CEH.kdbx > keepassdatabase.txt</code></pre>
+                <p>Then attempt to crack</p>
+                <pre><code class="language-cmd">john --wordlist=/usr/share/wordlists/rockyou.txt keepassdatabase.txt</code></pre>
+            </ul>
+
+
+
+            
+            
+        </div>
+    </div>
+
+
+</body>
+</html>

