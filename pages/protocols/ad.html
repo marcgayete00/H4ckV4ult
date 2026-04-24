@@ -126,6 +126,31 @@ PS C:\htb> import-module .\PowerView.ps1 & Get-DomainPolicy</code></pre>
                 
             </ul>
 
+            <h2 id="NTLM auth disabled">NTLM auth disabled</h2>
+            <ul>
+                <p>Sometimes you will face an environment where NTLM is disabled meaning that all authentications must be performed with kerberos. In that case there are several things you must perform before starting to pentest</p>
+                <p>First identify the name of the Domain controller. This can be found with netexec</p>
+                <pre><code class="language-bash">netexec smb 10.129.23.130   
+SMB         10.129.232.130  445    DC               [*]  x64 (name:DC) (domain:voleur.htb) (signing:True) (SMBv1:None) (NTLM:False) 
+#Based on the output we find the FQDN dc.voleur.htb and we can confirm that NTLM auth is disabled</code></pre>
+                <p>Now in order to perform kerberos authentication we will need to update the file /etc/krb5.conf. This process can be performed manually or we can automate it using netexec. Here goes the command</p>
+                <pre><code class="language-bash">netexec smb dc.voleur.htb --generate-krb5-file voleur.krb</code></pre>
+                <p>This will generate a file which we can replace for the current /etc/krb5.conf</p>
+                <p>Once replaced we can attempt to request a ticket for the user we want</p>
+                <pre><code class="language-bash">impacket-getTGT voleur.htb/USER:PASS</code></pre>
+                <p>This will generate a .ccache file which we need to export doing</p>
+                <pre><code class="language-bash"> export KRB5CCNAME=ticket.ccache</code></pre>    
+                <p>In case we acquire an AES128 or AES256 bit key we could also request a ticket using that with the following command</p>
+                <pre><code class="language-bash">getTGT.py voleur.htb/Administrator -aesKey f577668d58955ab962be9a489c032f06d84f3b66cc05de37716cac917acbeebb</code></pre>   
+                <h3>Cheatsheet for other commands</h3>
+                <ul>
+                    <p>In case you would like to open a share with smbclient we recommend you to use the impacket version since it works better with kerberos tickets. <a href="samba.html" class="notion-link">Here</a></p>
+                    <pre><code class="language-bash">impacket-smbclient dc.voleur.htb -k</code></pre>
+                    <p>In case you would like to use evil-wirm</p>
+                    <pre><code class="language-bash">evil-winrm -i 10.129.232.130 -u Administrator -K Administrator.ccache -r VOLEUR.HTB</code></pre>
+                </ul>
+            </ul>
+
             </ul>
             <h2>Exploitation</h2>
             <ul>

@@ -82,6 +82,20 @@ domain=.</code></pre>
                         <pre><code class="language-bash">find /mnt/Finance/ -name *cred*</code></pre>
                     </ul>
                 </ul>
+
+                <h3>Using kerberos</h3>
+                <ul>
+                    <p>In case you have to use kerberos authentication in order to access a share I highly recommend you to use impacket-smbclient since it manage better the authentication. Here goes an example</p>
+                    <pre><code class="language-bash">impacket-smbclient dc.voleur.htb -k</code></pre>
+                    <p>Here are a few commands in order to use it properly</p>
+                    <pre><code class="language-bash">shares #To list the available shares
+use sharename #To select a share
+ls #To list contents of the selected share or folder
+cd # to access a folder
+get filename #To download a specific file
+mget * #To download all files from a selected folder                  
+                    </code></pre>
+                </ul>
             </ul>
 
             <h2>Enumeration</h2>

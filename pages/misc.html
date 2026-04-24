@@ -481,8 +481,15 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9HkopkTg
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9HkopkTg root@kali" >> authorized_keys</code></pre>        
                    <p>Connect to the victims using private key</p> 
                    <pre><code class="language-bash">ssh -i persist root@10.10.10.187</code></pre> 
-                  
+                   
+                   <h2>Checking owner of ssh key</h2>
+                   <ul>
+                    <p>Using the following command we will be able to check the ownership of an ssh key. Sometimes will give us a clue of what user can use that key</p>
+                    <pre><code class="language-bash">ssh-keygen -lf id_rsa</code></pre> 
+                    
+                   </ul>
                 </ul>
+
             </div>
 
             <div class="notion-header"> 

