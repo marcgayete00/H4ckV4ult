@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Java</h1>
+            <p>Java is a high-level, general-purpose, memory-safe, object-oriented programming language</p>
+        </div>
+        <div class="notion-body">
+            <h2>Java related apps</h2>
+            <ul>
+                <h3>PWM (Password Management Servlets)</h3>
+                <ul>
+                    <p>Password Management Servlets (PWM) is an open-source Java-based software designed to provide self-service password and account management in enterprise environments with LDAP authentication.</p>
+                    <p>In case you found one of this Password Management Servlets you could perform two things</p>
+                    <ul>
+                        <li>In some cases there will be an option to test the LDAP connection, in this case you could attempt to modify the target URL to make it point to your attacker machine and then capture the connection with responder. <b>If you are lucky you could be able to capture clear text credentials for the svc_ldap account</b></li>
+                        <li>Once you have valid credentials to managed the application attempt to identify the .xml configuration files where the password for svc_ldap user is found. In case you found it you could attempt to crack it</li>
+                    </ul>
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

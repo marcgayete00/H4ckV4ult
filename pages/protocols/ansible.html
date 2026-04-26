@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Ansible</h1>
+            <p>Ansible is a suite of software tools that enables infrastructure as code. It is open-source and the suite includes software provisioning, configuration management, and application deployment functionality</p>
+        </div>
+        <div class="notion-body">
+            <h2>Password cracking</h2>
+            <ul>
+                <p>In case you found password hashes of ansible pltaform you could be able to crack them. But first follow the format to crack it successfully.</p>
+                <pre><code class="language-bash">$ANSIBLE_VAULT;1.1;AES256
+63303831303534303266356462373731393561313363313038376166336536666232626461653630343733303536623561343737373</code></pre>
+                <p>Now apply john to converit to a compatible format in order to crack the vault password</p>
+                <pre><code class="language-bash">ansible2john ldap_admin_password > hash3.txt #Convert it
+john hash3.txt --wordlist=/usr/share/wordlists/rockyou.txt #Crack it</code></pre>
+                <p>Then use the following command and provide the cracked password found previously</p>
+                <pre><code class="language-bash">ansible-vault decrypt ldap_admin_password #File with the ansible password hash</code></pre>    
+                <p>Have in mind that the clear text password will be replaced inside the file</p>    
+            </ul>
+
+            
+
+        </div>
+    </div>
+
+
+</body>
+</html>

