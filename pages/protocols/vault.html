@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Vault</h1>
+            <p>HashiCorp Vault is a centralized secrets management tool designed to securely store, control, and audit access to sensitive data like API keys, passwords, certificates, and encryption keys</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+               <p>In case you found inside a linux operating system and you see a file called <b>.vault-token</b> you could be in front of an authentication token for vault</p>
+               <p>Then check if vault is installed by using which vault and attempt to login by using... and providing the token</p>
+               <pre><code class="language-bash">vault login</code></pre>
+               <p>Now you can start listing secrets</p>
+               <pre><code class="language-bash">vault list secrets</code></pre>
+               <p>In case you would like to read a specific secret</p>
+               <pre><code class="language-bash">vault read secret/SECRET_NAME</code></pre> 
+               <p>Check the policies is simple. In case you have root permissions you are likely to escalate to root</p>
+               <pre><code class="language-bash">vault token lookup</code></pre> 
+            </ul>
+            
+            <h2>Gaining SSH session</h2>
+            <ul>
+                <p>We could be able to list the roles for the SSH engine. In case you found a root user called root_otp this is your ticket to super user :)</p>
+                <pre><code class="language-bash">vault list ssh/roles</code></pre> 
+                <p>Then generate credentials for user root</p>
+                <pre><code class="language-bash">vault write ssh/creds/root_otp username=root ip=127.0.0.1</code></pre> 
+                <p>This will print a OTP (One Time Password) which we can provide to ssh</p>
+                <pre><code class="language-bash">ssh root@127.0.0.1</code></pre> 
+                <br>
+                <p>All this process can be automated using. That way the OTP will be printed so then you provide it</p>
+                <pre><code class="language-bash">vault ssh -mode=otp -role=root_otp root@127.0.0.1</code></pre> 
+            </ul>
+
+            
+
+
+        </div>
+    </div>
+</body>
+</html>
