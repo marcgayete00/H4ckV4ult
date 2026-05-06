@@ -26,7 +26,15 @@
             <h2>Information gathering</h2>
             <ul>
                 <p>Once you get access to the ticketing system it is highly recommended to search for closed tickets which could contain credentials. To do so filter using the word password or similar</p>
-            </ul>    
+            </ul>
+            
+            <h2>Exfiltration of information</h2>
+            <ul>
+                <p>In some cases the main website of osticket allows you create and view information about tickets. In that case I suggest you to create an account and attempt to generate a ticket. Once done it check what osticket says since it can give you useful information. Possible text</p>
+                <b><i>You may check status of ticket by navigating to the check status page using id : 111111 if you want to add more information to the ticket just email 11111@delivery.htb</i></b>
+                <p>This means that osticket created an account with mail 11111@delivery.htb and that any thing we send to that mail account will be listed inside the ticket history since the information will be updated</p>
+                <p>Knowing that we could be able to send a password reset using the mail 111111@delivery from another platform in order to leak the information in the ticket history</p>
+            </ul>
         </div>
     </div>
 

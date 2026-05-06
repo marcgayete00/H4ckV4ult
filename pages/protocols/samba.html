@@ -83,6 +83,14 @@ domain=.</code></pre>
                     </ul>
                 </ul>
 
+                <h3>Downloading multiple files</h3>
+                <ul>
+                    <p>Once you get inside a the share type the following in order to download all files from the share. Obviously if you don't have permissions to read that file you won't be able to download it</p>
+                    <pre><code class="language-bash">smb: \> recurse ON
+smb: \> prompt OFF
+smb: \> mget *</code></pre>
+                </ul>
+
                 <h3>Using kerberos</h3>
                 <ul>
                     <p>In case you have to use kerberos authentication in order to access a share I highly recommend you to use impacket-smbclient since it manage better the authentication. Here goes an example</p>
@@ -93,7 +101,6 @@ use sharename #To select a share
 ls #To list contents of the selected share or folder
 cd # to access a folder
 get filename #To download a specific file
-mget * #To download all files from a selected folder                  
                     </code></pre>
                 </ul>
             </ul>

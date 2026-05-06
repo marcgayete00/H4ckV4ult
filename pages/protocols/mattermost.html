@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Mattermost (TCP/80) (TCP/443)</h1>
+            <p>Mattermost is an open-source, self-hostable secure collaboration and messaging platform designed for technical, operational, and enterprise teams</p>
+        </div>
+        <div class="notion-body">
+            <h2>Usage</h2>
+            <ul>
+                <p>This app is very similar to teams or other apps but with a tweak of more technical features</p>
+
+                <h3>Things to check</h3>
+                <ul>
+                    <p>As any other messaging app it is very important to check message history, but in this case we must check the <b>integrations section</b> which in some cases maay lead to command execution or other</p>
+                </ul>
+            </ul>
+
+            <h2>Password cracking</h2>
+            <ul>
+                <p>Mattermost stores passwords in a database Mysql or MariaDB those ones are stored inside the table <b>users</b>. In order to crack them we should use the following hashcat module</p>
+                <pre><code class="language-uri">hashcat -m 3200 hash -r /usr/share/wordlist/rockyou.txt</code></pre>
+            </ul>
+
+            
+        </div>
+    </div>
+
+
+</body>
+</html>

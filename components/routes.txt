@@ -11,6 +11,7 @@
 /H4ckV4ult/pages/protocols/ad
 /H4ckV4ult/pages/protocols/adminer
 /H4ckV4ult/pages/protocols/adobeColdFusion
+/H4ckV4ult/pages/protocols/ansible
 /H4ckV4ult/pages/protocols/apache
 /H4ckV4ult/pages/protocols/backdrop
 /H4ckV4ult/pages/protocols/backrest
@@ -18,6 +19,7 @@
 /H4ckV4ult/pages/protocols/bitlocker
 /H4ckV4ult/pages/protocols/bufferoverflow
 /H4ckV4ult/pages/protocols/certipy
+/H4ckV4ult/pages/protocols/clamav
 /H4ckV4ult/pages/protocols/compressed
 /H4ckV4ult/pages/protocols/coreftp
 /H4ckV4ult/pages/protocols/cracking
@@ -28,9 +30,9 @@
 /H4ckV4ult/pages/protocols/docker
 /H4ckV4ult/pages/protocols/drupal
 /H4ckV4ult/pages/protocols/elf
-/H4ckV4ult/pages/protocols/excel
 /H4ckV4ult/pages/protocols/fail2ban
 /H4ckV4ult/pages/protocols/ftp
+/H4ckV4ult/pages/protocols/git
 /H4ckV4ult/pages/protocols/gitea
 /H4ckV4ult/pages/protocols/github
 /H4ckV4ult/pages/protocols/gitlab
@@ -41,6 +43,7 @@
 /H4ckV4ult/pages/protocols/ipmi
 /H4ckV4ult/pages/protocols/ipsec
 /H4ckV4ult/pages/protocols/ispconfig
+/H4ckV4ult/pages/protocols/java
 /H4ckV4ult/pages/protocols/jenkins
 /H4ckV4ult/pages/protocols/joomla
 /H4ckV4ult/pages/protocols/jwt
@@ -48,6 +51,7 @@
 /H4ckV4ult/pages/protocols/kubernetes
 /H4ckV4ult/pages/protocols/legacy
 /H4ckV4ult/pages/protocols/legacy_linux
+/H4ckV4ult/pages/protocols/mattermost
 /H4ckV4ult/pages/protocols/metasploit
 /H4ckV4ult/pages/protocols/mongodb
 /H4ckV4ult/pages/protocols/mremoteng
@@ -61,6 +65,7 @@
 /H4ckV4ult/pages/protocols/nsclient++
 /H4ckV4ult/pages/protocols/ntlm
 /H4ckV4ult/pages/protocols/nvms-1000
+/H4ckV4ult/pages/protocols/office
 /H4ckV4ult/pages/protocols/oracle
 /H4ckV4ult/pages/protocols/osticket
 /H4ckV4ult/pages/protocols/owasp
@@ -87,12 +92,14 @@
 /H4ckV4ult/pages/protocols/tftp
 /H4ckV4ult/pages/protocols/tomcat
 /H4ckV4ult/pages/protocols/unifi
+/H4ckV4ult/pages/protocols/vault
 /H4ckV4ult/pages/protocols/vhd
-/H4ckV4ult/pages/protocols/weblgic
+/H4ckV4ult/pages/protocols/weblogic
 /H4ckV4ult/pages/protocols/webmin
 /H4ckV4ult/pages/protocols/winrm
 /H4ckV4ult/pages/protocols/wondercms
 /H4ckV4ult/pages/protocols/wordpress
+/H4ckV4ult/pages/protocols/wsus
 /H4ckV4ult/pages/protocols/xwiki
 /H4ckV4ult/pages/reverse
 /H4ckV4ult/pages/winprivScalation

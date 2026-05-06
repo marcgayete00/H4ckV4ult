@@ -129,11 +129,17 @@ RCPT TO:john
                 </ul>
 
                 <h3>SMTP Open Relay</h3>
-                <p>An open relay is a Simple Mail Transfer Protocol (SMTP) server, which is improperly configured and allows an unauthenticated email relay</p>
-                <p>First we need to identify the smtp open relay in the server. Use the following nmap script</p>
-                <pre><code class="language-bash">nmap -p25 -Pn --script smtp-open-relay 10.10.11.213</code></pre>
-                <p>Next use any mail client to connect to the server and send our mail</p>
-                <pre><code class="language-bash">swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'subject of the message here' --body 'body of the message here' --server 10.10.11.213</code></pre>
+                <ul>
+                    <p>An open relay is a Simple Mail Transfer Protocol (SMTP) server, which is improperly configured and allows an unauthenticated email relay</p>
+                    <p>First we need to identify the smtp open relay in the server. Use the following nmap script</p>
+                    <pre><code class="language-bash">nmap -p25 -Pn --script smtp-open-relay 10.10.11.213</code></pre>
+                    <p>Next use any mail client to connect to the server and send our mail</p>
+                    <pre><code class="language-bash">swaks --from notifications@inlanefreight.com --to employees@inlanefreight.com --header 'subject of the message here' --body 'body of the message here' --server 10.10.11.213</code></pre>
+                </ul>
+                
+                <h3>Capturing SMTP request</h3>
+                <p>In case you found a website that is attempting to perform a connection over port 25 towards your attacking machine we could use the following python module to capture the request</p>
+                <pre><code class="language-bash">python -m aiosmtpd -n -l 0.0.0.0:25</code></pre>
             </ul>   
         </div>
     </div>

