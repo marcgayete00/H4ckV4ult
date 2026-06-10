@@ -14,6 +14,7 @@ function Navbar() {
                     </div>
                 </div>
                 <a href="/H4ckV4ult/pages/reverse.html">Reverse Engineering</a>
+                <a href="/H4ckV4ult/pages/halloffame.html">Hall of Fame</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>

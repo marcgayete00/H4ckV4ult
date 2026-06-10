@@ -629,10 +629,9 @@ socat TCP-LISTEN:7777 stdout  #Victim machine
             <div class="banner">
                 <ul>
                     <p>Here we'll show the steps in order to use ligolo and pivot over networking. In order to make it clear we will steup a environment as following</p>
-                    <p> Box1 (Attacker) 10.10.14.100</p>
-                    <p> Box2 (DMZ) 10.120.113.73, 172.16.5.129</p>
-                    <p> Box3 (Internal) 172.16.5.19</p>
-                    <p>As you can see Box1 can only talk to box2 and box3 can only talk to box2</p>
+                    <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/network-arch.png"> 
+                    <p>As you can see the attacker can only talk to <b>Box2</b> (DMZ)</p>
+                    <p>And inside the internal network, <b>Box3</b> can't talk to <b>Box5</b> due the diferences in network ranges</p>
 
                     <p>Using ligolo we will be able to talk to any box. First of all we need to download the agent and the proxy from their offical site <a class="notion-link" href="https://github.com/nicocha30/ligolo-ng/releases">here</a></p>
                     <p>Have in mind that based on the operating system the proxy and agent will change. <b>Proxy runs over our machine and agent runs over the intermediate machine</b></p>
@@ -658,6 +657,7 @@ socat TCP-LISTEN:7777 stdout  #Victim machine
                     <h2>Double pivoting & more</h2>
                     <ul>   
                         <p>Setup a listener in order to redirect traffic and permit the agent to connect</p>
+                        <b style="color: red;">Remember that interfaces work based on the session you have previously selected in the ligolo proxy.</b>
                         <pre><code class="language-bash">listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11601</code></pre>
                         <p>Connect the agent</p>
                         <pre><code class="language-bash">agent_w.exe --connect 172.16.5.15:11601 -ignore-cert</code></pre>
@@ -686,13 +686,15 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
 
                     <h2>Reverse shell (pivoting)</h2>
                     <ul>
-                        <p>In order to reach from box3 the box1 just in case you would like to perform a reverse shell we need to setup a listener </p>
+                        <p>In order to reach from <b>box3</b> the <b>box1</b> just in case you would like to perform a reverse shell we need to setup a listener </p>
                         <p>From proxy panel type: With that, all trafic that comes to the proxy from port 4444 will be redirected to localhost (kali) port 44</p>
                         <pre><code class="language-bash">listener_add --addr 0.0.0.0:4444 --to 127.0.0.1:44</code></pre>    
                         <p>We can check all the listeners by using <b>listener_list</b></p>
-                        <p>Finally in order to transfers files from box3 we need to point the second interface of the box2 the one we can comunicate from box3</p>
-                        <pre><code class="language-bash">ping 172.16.5.129</code></pre>
-                        <b>In metasploit is the same thing in localhost you must indicate 0.0.0.0 and in lport you must indicate 44</b>
+                        <p>Finally in order to transfers files from <b>box3</b> we need to point the second interface of the <b>box2</b>. In the image above is <b>172.16.5.10</b> where the agent resides</p>
+                        <h3>Dealing with metasploit</h3>
+                        <ul>
+                            In metasploit when listening for the reverse shell connection you mmust indicate <b>0.0.0.0</b> in the <b>lhost</b> and in lport the port you setup in the listener in that case <b>44</b>
+                        </ul>
                     </ul>
 
                     <h2>Cleaning out</h2>

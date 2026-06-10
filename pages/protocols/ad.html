@@ -107,6 +107,10 @@ Select-Object Name, SamAccountName, LastKnownParent</code></pre>
                 <p>Restore the user based on the GUID. Previously you need to find a command to show thr GUID of certain user</p>
 <pre><code class="language-powershell">$guid = [guid]"938182c3-bf0b-410a-9aaa-45c8e1a02ebf"
 Restore-ADObject -Identity $guid</code></pre>
+
+                <p>Show deleted users</p>
+                <pre><code class="language-powershell">ldapsearch -H ldap://DC_IP -x -D "user@domain.local" -w 'password' -b "DC=domain,DC=local" -E '!1.2.840.113556.1.4.417' "(&(objectClass=user)(isDeleted=TRUE))"</code></pre>
+
                 <p>Getting winlogon credentials</p>
                 <pre><code class="language-powershell">reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" </code></pre>
                 

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>AxCrypt</h1>
+            <p>AxCrypt is a popular, user-friendly file encryption and cloud security software</p>
+        </div>
+        <div class="notion-body">
+            <h2>Password cracking</h2>
+            <ul>
+                <p>In case you found a file called <b>something.zip.axx</b> or with the <b>axx</b> extension you may be in front of a AxCrypt encrypted file. But don't worry if the encryption key is weak enough we could be able to crack it using john</p>
+                <p>First convert the file in a compatible format for john to read it</p>
+                <pre><code class="language-bash">axcrypt2john yourfile.axx</code></pre>
+                <p>Now attempt to crack it</p>
+                <pre><code class="language-bash">john axcrypt_hash --wordlist=/usr/share/wordlist/rockyou.txt</code></pre>
+                <b>Once you found the key i highly recommend you to download the axcrypt client in a windows environment and open the file from there. Don't mess up with other softwares or tools which will not work</b>
+                
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

