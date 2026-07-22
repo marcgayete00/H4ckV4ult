@@ -37,7 +37,42 @@
                         <pre><code class="language-bash">nmap -p 80,443,8000,8080,8180,8888,10000 --open -oA web_discovery -iL scope_list</code></pre> 
                         <p>Now we can use the following tools to perform screenshots of the websites available and identify which are the high value targets</p>
                         <pre><code class="language-bash">eyewitness --web -x web_discovery.xml -d inlanefreight_eyewitness  #eyewitness
-cat ../web_discovery.xml | ./aquatone -nmap  #aquatone</code></pre> 
+cat ../web_discovery.xml | ./aquatone -nmap  #aquatone</code></pre>
+
+                        <h2>Enumeration via LLMs</h2>
+                        <ul>
+                            <p>LLMs like chatGPT, Claude or Copilot can be super useful when gathering information about a domain. Here are some prompts we can use to extract public information</p>
+                            <p>Prompt query for whois</p>
+                            <pre><code class="language-url">whois domain.com</code></pre>
+                            <p>Prompt query about getting all public information related with the targetdomain</p>
+                            <pre><code class="language-url">Can you print out all the public information about company structure and employees of domain?</code></pre>
+                            <p>Prompt for getting google dorks to investigate the domain</p>
+                            <pre><code class="language-url">can you provide the best 20 google dorks for domain.com website tailored for a penetration test?</code></pre>
+                            <p>Prompt for getting the technologies used by the domain</p>
+                            <pre><code class="language-url">Retrieve the technology stack of the domain.com website</code></pre>
+                            
+                            <h3>Developing subdomain wordlist</h3>
+                            <ul>
+                             <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                <p>Prompt to develop a subdomain wordlist with the IA</p>
+                                <pre><code class="language-url">Using public data from DOMAIN website and any information that can be inferred about its organizational structure, products, or services, generate a comprehensive list of potential subdomain names.
+	•	Incorporate common patterns used for subdomains, such as:
+	•	Infrastructure-related terms (e.g., "api", "dev", "test", "staging").
+	•	Service-specific terms (e.g., "mail", "auth", "cdn", "status").
+	•	Departmental or functional terms (e.g., "hr", "sales", "support").
+	•	Regional or country-specific terms (e.g., "us", "eu", "asia").
+	•	Factor in industry norms and frequently used terms relevant to MegacorpOne's sector.
+
+Finally, compile the generated terms into a structured wordlist of 1000  words, optimized for subdomain brute-forcing against dDOMAIN.com
+
+Ensure the output is in a clean, lowercase format with no duplicates, no bulletpoints and ready to be copied and pasted.
+Make sure the list contains 1000 unique entries.</code></pre>    
+                        </div>
+      
+                        </ul>
+                            
+                        </ul>
                     </ul>
                 </div>
 
@@ -722,7 +757,9 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
     if ($result) {
         Write-Host "  UP" -ForegroundColor Green
     } 
-}</code></pre>        
+}</code></pre>
+                        <p>Alternatives</p>
+                        <pre><code class="language-bash">1..1024 | % {echo ((New-Object Net.Sockets.TcpClient).Connect("192.168.50.151", $_)) "TCP port $_ is open"} 2>$null  </code></pre>
                     <b>Wireshark</b>
                     <p>Filtering by arp in wireshark and waiting a little bit allow us to identify hosts</p>
                     <b>fping</b>
@@ -795,6 +832,18 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
                 sidebarList.appendChild(listItem);
             });
         }
+
+        // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+
+        const botones = document.querySelectorAll(".button");
+
+        botones.forEach(boton => {
+        boton.addEventListener("click", () => {
+            const contenido = boton.nextElementSibling;
+            contenido.style.display =
+            contenido.style.display === "block" ? "none" : "block";
+        });
+        });
 
         // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
         window.addEventListener('load', generateMenu);

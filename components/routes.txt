@@ -1,3 +1,4 @@
+/H4ckV4ult/pages/halloffame
 /H4ckV4ult/pages/machines/bandit
 /H4ckV4ult/pages/machines/escapetwo
 /H4ckV4ult/pages/machines/natas
@@ -13,6 +14,7 @@
 /H4ckV4ult/pages/protocols/adobeColdFusion
 /H4ckV4ult/pages/protocols/ansible
 /H4ckV4ult/pages/protocols/apache
+/H4ckV4ult/pages/protocols/axcrypt
 /H4ckV4ult/pages/protocols/backdrop
 /H4ckV4ult/pages/protocols/backrest
 /H4ckV4ult/pages/protocols/bashScripting
@@ -61,6 +63,7 @@
 /H4ckV4ult/pages/protocols/netdata
 /H4ckV4ult/pages/protocols/nfs
 /H4ckV4ult/pages/protocols/nginx
+/H4ckV4ult/pages/protocols/nodejs
 /H4ckV4ult/pages/protocols/npbackup
 /H4ckV4ult/pages/protocols/nsclient++
 /H4ckV4ult/pages/protocols/ntlm
@@ -76,6 +79,7 @@
 /H4ckV4ult/pages/protocols/python
 /H4ckV4ult/pages/protocols/qpdf
 /H4ckV4ult/pages/protocols/rdp
+/H4ckV4ult/pages/protocols/react
 /H4ckV4ult/pages/protocols/redis
 /H4ckV4ult/pages/protocols/restic
 /H4ckV4ult/pages/protocols/roundcube
@@ -85,6 +89,7 @@
 /H4ckV4ult/pages/protocols/smtp
 /H4ckV4ult/pages/protocols/snmp
 /H4ckV4ult/pages/protocols/snort
+/H4ckV4ult/pages/protocols/sonarqube
 /H4ckV4ult/pages/protocols/splunk
 /H4ckV4ult/pages/protocols/sqlmap
 /H4ckV4ult/pages/protocols/ssh

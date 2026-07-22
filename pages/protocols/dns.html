@@ -43,6 +43,7 @@
                 <h3>Automation</h3>
                 <p>We can automate the process of finding subodmains by using the following tool. Wordlists that may come handy (fierce-hostlist.txt)</p>
                 <pre><code class="language-bash">dnsenum --enum inlanefreight.com -f  /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt </code></pre>
+                <pre><code class="language-bash">dgobuster dns -d domain.com -w wordlist.txt -t 10 </code></pre>
                 <p>Other alternatives</p>
                 <pre><code class="language-bash">./subfinder -d inlanefreight.com -v  </code></pre>
                 
@@ -131,7 +132,14 @@ send</code></pre>
                 <p>Edit the file resolvers.txt located at the folder of subbrute and add the IP of the target server at the end. It's recommended to create new file. If not it will increase a lot the time of bruteforcing</p>
                 <p>Finally use the following command. Have in mind that names.txt is the wordlist where all subdomains are</p>
                 <pre><code class="language-bash">./subbrute.py -p inlanefreight.htb -s names.txt -r resolvers2.txt </code></pre>
+                
+                    <h4>Other basic methods</h4>
+                    <ul>
+                        <p>Using the command host we are able to test if a subdomain is available</p>
+                        <pre><code class="language-bash">for ip in $(cat list.txt); do host $ip.megacorpone.com; done</code></pre>
+                    </ul>
                 </ul>
+
             </ul>    
         </div>
     </div>

