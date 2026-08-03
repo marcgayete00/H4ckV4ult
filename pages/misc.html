@@ -463,21 +463,52 @@ medusa -h 10.0.0.5 -U usernames.txt -e ns -M ssh</code></pre>
                 <h1 id="Cracking passwords">Cracking passwords</h1>
             </div>   
             <div class="banner">
+            <ul>    
                     <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/cracking.html">
                         <h2>Check for more information ↗️</h2>
                     </a>
-                
-                <h2>Cracking SSH encrypted keys</h2>
+                <h2>How much time will you spend for cracking?</h2>
                 <ul>
-                    <p>In case you found a SSH key (id_rsa) but when attempted to use it says...</p>
-                    <pre><code class="language-bash">Enter passphrase for key id_rsa:</code></pre>  
-                    <p>Means that the password is encrypted <b>Do not confuse with the message "Enter password for user root" when using a certificate which could mean that the certificate does not have the proper permissions (700) or the key you are using does not work</b></p>  
-                    <p>So let's use john in order to crack it. First, convert the file into a compatible format</p>
-                    <pre><code class="language-bash">ssh2john id_rsa.bak > hash.txt</code></pre>  
-                    <p>Then start the cracking</p>
-                    <pre><code class="language-bash">john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>  
+                    <p>Here i developed a tool to calculate how much time will you require for finding certain password. Remember that this is pure bruteforcing so it grants that if the password contains the specific charset will be able to crack it</p>
+                    <style>
+
+</style>
+
+<div class="path-analyzer">
+    <select name="cars" id="cars">
+        <option value="lower">lower - abcdefghijklmnopqrstuvwxyz</option>
+        <option value="upper">upper - ABCDEFGHIJKLMNOPQRSTUVWXYZ</option>
+        <option value="numbers">numbers - 0123456789</option>
+        <option value="symbols">symbols - !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~</option>
+        <option value="lower-upper">lower & upper - abcABC</option>
+        <option value="lower-numbers">lower & numbers - abc123</option>
+        <option value="lower-symbols">lower & symbols - abc!@#</option>
+        <option value="upper-numbers">upper & numbers - ABC123</option>
+        <option value="upper-symbols">upper & symbols - ABC!@#</option>
+        <option value="numbers-symbols">numbers & symbols - 123!@#</option>
+        <option value="lower-upper-numbers">lower & upper & numbers - abcABC123</option>
+        <option value="lower-upper-symbols">lower & upper & symbols - abcABC!@#</option>
+        <option value="lower-numbers-symbols">lower & numbers & symbols - abc123!@#</option>
+        <option value="upper-numbers-symbols">upper & numbers & symbols - ABC123!@#</option>
+        <option value="lower-upper-numbers-symbols">lower & upper & numbers & symbols - abcABC123!@#</option>
+    </select>
+
+    <input type="text" id="passlength" placeholder="Numbers of characters for your password 8,10,16...">
+    <input type="text" id="hascatBenchmark" placeholder="68185.1 MH/s  (hashcat -b)">
+    <button onclick="calculateTime()">Analyze</button>
+
+    <div class="path-analyzer-results">
+        <textarea id="output" rows="10" cols="60" readonly></textarea>
+    </div>
+</div>
+
                 </ul>
-                   
+
+                <h2>Start bruteforcing</h2>
+                <ul>
+                    <p>Now that you know how to how much time it will take, you can start the bruteforcing process. <a class="notion-link" href="/H4ckV4ult/pages/protocols/cracking.html#hashcatmasks">Check for more information</a></p>
+                </ul>
+            </ul>       
             </div>
 
             <div class="notion-header">
@@ -833,6 +864,69 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
             });
         }
 
+        function formatTime(seconds) {
+    if (seconds < 60) return `${seconds.toFixed(2)} seconds`;
+    const minutes = seconds / 60;
+    if (minutes < 60) return `${minutes.toFixed(2)} minutes`;
+    const hours = minutes / 60;
+    if (hours < 24) return `${hours.toFixed(2)} hours`;
+    const days = hours / 24;
+    if (days < 365) return `${days.toFixed(2)} days`;
+    const years = days / 365;
+    return `${years.toFixed(2)} years`;
+}
+
+        function calculateTime() {
+            const output = document.getElementById("output");
+            const charset = document.getElementById("cars").value;
+            const passlength = parseInt(document.getElementById("passlength").value);
+            const hascatBenchmark = parseFloat(document.getElementById("hascatBenchmark").value);
+            let charsetSize;
+
+            if (isNaN(passlength) || passlength <= 0) {
+                output.value = "Error: introduce una longitud de contraseña válida.";
+                return;
+            }
+            if (isNaN(hascatBenchmark) || hascatBenchmark <= 0) {
+                output.value = "Error: introduce un benchmark válido (MH/s).";
+                return;
+            }
+
+            switch (charset) {
+                case "lower": charsetSize = 26; break;
+                case "upper": charsetSize = 26; break;
+                case "numbers": charsetSize = 10; break;
+                case "symbols": charsetSize = 32; break;
+                case "lower-upper": charsetSize = 52; break;
+                case "lower-numbers": charsetSize = 36; break;
+                case "lower-symbols": charsetSize = 58; break;
+                case "upper-numbers": charsetSize = 36; break;
+                case "upper-symbols": charsetSize = 58; break;
+                case "numbers-symbols": charsetSize = 42; break;
+                case "lower-upper-numbers": charsetSize = 62; break;
+                case "lower-upper-symbols": charsetSize = 90; break;
+                case "lower-numbers-symbols": charsetSize = 68; break;
+                case "upper-numbers-symbols": charsetSize = 68; break;
+                case "lower-upper-numbers-symbols": charsetSize = 94; break;
+                default:
+                    output.value = "Error: selecciona un charset válido.";
+                    return;
+            }
+
+            const possible_combinations = Math.pow(charsetSize, passlength);
+            const result = possible_combinations / (hascatBenchmark * 1000000);
+
+            output.value =
+        `Charset size: ${charsetSize}
+        Password length: ${passlength}
+        Benchmark: ${hascatBenchmark} MH/s (${(hascatBenchmark * 1000000).toLocaleString()} H/s)
+
+        Possible combinations: ${possible_combinations.toLocaleString()}
+
+        Estimated crack time (worst case):
+        ${formatTime(result)}`;
+        }
+
         // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
 
         const botones = document.querySelectorAll(".button");
@@ -847,6 +941,8 @@ sudo ip route add 172.16.10.0/24 dev ligolo-triple</code></pre>
 
         // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
         window.addEventListener('load', generateMenu);
+    
+    
     </script>
 </body>
 </html>

@@ -277,3 +277,70 @@ pre {
     width: 507px;
     margin-top: 10px;
 }
+
+.path-analyzer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 500px;
+    padding: 24px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.path-analyzer select,
+.path-analyzer input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.path-analyzer select:focus,
+.path-analyzer input[type="text"]:focus {
+    outline: none;
+    border-color: #6c63ff;
+}
+
+.path-analyzer select option {
+    background: #2a2a2a;
+}
+
+.path-analyzer input[type="text"]::placeholder {
+    color: #777;
+}
+
+.path-analyzer button {
+    padding: 10px 16px;
+    background: #cc00ff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.path-analyzer-results {
+    margin-top: 8px;
+}
+
+.path-analyzer-results textarea {
+    width: 100%;
+    padding: 12px;
+    background: #0f0f0f;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    color: #cc00ff;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    box-sizing: border-box;
+    resize: vertical;
+}

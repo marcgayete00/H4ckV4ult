@@ -36,8 +36,14 @@
                 <pre><code class="language-cmd">keepassxc keepass_database.kdbx</code></pre>
                 <p>if not we can use john to crack the password. First convert the file</p>
                 <pre><code class="language-cmd">keepass2john CEH.kdbx > keepassdatabase.txt</code></pre>
+                <p>I don't know why but now keepass2john appends a prefix called "Database:" which needs to be remove if we want to crack it using hashcat</p>
+                <pre><code class="language-cmd">Database:$keepass$*2*60*0*d74e29a727e9338717d27a7d457ba3     #Resultant hash
+$keepass$*2*60*0*d74e29a727e9338717d27a7d457ba3  #The format the hash must have to use it on hashcat
+                </code></pre>
                 <p>Then attempt to crack</p>
                 <pre><code class="language-cmd">john --wordlist=/usr/share/wordlists/rockyou.txt keepassdatabase.txt</code></pre>
+                <p>We can also use hashcat</p>
+                <pre><code class="language-cmd">hashcat -m 13400 keepassdatabase.txt /usr/share/wordlists/rockyou.txt</code></pre>
             </ul>
 
 

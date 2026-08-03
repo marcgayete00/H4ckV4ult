@@ -39,7 +39,18 @@
                     <p>File is normally called</p>
                     <pre><code class="language-bash">ssh_host_rsa_key</code></pre>    
                 </ul>
-            </ul>    
+            </ul>
+            
+            <h2>Cracking SSH encrypted keys</h2>
+                <ul>
+                    <p>In case you found a SSH key (id_rsa) but when attempted to use it says...</p>
+                    <pre><code class="language-bash">Enter passphrase for key id_rsa:</code></pre>  
+                    <p>Means that the password is encrypted <b>Do not confuse with the message "Enter password for user root" when using a certificate which could mean that the certificate does not have the proper permissions (700) or the key you are using does not work</b></p>  
+                    <p>So let's use john in order to crack it. First, convert the file into a compatible format</p>
+                    <pre><code class="language-bash">ssh2john id_rsa.bak > hash.txt</code></pre>  
+                    <p>Then start the cracking</p>
+                    <pre><code class="language-bash">john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>  
+                </ul>
 
             <h2>SSH honeypot to capture credentials</h2>
             <ul>

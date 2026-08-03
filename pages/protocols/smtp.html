@@ -39,6 +39,11 @@ PASS PasswordForthatUser</code></pre>
 1 601</code></pre>
                 <p>In order to check the content of the message just use</p>    
                 <pre><code class="language-bash">RETR mail_ID</code></pre>
+                <p>Seding mail</p>
+                <pre><code class="language-bash">swaks --to itsupport@outdated.htb --from car@melo --server mail.outdated.htb --body "http://10.10.14.5/"</code></pre>    
+                <p>Seding mail with attachments. Remember de to include the <b>@</b> Check the base64</p>
+                <pre><code class="language-bash">swaks --to dave.wizard@supermagicorg.com --from car@melo --server supermagicorg.com --body "Click it" --attach @/mnt/hgfs/vmwareshared/config.Library-ms</code></pre>        
+
             </ul>
             <h2>Local Enumeration</h2>
             <ul>
