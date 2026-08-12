@@ -29,10 +29,24 @@
                 <ul>
                     <pre><code class="language-bash">john hash.txt --format=afs</code></pre>
                 </ul>
+
+                <h3>John the ripper rules</h3>
+                <ul>
+                    <p>In order to create a rule for john the ripper we need to create a new file and type the following:</p>
+                    <pre><code class="language-bash">[List.Rules:sshRules]
+c $1 $3 $7 $!
+c $1 $3 $7 $@
+c $1 $3 $7 $#</code></pre>
+                    <p>The first line is the name of the rule which we need to make reference later. The sintax of creating the rules is the same as hashcat</p>
+                    <p>Finally appened the content to the end of the file <b>/etc/john/john.conf</b>. You can use the following command </p>
+                    <pre><code class="language-bash">sudo sh -c 'cat ssh.rule >> /etc/john/john.conf'</code></pre>    
+                    <p>Now start cracking by using the command</p>
+                    <pre><code class="language-bash">john --wordlist=ssh.passwords --rules=sshRules ssh.hash </code></pre>   
+                </ul>
             </ul>
             <h2>Hashcat</h2>
             <ul>
-                <h3 >Hashcat rules</h3>
+                <h3>Hashcat rules</h3>
                 <ul>
                     <p>In case you found that you are not able to crack certain password with default wordlist you can use rules which provide variations of password presents in wordlists</p>
                     <pre><code class="language-bash">hashcat -m 0 hash.txt /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule</code></pre>
@@ -57,6 +71,8 @@ $1$@$3$$5</code></pre>
                     
                  <p>5. You can also dump the new wordlist in a file and test it from there (optional)</p>
                 </ul>
+
+                
                 
                 <h3 id="hashcatmasks">Hascat masks </h3>
                 <ul>

