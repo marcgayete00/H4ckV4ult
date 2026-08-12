@@ -76,6 +76,7 @@
 /H4ckV4ult/pages/protocols/perl
 /H4ckV4ult/pages/protocols/php
 /H4ckV4ult/pages/protocols/playsms
+/H4ckV4ult/pages/protocols/postgresql
 /H4ckV4ult/pages/protocols/prtg
 /H4ckV4ult/pages/protocols/python
 /H4ckV4ult/pages/protocols/qpdf

