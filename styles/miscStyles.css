@@ -343,3 +343,50 @@ pre {
     box-sizing: border-box;
     resize: vertical;
 }
+
+.service-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #2a323d;
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+
+  .service-table thead th {
+    letter-spacing: 0.06em;
+    font-size: 15px;
+    padding: 14px 18px;
+    text-align: left;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  .service-table tbody td {
+    padding: 14px 18px;
+    font-size: 15px;
+    border-bottom: 1px solid #1f252d;
+    vertical-align: middle;
+  }
+
+  .service-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .service-table .col-icon {
+    width: 56px;
+  }
+
+  .service-table .col-icon img {
+    width: 32px;
+    height: 32px;
+    display: block;
+  }
+
+  .service-table .col-service {
+    width: 90px;
+    font-weight: 600;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    
+  }

