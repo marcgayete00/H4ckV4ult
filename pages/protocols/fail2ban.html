@@ -27,6 +27,7 @@
             <ul>
                 <p>In case we found that we have sudo privileges over a fail2ban binary we could be able to escalate our privilege. There are many things to do so even though we will focus on sudo privileges over the following command </p>
                 <pre><code class="language-bash">fail2ban restart</code></pre>
+                <b>Sometimes you won't be able to restart the service. In that case take a look at README files / cronjobs you may find a task whichs resets de service from time to time</b>
                 <p>Fail2ban does have several configuration files located at <b>/etc/fail2ban/</b> the main faile is <b>jail.conf</b> which contains all the inforation of what to to when an IP is banned, how many login attempts are permitted...</p>
                 <p>If we look at it we could look at the following lines</p>
                 <pre><code class="language-bash">banaction = iptables-multiport

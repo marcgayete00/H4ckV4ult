@@ -21,6 +21,7 @@
             <button class="button-thm" onclick="filterItems('thm')"></button>
             <button class="button-natas" onclick="filterItems('natas')"></button>
             <button class="button-vulnhub" onclick="filterItems('vulnhub')"></button>
+            <button class="button-offsec" onclick="filterItems('offsec')"></button>
         </div>
 
         <a class="cherry-banner" href="/H4ckV4ult/files/cherry.ctb" download="cherry.ctb">
@@ -30,6 +31,55 @@
     </div>
 
     <div class="grid-container">
+
+        <div class="grid-item offsec" onclick=toggleExpand(this)>
+            <div class="active-machine invisible"><a>Season 11</a></div>
+            <img src="/H4ckV4ult/images/machinesImages/offsec.jfif" alt="Machine 1">
+            <div class="grid-item-data">
+                <a class="grid-item-data-difficulty">Name: Fail</a>
+                <a class="grid-item-data-difficulty">Difficulty: Medium</a>
+                <a class="grid-item-data-date">Date: 07/09/2026</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺ssh authorized_host upload</li>
+                    <li>🔺Privilege escalation abusing fail2ban service</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="grid-item offsec" onclick=toggleExpand(this)>
+            <div class="active-machine invisible"><a>Season 11</a></div>
+            <img src="/H4ckV4ult/images/machinesImages/offsec.jfif" alt="Machine 1">
+            <div class="grid-item-data">
+                <a class="grid-item-data-difficulty">Name: Kevin</a>
+                <a class="grid-item-data-difficulty">Difficulty: Easy</a>
+                <a class="grid-item-data-date">Date: 07/09/2026</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Public exploit against HP Power Manager</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="grid-item offsec" onclick=toggleExpand(this)>
+            <div class="active-machine invisible"><a>Season 11</a></div>
+            <img src="/H4ckV4ult/images/machinesImages//offsec.jfif" alt="Machine 1">
+            <div class="grid-item-data">
+                <a class="grid-item-data-difficulty">Name: ClamAV</a>
+                <a class="grid-item-data-difficulty">Difficulty: Easy</a>
+                <a class="grid-item-data-date">Date: 03/09/2026</a>
+            </div>
+
+            <div class="grid-item extra-overlay">
+                <ul class="overlay-list">
+                    <li>🔺Exploiting remote command execution vulnerability in Sendmail with clamav-milter, a ClamAV filter</li>
+                </ul>
+            </div>
+        </div>
 
         <div class="grid-item htb" onclick=toggleExpand(this)>
             <div class="active-machine"><a>Season 11</a></div>
@@ -1214,33 +1264,49 @@
         const thmItems = document.querySelectorAll('.thm');
         const natasItems = document.querySelectorAll('.natas');
         const vulnhubItems = document.querySelectorAll('.vulnhub');
+        const offsecItems = document.querySelectorAll('.offsec');
 
         if (type === 'htb') {
             htbItems.forEach(el => el.style.display = 'block');
             thmItems.forEach(el => el.style.display = 'none');
             natasItems.forEach(el => el.style.display = 'none')
             vulnhubItems.forEach(el => el.style.display = 'none');
+            offsecItems.forEach(el => el.style.display = 'none');
+
         } else if (type === 'thm') {
             thmItems.forEach(el => el.style.display = 'block');
             htbItems.forEach(el => el.style.display = 'none');
             natasItems.forEach(el => el.style.display = 'none');
             vulnhubItems.forEach(el => el.style.display = 'none');
+            offsecItems.forEach(el => el.style.display = 'none');
+
         } else if (type === 'natas') {
             natasItems.forEach(el => el.style.display = 'block');
             htbItems.forEach(el => el.style.display = 'none');
             thmItems.forEach(el => el.style.display = 'none');
             vulnhubItems.forEach(el => el.style.display = 'none');
+            offsecItems.forEach(el => el.style.display = 'none');
+
         } else if (type === 'vulnhub'){
           vulnhubItems.forEach(el => el.style.display = 'block');
           htbItems.forEach(el => el.style.display = 'none');
           thmItems.forEach(el => el.style.display = 'none');
-          natasItems.forEach(el => el.style.display = 'none')  
+          natasItems.forEach(el => el.style.display = 'none');
+          offsecItems.forEach(el => el.style.display = 'none');
+
+        } else if (type === 'offsec'){
+          offsecItems.forEach(el => el.style.display = 'block');
+          vulnhubItems.forEach(el => el.style.display = 'none');
+          htbItems.forEach(el => el.style.display = 'none');
+          thmItems.forEach(el => el.style.display = 'none');
+          natasItems.forEach(el => el.style.display = 'none')
+          
+
         }
     }
 
 document.querySelectorAll(".grid-item htb").forEach(img => {
   img.addEventListener("click", e => {
-    console.log("hasclicado")
     const card = e.target.closest(".grid-item");
     card.classList.toggle("active");
   });

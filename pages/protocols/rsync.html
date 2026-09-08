@@ -31,8 +31,20 @@
                     <p>Once insede you must type <b>#list</b> in order to list all shares</p>
                     <p>In case we would like to check what content is inside a share we could perform</p>
                     <pre><code class="language-bash">rsync -av --list-only rsync://127.0.0.1/$sharename</code></pre>
+                    <p>There is also another way of obtaining the shares through nmap</p>
+                    <pre><code class="language-bash">nmap -p 873 --script rsync-list-modules <ip></code></pre>
                 </ul>
 
+                <h3>Transferring files</h3>
+                <ul>
+                    <pre><code class="language-bash">rsync -av FILE_TO_TRANSFER rsync://192.168.1.100/SHARE/<ip></code></pre>
+                    <p>you could do the same with folders</p>
+                    <pre><code class="language-bash">rsync -av DIRECTORY_TO_TRANSFER rsync://192.168.1.100/SHARE/<ip></code></pre>
+                    <p>In order to download all files from a share you could</p>
+                    <pre><code class="language-bash">rsync -av rsync://10.10.10.20/backup/ ./backup/<ip></code></pre>    
+                    <p>In case of needing a username and password all previous commands would need to be modified to include them. Example:</p>
+                    <pre><code class="language-bash">rsync -av user@10.10.10.20:/var/www/html ./ <ip></code></pre>    
+                </ul>
             </ul>    
         </div>
     </div>

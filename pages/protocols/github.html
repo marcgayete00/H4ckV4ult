@@ -73,10 +73,20 @@
             <ul>    
                 <h3>Last commit</h3>
                 <ul>
-                <p>In case you found a /.git o similar in a web you could be able to acquire all files and undo last commit</p>
-                <pre><code class="language-bash">wget -r http://website/git</code></pre>
-                <p>Then using git cola select the folder where you extracted all the content and look for intersting files such as <b>settings.php</b></p>
-                <p>In case you would like to undo last commit just click in "Commit > Undo Last Commit"</p>
+                    <p>In case you found a /.git o similar in a web you could be able to acquire all files and undo last commit</p>
+                    <pre><code class="language-bash">wget -r http://website/git</code></pre>
+                    <p>Then using git cola select the folder where you extracted all the content and look for intersting files such as <b>settings.php</b></p>
+                    <p>In case you would like to undo last commit just click in "Commit > Undo Last Commit"</p>
+                </ul>
+
+                <h3>Gitleaks</h3>
+                <ul>
+                    <p>We could also use a terminal tool called gitleaks. Situate yourself in the repository directory and run:</p>
+                    <pre><code class="language-bash">gitleaks detect --source . -v</code></pre>
+                    <p>In case you did not find any secrets check the git log</p>
+                    <pre><code class="language-bash">git log</code></pre>
+                    <p>Look for a commit you would like to examine and do</p>
+                    <pre><code class="language-bash">git show 710c14a2e43cfd97041924403e00efb00b3a956e</code></pre>
                 </ul>
             </ul>
         </div>
