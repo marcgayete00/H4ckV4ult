@@ -36,6 +36,13 @@
                         <pre><code class="language-bash">AUTH USERNAME PASSWORD</code></pre>
                     </ul>
 
+                    <h3>Finding passwords</h3>
+                    <ul>
+                        <p>In case you don't know the password but you have already found an LFI or similar vulnerability which allow you to read local files i suggest you to read the following</p>
+                        <pre><code class="language-bash">/etc/redis/redis.conf</code></pre>
+                        <p>Look for the line containing <b>requirepass</b> and the password will be listed after it</p>
+                    </ul>
+
                     <h3>Gathering data</h3>
                     <ul>
                     <p>Once you are inside there are some useful commands which we can use in order to obtain information about the instance with the command:</p>
@@ -52,7 +59,6 @@ db0:keys=1,expires=0,avg_ttl=0</code></pre>
                     <p>In case we would like to list the content of an specific key we just need to</p>
                     <pre><code class="language-bash">GET KEY_NAME</code></pre>
                     </ul>
-                    <p></p>   
                 </ul>
 
                 <h2>Exploitation</h2>
@@ -78,7 +84,13 @@ OK
 OK
 10.85.0.52:6379> save
 OK</code></pre>
-                       <p>Now browse for the file in the webserver and enjoy the RCE :)</p>     
+                       <p>Now browse for the file in the webserver and enjoy the RCE :)</p>   
+                       <h4>You don't have permissions to write the file</h4>
+                       <ul>
+                            <p>In case you don't find a writable directory, you could look the file</p>
+                            <pre><code class="language-bash">/etc/systemd/system/redis.service</code></pre> 
+                            <p>Look for the line containing <b>READWRITEDIRECTORIES</b> and you'll find a directory where you can write</p>
+                       </ul>  
                     </ul>
 
                     <h3>SSH</h3>

