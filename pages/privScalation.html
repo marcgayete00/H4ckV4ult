@@ -369,11 +369,16 @@ rpm -qa</code></pre>
                     </ul>
                     </ul>
                     
-                    <h2 id="DirtyCow">DirtyCow</h2>
+                    <h2 id="DirtyCow - Dirty Pipe - CVE-2022-0847">DirtyCow - Dirty Pipe - CVE-2022-0847</h2>
                     <ul>
                         <p>A vulnerability that affects all linux kernels from <b>5.8</b> to <b>5.17</b> Exploits can be found <a class="notion-link" href="https://github.com/AlexisAhmed/CVE-2022-0847-DirtyPipe-Exploits">here</a></p>
-                        <p>First exploit give us a shell as root meanwhile the second allow us to execute binaries as root example of the second one: </p>
+                        <p>First exploit changes the root password to <b>piped</b> just run the exploit and then type <b>su root</b></p>
+                        <p>Second allow us to execute binaries as root example of the second one: </p>
                         <pre><code class="language-bash">./exploit-2 /usr/bin/sudo</code></pre>
+                        <p>In case you have to compile the binaries outside of the target machine use the <b>-static</b> flag</p>
+                        <pre><code class="language-bash">gcc exploit-2.c -static -o exploit-2</code></pre>
+
+                    
                     </ul> 
 
                     <h2 id="Logrotate">Logrotate</h2>

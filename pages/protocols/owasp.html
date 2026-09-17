@@ -1067,6 +1067,18 @@ file`whoami`.jpg</code></pre>
     accept_cookie=1 \
     follow=0 \
     -x ignore:clen=116</code></pre>
+                                </ul>
+                            
+                            <h2 id="Server-Side Request Forgery (SSRF)">Server-Side Request Forgery (SSRF)</h2>
+                            <ul>
+                                <p>Is a security vulnerability that tricks a web server into making unauthorized network requests. These requests can target the server itself, internal services hidden behind a firewall, or external systems.</p>
+                                <p>For example if we are pentesting a website that allows us to leave a comment with a URL, we could potentially make the server request an internal resource.</p>
+                                <p>We could use the following schema/protocol to target a internal file</p>
+                                <pre><code class="language-url">file:///proc/self/environ</code></pre>
+                                <p>In this example, we are requesting the environment variables of the running process. So in case we are pentesting an ec2 instance we could be able to retrieve aws credentials</p>
+                                <p>Then just inspect element and look if your "image" looks like a .bin file. In that case just perform a curl to retrieve contents</p>
+                                <pre><code class="language-url">curl --output - https://qahsnrxu-offseclab-pastel-green-assets.s3.amazonaws.com/reviews-images/b0aa1ad0-d352-46a2-b6cc-10e9483d5772.bin</code></pre>
+                            </ul>    
                     </div>
                 </ul>
             </div>

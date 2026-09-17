@@ -15,6 +15,7 @@
 /H4ckV4ult/pages/protocols/ansible
 /H4ckV4ult/pages/protocols/apache
 /H4ckV4ult/pages/protocols/avevasion
+/H4ckV4ult/pages/protocols/aws
 /H4ckV4ult/pages/protocols/axcrypt
 /H4ckV4ult/pages/protocols/backdrop
 /H4ckV4ult/pages/protocols/backrest
