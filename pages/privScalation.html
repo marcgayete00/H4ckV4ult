@@ -109,8 +109,8 @@
                     <ul>
                         <p>If anything was found, check sudo version. Some times there are CVEs associated</p>
                         <pre><code class="language-bash">sudo -V | head -n1</code></pre>
-
                         <pre><code class="language-bash">sudo -l</code></pre>
+                        <pre><code class="language-bash">sudo -u mike ls -la  #Run command as another user</code></pre>
                         <ul>
                             
 
@@ -208,6 +208,9 @@ User daniel.carter may run the following commands on NIX02:
                     <h2 id="Path Hijacking">Path Hijacking</h2>
                     <ul>
                         <p> ⚠️WARNING!! This only works if you have privileges to run the binary. In case the binary is being run by another user it will not work due the PATH environment variable</p>
+                        <p>In case you have already performed <b>sudo -l</b> command and you see something like the following you won't be able to hijack the path: Since every time the path is being set</p>
+                        <pre><code class="language-bash">secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</code></pre>
+                        
                         <h3> Steps </h3>
                         <p>First you need to find a binary which uses relative paths for example</p>
                         <pre><code class="language-bash">cp file1 file2
@@ -331,6 +334,14 @@ chmod +x ./PwnKit
 ./PwnKit # interactive shell
 ./PwnKit 'id' # single command</code></pre>
                             
+                        </ul>    
+                    </ul>
+
+                    <h2 id="Kernel exploits">Installed software</h2>
+                    <ul>
+                        <p>Sometimes you'll find out that you may be able to run an script which uses any software installed, for example exiftool. In that case we can list version of the software installed</p>
+                        <pre><code class="language-bash">dpkg -l | grep exiftool</code></pre>
+                        <p>Now attempt to look for public exploits related and escalate your privileges</p>
                         </ul>    
                     </ul>
 
@@ -484,6 +495,14 @@ logrotate 3.18.0</code></pre>
                     <h2 id="Privileged groups">Privileged groups</h2>
                     <ul>
                         <p>First check your groups by using <b>id</b> command</p>
+
+                        <h4>mlocate group</h4>
+                        <ul>
+                            <p>The mlocate group is a dedicated system security group used in Linux to restrict direct read access to the centralized file name database. This database contains the names and locations of all files on the system.</p>
+                            <pre><code class="language-bash">/var/lib/mlocate/mlocate.db</code></pre>
+                            <p>If you are part of this group you can read the database directly. And this can be used to escalte privileges combined with other flaws</p>
+                        </ul>
+
                         <h4>LXC / LXD group</h4>
                         <ul>
                             <p>LXD is similar to Docker and is Ubuntu's container manager. With this group you'll be able to obtain a shell as root</p>

