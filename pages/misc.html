@@ -155,7 +155,7 @@ ncat -nv --source-port 53 10.129.2.28 50000 #Then connect to the port</code></pr
                         <p>Steps to perform a TTY treatment.</p>
                         <pre><code class="language-python">script /dev/null -c bash
 CTRL + Z
-stty raw echo; fg
+stty raw -echo; fg
 reset
 xterm
 export TERM=xterm

