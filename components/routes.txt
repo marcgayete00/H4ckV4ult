@@ -27,6 +27,7 @@
 /H4ckV4ult/pages/protocols/compressed
 /H4ckV4ult/pages/protocols/coreftp
 /H4ckV4ult/pages/protocols/cracking
+/H4ckV4ult/pages/protocols/cs-cart
 /H4ckV4ult/pages/protocols/curl
 /H4ckV4ult/pages/protocols/dbvisualizer
 /H4ckV4ult/pages/protocols/dnn
@@ -41,6 +42,7 @@
 /H4ckV4ult/pages/protocols/github
 /H4ckV4ult/pages/protocols/gitlab
 /H4ckV4ult/pages/protocols/grafana
+/H4ckV4ult/pages/protocols/h2
 /H4ckV4ult/pages/protocols/iis
 /H4ckV4ult/pages/protocols/imagemagick
 /H4ckV4ult/pages/protocols/imap
@@ -55,6 +57,7 @@
 /H4ckV4ult/pages/protocols/kubernetes
 /H4ckV4ult/pages/protocols/legacy
 /H4ckV4ult/pages/protocols/legacy_linux
+/H4ckV4ult/pages/protocols/limesurvey
 /H4ckV4ult/pages/protocols/mattermost
 /H4ckV4ult/pages/protocols/metasploit
 /H4ckV4ult/pages/protocols/mongodb
@@ -63,6 +66,7 @@
 /H4ckV4ult/pages/protocols/mysql
 /H4ckV4ult/pages/protocols/nagios
 /H4ckV4ult/pages/protocols/netdata
+/H4ckV4ult/pages/protocols/nexus
 /H4ckV4ult/pages/protocols/nfs
 /H4ckV4ult/pages/protocols/nginx
 /H4ckV4ult/pages/protocols/nodejs
@@ -95,6 +99,7 @@
 /H4ckV4ult/pages/protocols/sonarqube
 /H4ckV4ult/pages/protocols/splunk
 /H4ckV4ult/pages/protocols/sqlmap
+/H4ckV4ult/pages/protocols/squid
 /H4ckV4ult/pages/protocols/ssh
 /H4ckV4ult/pages/protocols/tensorflow
 /H4ckV4ult/pages/protocols/tftp
