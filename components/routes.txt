@@ -57,6 +57,7 @@
 /H4ckV4ult/pages/protocols/kubernetes
 /H4ckV4ult/pages/protocols/legacy
 /H4ckV4ult/pages/protocols/legacy_linux
+/H4ckV4ult/pages/protocols/libreoffice
 /H4ckV4ult/pages/protocols/limesurvey
 /H4ckV4ult/pages/protocols/mattermost
 /H4ckV4ult/pages/protocols/metasploit
@@ -78,6 +79,7 @@
 /H4ckV4ult/pages/protocols/oracle
 /H4ckV4ult/pages/protocols/osticket
 /H4ckV4ult/pages/protocols/owasp
+/H4ckV4ult/pages/protocols/pdf
 /H4ckV4ult/pages/protocols/perl
 /H4ckV4ult/pages/protocols/php
 /H4ckV4ult/pages/protocols/playsms
@@ -88,6 +90,7 @@
 /H4ckV4ult/pages/protocols/rdp
 /H4ckV4ult/pages/protocols/react
 /H4ckV4ult/pages/protocols/redis
+/H4ckV4ult/pages/protocols/redmine
 /H4ckV4ult/pages/protocols/restic
 /H4ckV4ult/pages/protocols/roundcube
 /H4ckV4ult/pages/protocols/rservices

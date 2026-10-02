@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>PDF</h1>
+            <p>PDF (Portable Document Format) is a file format used to present and exchange documents reliably, independent of software, hardware, or operating system.</p>
+        </div>
+        <div class="notion-body">
+
+            <h2>PDF password cracking</h2>
+            <ul>
+                <p>In some ocassion you may find a PDF file which is password protected. In that case we can use pdf2john to extract the hash and crack it</p>
+                <pre><code class="language-bash">pdf2john.pl file.pdf > hash.txt</code></pre>
+                <p>Then we can use john to crack the hash</p>
+                <pre><code class="language-bash">john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>
+            </ul>
+
+        </div>
+    </div>
+
+
+</body>
+</html>

