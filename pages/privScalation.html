@@ -39,7 +39,18 @@
                             <h4>Active ports</h4>
                             <ul>
                                 <p>In case you found one service in a random port that you would like to check in you attacker machine use:</p>
-                                <pre><code class="language-bash">ssh -L 8000:127.0.0.1:8000 VICTIM_USERANE@VICTIM_IP</code></pre>
+                                <pre><code class="language-bash">ssh -L 8000:127.0.0.1:8000 VICTIM_USERANE@VICTIM_IP   #ssh -L YOUR-LOCAL-PORT:127.0.0.1:PORT-TARGET-MACHINE-YOU-WANT-TO-ACCESS VICTIM_USERANE@VICTIM_IP</code> </code></pre>
+                                <p>Then just visit <b>127.0.0.1:8000</b> (No need to configure anything else)</p>
+                                
+                                <h4>Forwarding in another loopback</h4>
+                                <ul>
+                                    <p>Just in case you would like to use burp suite or caido in the forwarded port and you already use 127.0.0.1 i won't work due the localrequest are not processed by those proxies. To fix that we will create another loopback address</p>
+                                    <pre><code class="language-bash">sudo ip addr add 10.10.10.10/32 dev lo</code> </code></pre>
+                                    <p>Then perform the ssh port forward with the new Ip</p>
+                                    <pre><code class="language-bash">ssh -L 10.10.10.10:8000:127.0.0.1:80 ariah@192.168.146.99</code> </code></pre>
+                                    <p>When you are done just remove the new loopback address</p>
+                                    <pre><code class="language-bash">sudo ip addr del 10.10.10.10/32 dev lo</code> </code></pre>
+                                </ul>
                             </ul>
 
                             <h4>Modified interesting files in the last 5mins</h4>
