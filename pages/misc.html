@@ -304,10 +304,14 @@ python3 -m uploadserver 8000</code> </pre>
 
                 <h2>SCP</h2>
                 <ul>
+                    <pre><code class="language-python">scp myfile bob@192.168.49.128:/home/user/myfile  #upload
+scp bob@192.168.49.128:/home/user/myfile myfile  #download</code></pre>
                     <p>From Kali to Windows</p>
                     <pre><code class="language-bash">scp /ruta/en/kali/archivo.exe Nadine@10.10.10.184:"C:/Users/Nadine/Desktop/archivo.exe"</code> </pre>
                     <p>From Windows to Kali </p>
                     <pre><code class="language-cmd">scp "nadine@10.10.10.184:/C:/RecData/RecordInfoDB.db3" .</code></pre>
+                    <p>If you recive an error message like <b>scp: Received message too long 1094927173</b> attempt to use <b>-O</b> flag which uses legacy SCP</p>
+                    <pre><code class="language-bash">scp -O archivo.exe Nadine@10.10.10.184:"C:/Users/Nadine/Desktop/archivo.exe"</code> </pre>
                 </ul>
 
                 <h2>Base64</h2>

