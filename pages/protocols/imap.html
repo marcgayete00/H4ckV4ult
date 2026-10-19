@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
     <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
         <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
     <script src="/H4ckV4ult/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
@@ -30,25 +31,84 @@
 
                 <h3>Connect to server</h3>
                 <ul>
-                    <p>If we would like to connect to webserver we should use the following command (Recomended since this one allows to interact with the mail server)</p>
-                    <pre><code class="language-bash">openssl s_client -connect 10.129.242.130:imaps  #IMAP</code></pre>
-                    <pre><code class="language-bash">openssl s_client -connect 10.129.14.128:pop3s    #POP3</code></pre>
-                    <p>Also in case we have valid credentials we could perform:  (You are only able to list the different mailboxes)</p>
-                    <pre><code class="language-bash">curl -k 'imaps://10.129.14.128' --user user:p4ssw0rd</code></pre>
+                    <div class="button" onclick="toggleDiv()">POP3</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>Connect to POP3 server</p>
+                                    <pre><code class="language-powershell">nc 192.168.10.1 110</code></pre>
+                                    <p>Then provide credentials</p>
+                                    <pre><code class="language-powershell">USER mike
+PASS securepassword</code></pre>     
+                                    <p>Retrieve messages</p>
+                                    <pre><code class="language-powershell">LIST
+retr 1</code></pre>         
+                                </div>
+                                <br>
+                    <div class="button" onclick="toggleDiv()">IMAP</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-powershell">nc 192.168.10.1 143</code></pre>
+                                    <p>Then privide credentials</p>
+                                    <pre><code class="language-powershell">A1 LOGIN username password</code></pre>
+                                    <p>Then list mailboxes</p>
+                                    <pre><code class="language-powershell">A1 LIST "" *</code></pre>
+                                </div>
+                                <br>
+                    <div class="button" onclick="toggleDiv()">POP3 secure</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-powershell">openssl s_client -connect 192.168.10.1:995 -quiet</code></pre>    
+                                    <p>Then provide credentials</p>
+                                    <pre><code class="language-powershell">USER mike
+PASS securepassword</code></pre>     
+                                    <p>Retrieve messages</p>
+                                    <pre><code class="language-powershell">LIST</code></pre>
+                                </div>
+                                <br>
+                    <div class="button" onclick="toggleDiv()">IMAP secure</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-powershell">openssl s_client -connect 192.168.10.1:993 -quiet</code></pre>    
+                                    <p>Then privide credentials</p>
+                                    <pre><code class="language-powershell">A1 LOGIN username password</code></pre>
+                                    <p>Then list mailboxes</p>
+                                    <pre><code class="language-powershell">A1 LIST "" *</code></pre>
+                                </div>
                 </ul>
-                <h3>Usage</h3>
+                <h2>Bruteforcing</h2>
                 <ul>
-                    <p>Once we have performed a connection with the previously mentioned commands we could perform:</p>
-                    <pre><code class="language-imap">1 LOGIN username password
-1 LIST "" *  #Lists all INBOXES
-1 SELECT INBOX  
-1 FETCH ID all  #Show message headers (From, to, concept)
-1 FETCH 1 BODY[TEXT] #Show text of the message</code></pre>
-                </ul>    
+                    <h3>POP3</h3>
+                    <ul>
+                        <p>For the insecure connection:</p>
+                        <pre><code class="language-powershell">hydra -l USERNAME -P /path/to/passwords.txt -f 192.168.10.1 pop3 -V</code></pre>
+                        <p>For the secure connection:</p>
+                        <pre><code class="language-powershell">hydra -S -v -l USERNAME -P /path/to/passwords.txt -s 995 -f 192.168.10.1 pop3 -V</code></pre>
+                    </ul>
+                    <h3>IMAP</h3>
+                    <ul>
+                        <p>For the insecure connection:</p>
+                        <pre><code class="language-powershell">hydra -l USERNAME -P /path/to/passwords.txt -f  192.168.10.1 imap -V</code></pre>
+                        <p>For the secure connection:</p>
+                        <pre><code class="language-powershell">hydra -S -v -l USERNAME -P /path/to/passwords.txt -s 993 -f  192.168.10.1 imap -V</code></pre>
+                    </ul>
+                </ul>
             </ul>
         </div>
     </div>
 
+    <script>
+        const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+    </script>
 
 </body>
+
+    
+
 </html>

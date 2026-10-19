@@ -95,7 +95,9 @@ $1$@$3$$5</code></pre>
                 <p>In case you would like to find passwords based on the information of a company you could use cewl</p>
                 <p>The following command is an example of how to scan a web for credentials (-d) depth of spider, (-m) min length of words</p>
                 <pre><code class="language-bash">cewl https://www.inlanefreight.com -d 4 -m 6 --lowercase -w inlane.wordlist</code></pre>
-                
+                <p>In case you are not obtaning the words you expected use the following which says minimum length of 2</p>
+                <pre><code class="language-bash">cewl http://postfish.off/team.html -m 2 -w output.txt</code></pre>
+
             </ul>
         </div>
     </div>

