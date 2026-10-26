@@ -93,6 +93,20 @@ OK</code></pre>
                        </ul>  
                     </ul>
 
+                    <h3>Load Redis module</h3>
+                    <ul>
+                        <p>In case you are in front of redis and there is an FTP server or similar where you are able to put files we should try to upload a redis module to execute commands</p>
+                        <p>Clone this <a class="notion-link" href="https://github.com/n0b0dyCN/redis-rogue-server">repo</a></p>
+                        <p>Get inside the <b>RedismoduleSDK</b> and type</p>                      
+                        <pre><code class="language-bash">make</code></pre>
+                        <p>This will output and .so file which needs to be copied inside the FTP or similar service which ables to uploads files inside the target machine which later can be accessed from the redis service</p>
+                        <p>Since this example is an ftp upload the file into the ftp server </p>
+                        <p>Now get inside redis and type</p>
+                        <pre><code class="language-bash">MODULE LOAD /var/ftp/some/ftp/folder/module.so</code></pre>
+                        <p>And then just use it</p>
+                        <pre><code class="language-bash">system.exec "id"</code></pre>
+                    </ul>
+
                     <h3>SSH</h3>
                     <ul>
                         <p>This method consists in adding your public key in the authorized_keys of the target machine so that way we can perform an ssh login using the user redis</p>
