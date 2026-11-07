@@ -25,11 +25,21 @@
         <div class="notion-body">
 
             <h2>Usage</h2>
-            <h3>Connect to DB</h3>
+            <h3>Connect to DB from Linux</h3>
             <ul>
                 <p> You must have impacket suit installed (/examples directory)</p>
                 <pre><code class="language-bash">mysql -u root -h 10.129.14.132 -p</code></pre>
                 <p>In case you see an error like <b>"ERROR 2026 (HY000): TLS/SSL error: self-signed certificate in certificate chain"</b> just use <b>--skip-ssl</b></p>
+            </ul>
+            
+            <h3>Connect to DB from Windows</h3>
+            <ul>
+                <p>In case you landed on a terminal from a Windows machine you won't be able to use the mysql directly with an interactive terminal as in Linux. In this case we need to pass the commands as arguments</p>
+                <pre><code class="language-bash">.\mysql.exe -u root -e "SHOW DATABASES;"
+.\mysql.exe -u root -e "SHOW tables;"
+.\mysql.exe -u root -e "select * from table_name;"</code></pre>
+                </code></pre>
+                
             </ul>
 
             <h2>Exploitation</h2>
