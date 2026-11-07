@@ -3,18 +3,18 @@ function Navbar() {
         <div class="navbar">
             <div class="menu">
                 <a href="/index.html">Home</a>
-                <a href="/pages/machinesHome.html">Machines</a>
-                <a href="/pages/protocols.html">Protocols, Services & more</a>
-                <a href="/pages/misc.html">Misc</a>
+                <a href="pages/machinesHome.html">Machines</a>
+                <a href="pages/protocols.html">Protocols, Services & more</a>
+                <a href="pages/misc.html">Misc</a>
                 <div class="dropdown">
-                    <a href="/pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>
+                    <a href="pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>
                     <div class="dropdown-content">
-                        <a href="/pages/privScalation.html">Linux</a>
-                        <a href="/pages/winprivScalation.html">Windows</a>
+                        <a href="pages/privScalation.html">Linux</a>
+                        <a href="pages/winprivScalation.html">Windows</a>
                     </div>
                 </div>
-                <a href="/pages/reverse.html">Reverse Engineering</a>
-                <a href="/pages/halloffame.html">Hall of Fame</a>
+                <a href="pages/reverse.html">Reverse Engineering</a>
+                <a href="pages/halloffame.html">Hall of Fame</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
