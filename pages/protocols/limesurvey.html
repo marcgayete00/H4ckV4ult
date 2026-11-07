@@ -6,16 +6,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
-    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
 </head>
 <body>
     <div id="navbar-container"></div>
-    <script src="/H4ckV4ult/components/navbar.js"></script>
+    <script src="/components/navbar.js"></script>
 
     <div class="notion-container">
         <div class="notion-header">
@@ -32,7 +32,7 @@
             <h2>Exploitation</h2>
             <ul>
                 <p>In case you have access to LimeSurvey as an <b>admin</b> user you could be able to install a plugin and achieve remote command execution.</p>
-                <p>To do so clone the following repository: <a href="https://github.com/godylockz/CVE-2021-44967">Here</a></p>
+                <p>To do so clone the following repository: <a class="notion-link" href="https://github.com/godylockz/CVE-2021-44967">Here</a></p>
                 <p>And use the command</p>
                 <pre><code class="language-python">python3 limesurvey_rce.py -t http://customers-survey.marketing.pg -u 'admin' -p 'password'</code> </pre>
             </ul>

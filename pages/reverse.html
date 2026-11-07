@@ -6,15 +6,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/miscStyles.css">
-    <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
-    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/miscStyles.css">
+    <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
 
     <title>Minimalist Webpage</title>
 </head>
 <body>
-    <script src="/H4ckV4ult/components/navbar.js"></script>
+    <script src="/components/navbar.js"></script>
     
     <div id="navbar-container"></div>
     <div class="main-container">
@@ -52,9 +52,9 @@
                         <h3>Credential gathering</h3>
                         <ul>
                             <p>Once your PE have been loaded click on the tab <b>Memory Map</b> here you should look for a register which is <b>Type MAP</b> and has a protection set to <b>-RW--</b>.</p>
-                            <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/other.png">
+                            <img style="border: 1px solid;" src="/images/protocolsImages/other.png">
                             <p>Once you find it double click on it and look for the magic byte in the lower part. In case there is <b>MZ</b> means that file is a DOS MZ executable</p>
-                            <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/other2.png">      
+                            <img style="border: 1px solid;" src="/images/protocolsImages/other2.png">      
                             <p>In order to extract that right click over the address and select <b>Dump Memory to File</b></p>
                             <p>Then use strings over the file you have exported in order to retrieve some data and credentials might be there</p>    
                             <pre><code class="language-powershell">C:\TOOLS\Strings\strings64.exe .\restart-service_00000000001E0000.bin</code></pre>

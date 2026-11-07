@@ -6,16 +6,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
-    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
 </head>
 <body>
     <div id="navbar-container"></div>
-    <script src="/H4ckV4ult/components/navbar.js"></script>
+    <script src="/components/navbar.js"></script>
 
     <div class="notion-container">
         <div class="notion-header">
@@ -33,7 +33,7 @@ C:\inetpub\wwwroot\web.config</code></pre>
             
                  <h3>IIS Tilde Enumeration</h3>
                  <ul>
-                    <p>IIS tilde directory enumeration is a technique utilised to uncover hidden files, directories, and short file names (aka the 8.3 format). The explanation of this format can be found <a class="notion-link" href="https://marcgayete00.github.io/H4ckV4ult/pages/protocols/owasp.html#Command%20Injection">here</a></p>
+                    <p>IIS tilde directory enumeration is a technique utilised to uncover hidden files, directories, and short file names (aka the 8.3 format). The explanation of this format can be found <a class="notion-link" href="https://marcgayete00.github.io/pages/protocols/owasp.html#Command%20Injection">here</a></p>
                     <p>We can identify files based using the follwing script</p>
                     <pre><code class="language-bash">java -jar iis_shortname_scanner.jar 0 5 http://10.129.204.231/</code></pre>
                     <p>This script will be bruteforcing the filename using a,b,c,d... and so on. This way in case it finds a coincidence it will try again using aa,ab,ac,ad... The script outout shows</p>

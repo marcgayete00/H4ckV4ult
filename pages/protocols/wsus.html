@@ -6,16 +6,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
-    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
 </head>
 <body>
     <div id="navbar-container"></div>
-    <script src="/H4ckV4ult/components/navbar.js"></script>
+    <script src="/components/navbar.js"></script>
 
     <div class="notion-container">
         <div class="notion-header">
@@ -27,9 +27,9 @@
             <ul>
                 <p>Typically, the architecture of WSUS deployments is quite simple, although they can be configured in more complex ways. The most common deployment consists of one WSUS server within the corporate network. This server will reach out to Microsoft over HTTP and HTTPS to download Microsoft patches. After downloading these, the WSUS server will deploy the patch to clients as they check in to the WSUS server. Communication between the WSUS server and the clients will occur on port 8530 for HTTP and 8531 for HTTPS. An example of this deployment is below</p>
                 <p>Here goes an image of it:</p>
-                <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/wsus-arch.png"> 
+                <img style="border: 1px solid;" src="/images/protocolsImages/wsus-arch.png"> 
                 <p>In a more complex deployment of WSUS, there may be one main WSUS server that communicates over the internet to Microsoft, then internally the main WSUS server pushes the patches out to other internal WSUS servers, which then deploy it to clients. In this scenario the WSUS server connecting to the internet would be known as the Upstream Server, and the WSUS servers that do not have internet access and get their patches from the Upstream Server would be Downstream Servers. An example diagram of this is below:</p>
-                <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/wsus-arch2.png"> 
+                <img style="border: 1px solid;" src="/images/protocolsImages/wsus-arch2.png"> 
             </ul>
 
 

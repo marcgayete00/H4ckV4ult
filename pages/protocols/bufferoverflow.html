@@ -6,16 +6,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/navBarStyles.css">
-    <link rel="stylesheet" href="/H4ckV4ult/styles/walkthroughs.css">
-        <link href="/H4ckV4ult/styles/prism/prism.css" rel="stylesheet" />
-    <script src="/H4ckV4ult/styles/prism/prism.js"></script>
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
     <title>Minimalist Webpage</title>
 
 </head>
 <body>
     <div id="navbar-container"></div>
-    <script src="/H4ckV4ult/components/navbar.js"></script>
+    <script src="/components/navbar.js"></script>
 
     <div class="notion-container">
         <div class="notion-header">
@@ -33,7 +33,7 @@
                         <p>First of all we must check the architecture of machine since based on that we can focus the attack</p>
 
                         <p>Normally the first thing to try is to introduce a lot of junk in the input a look if the program crashes. But why is that? </p>
-                        <img style="border: 1px solid;" src="/H4ckV4ult/images/protocolsImages/bufferoverflow.png">
+                        <img style="border: 1px solid;" src="/images/protocolsImages/bufferoverflow.png">
                         <p>Here you have a mmemory schema, every empty block represents a memory direction. When you introduce chracters in the input of the binary,  a memory direction is filled. </p>
                         <p>In case you introduce a lot of them, registers like EBP or RET (Register that points to the following address memory that will be executed) which are important can be overwritten </p>
                         <p>Since the value of EIP has been replaced with <b>AAAA (junk) which equals 0x41414141</b> the result is a segmentation fault since that address (0x41414141) not exists. The ojective here is to setup a direction that it exists and inside that direction introduce instructions that able you to scalate privielges</p>
