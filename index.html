@@ -103,7 +103,7 @@ let chart;
 let counts = {}; // Variable global para guardar las fechas con conteo
 
 async function fetchMachineDates() {
-  const response = await fetch('/pages/machinesHome.html');
+  const response = await fetch('pages/machinesHome.html');
   const html = await response.text();
 
   const parser = new DOMParser();
