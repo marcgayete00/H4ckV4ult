@@ -2,19 +2,19 @@ function Navbar() {
     return `
         <div class="navbar">
             <div class="menu">
-                <a href="/H4ckV4ult/index.html">Home</a>
-                <a href="/H4ckV4ult/pages/machinesHome.html">Machines</a>
-                <a href="/H4ckV4ult/pages/protocols.html">Protocols, Services & more</a>
-                <a href="/H4ckV4ult/pages/misc.html">Misc</a>
+                <a href="/index.html">Home</a>
+                <a href="/pages/machinesHome.html">Machines</a>
+                <a href="/pages/protocols.html">Protocols, Services & more</a>
+                <a href="/pages/misc.html">Misc</a>
                 <div class="dropdown">
-                    <a href="/H4ckV4ult/pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>
+                    <a href="/pages/privEscPresentation.html" class="dropbtn">Priv Scalation</a>
                     <div class="dropdown-content">
-                        <a href="/H4ckV4ult/pages/privScalation.html">Linux</a>
-                        <a href="/H4ckV4ult/pages/winprivScalation.html">Windows</a>
+                        <a href="/pages/privScalation.html">Linux</a>
+                        <a href="/pages/winprivScalation.html">Windows</a>
                     </div>
                 </div>
-                <a href="/H4ckV4ult/pages/reverse.html">Reverse Engineering</a>
-                <a href="/H4ckV4ult/pages/halloffame.html">Hall of Fame</a>
+                <a href="/pages/reverse.html">Reverse Engineering</a>
+                <a href="/pages/halloffame.html">Hall of Fame</a>
             </div>
             <div>
                 <a id="title" href="#">H4ckV4ult</a>
@@ -58,7 +58,7 @@ function closeSearchContainer(searchContainer, searchInput) {
 
 async function loadRoutes() {
     try {
-        const response = await fetch(`/H4ckV4ult/components/routes.txt?nocache=${Date.now()}`);
+        const response = await fetch(`/components/routes.txt?nocache=${Date.now()}`);
         const data = await response.text();  // Esperar a que se obtenga el texto
         const routes = data.split('\n').map(line => line.trim()).filter(line => line);
         console.log(routes)
@@ -106,11 +106,11 @@ async function searchInPages(searchQuery) {
             
 
                     let showPage;
-                    if (page === '/H4ckV4ult/pages/machinesHome') {
+                    if (page === '/pages/machinesHome') {
                         showPage = 'Machines';
-                    } else if (page === '/H4ckV4ult/pages/privScalation') {
+                    } else if (page === '/pages/privScalation') {
                         showPage = 'Priv Scalation';
-                    } else if (page === '/H4ckV4ult/pages/misc') {
+                    } else if (page === '/pages/misc') {
                         showPage = 'Misc';
                     } else if (page.includes('box')) {
                         showPage = 'Boxes';
