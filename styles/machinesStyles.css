@@ -170,7 +170,7 @@ align-items: left;
   padding: 6px 16px;
   position: relative;
   margin-right: 10px;
-  background-image: url('/H4ckV4ult/images/htb.webp');
+  background-image: url('/images/htb.webp');
   background-size: contain;      /* Ajusta la imagen sin recortarla */
   background-repeat: no-repeat;  /* Evita que se repita */
   background-position: center;   /* Centra la imagen */
@@ -189,7 +189,7 @@ align-items: left;
   position: relative;
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
   margin-right: 10px;
-  background-image: url('/H4ckV4ult/images/thm.webp');
+  background-image: url('/images/thm.webp');
   background-size: contain;      /* Ajusta la imagen sin recortarla */
   background-repeat: no-repeat;  /* Evita que se repita */
   background-position: center;   /* Centra la imagen */
@@ -208,7 +208,7 @@ align-items: left;
   position: relative;
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
   margin-right: 10px;
-  background-image: url('/H4ckV4ult/images/domokun.png');
+  background-image: url('/images/domokun.png');
   background-size: contain;      /* Ajusta la imagen sin recortarla */
   background-repeat: no-repeat;  /* Evita que se repita */
   background-position: center;   /* Centra la imagen */
@@ -227,7 +227,7 @@ align-items: left;
   position: relative;
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
   margin-right: 10px;
-  background-image: url('/H4ckV4ult/images/vulnhub.png');
+  background-image: url('/images/vulnhub.png');
   background-size: contain;      /* Ajusta la imagen sin recortarla */
   background-repeat: no-repeat;  /* Evita que se repita */
   background-position: center;   /* Centra la imagen */
@@ -246,7 +246,7 @@ align-items: left;
   position: relative;
   transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
   margin-right: 10px;
-  background-image: url('/H4ckV4ult/images/offsec.png');
+  background-image: url('/images/offsec.png');
   background-size: contain;      /* Ajusta la imagen sin recortarla */
   background-repeat: no-repeat;  /* Evita que se repita */
   background-position: center;   /* Centra la imagen */
