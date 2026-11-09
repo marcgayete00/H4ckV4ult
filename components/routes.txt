@@ -1,8 +1,7 @@
+/index
 /pages/halloffame
 /pages/machines/bandit
-/pages/machines/escapetwo
 /pages/machines/natas
-/pages/machines/support
 /pages/machinesHome
 /pages/misc
 /pages/privEscPresentation
@@ -17,6 +16,7 @@
 /pages/protocols/avevasion
 /pages/protocols/aws
 /pages/protocols/axcrypt
+/pages/protocols/azookeeper
 /pages/protocols/backdrop
 /pages/protocols/backrest
 /pages/protocols/bashScripting
@@ -82,7 +82,9 @@
 /pages/protocols/pdf
 /pages/protocols/perl
 /pages/protocols/php
+/pages/protocols/phpfpm
 /pages/protocols/playsms
+/pages/protocols/postfix
 /pages/protocols/postgresql
 /pages/protocols/prtg
 /pages/protocols/python
@@ -92,6 +94,7 @@
 /pages/protocols/redis
 /pages/protocols/redmine
 /pages/protocols/restic
+/pages/protocols/ritecms
 /pages/protocols/roundcube
 /pages/protocols/rservices
 /pages/protocols/rsync
@@ -107,6 +110,7 @@
 /pages/protocols/tensorflow
 /pages/protocols/tftp
 /pages/protocols/tomcat
+/pages/protocols/umbraco
 /pages/protocols/unifi
 /pages/protocols/vault
 /pages/protocols/vhd

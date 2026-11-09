@@ -52,10 +52,11 @@ Password: dnnhost</code></pre>
                 <h3>Uploading a malicious webshell</h3>
                 <ul>
                     <p>DNN also allow us to change the allowable file extensions to allow .asp and .aspx files or others. This can be done from the following section</p>
-                    <p><b>Security -> More -> More Security Settings</b> and then adding them under <b>Allowable File Extensions</b> then click <b>save</b> button</p>
+                    <p><b>Settings -> Security -> More -> More Security Settings</b> and then adding them under <b>Allowable File Extensions</b> then click <b>save</b> button</p>
                     <p>Then we can go the file management section</p>
                     <pre><code class="language-bash">http://172.16.8.20/admin/file-management</code></pre>
-                    <p>Click in upload files button and select the ASP web shell we previously uploaded. Then right click on the uploaded file and select <b>Get URL</b> and you will have the command injection</p>
+                    <p>In order to view the file just do</p>
+                    <pre><code class="language-bash">http://172.16.8.20/Portals/0/shell.aspx</code></pre>
                 </ul>
             </ul>
         </div>

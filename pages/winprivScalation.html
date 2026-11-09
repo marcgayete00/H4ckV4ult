@@ -34,6 +34,9 @@
                     <h2 id="Automation">Automation</h2>
                     <ul>
                         <h3> Winpeas.exe</h3>
+                        <p>In case it's not prompting colors just type the terminal</p>
+                        <pre><code class="language-powershell">REG ADD HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1</code></pre>
+                        <p>Get it from the internet</p>
                         <pre><code class="language-powershell">wget https://github.com/peass-ng/PEASS-ng/releases/download/20250601-88c7a0f6/winPEASx64.exe -outfile wpeas.exe</code></pre>
                         <h3>PowerUp</h3>
                         <pre><code class="language-powershell">Import-Module .\powerup.ps1

